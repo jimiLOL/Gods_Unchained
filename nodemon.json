@@ -1,0 +1,6 @@
+{
+    "watch": ["./"],
+    "ext": "ts, js",
+    "ignore": ["src/**/*.spec.ts", "proxy/**"],
+    "exec": "node --experimental-modules server_gu.js"
+  }
