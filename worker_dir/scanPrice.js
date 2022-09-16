@@ -14,7 +14,7 @@ function start(array_item) {
         array_item.forEach(async item => {
             // console.log(item.token_id);
             
-            await apiImmutable.get_list_order(item.token_id, helper.initAgent(helper.proxyInit(proxyList[i]))).then(res=> {
+            await apiImmutable.get_list_order_for_id(item.token_id, helper.initAgent(helper.proxyInit(proxyList[i]))).then(res=> {
                 if (Array.isArray(res.data.result) && res.data.result.length > 0) {
                     arrayRes.push(res.data.result[0])
 
@@ -55,11 +55,11 @@ module.exports = ({array_item}) => {
   
   
       start(array_item).then((res) => {
-        console.log('Worker watcher end');
+        console.log('Worker scanPrice end');
   
         resolve(res);
       }).catch(e => {
-        console.log('Worker Error watcher');
+        console.log('Worker Error scanPrice');
   
         reject(e);
       })
