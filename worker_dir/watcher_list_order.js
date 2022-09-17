@@ -20,13 +20,13 @@ function start(port, userListItems) {
     return new Promise(async (resolve, reject) => {
         let list = fs.readFileSync(`./proxy/proxyValid.txt`, { encoding: 'utf8', flag: 'r' });
         console.log(typeof list);
-        const proxyList = list.split('\n', 3000);
+        const proxyList = list.split('\n', 5000);
         let index = proxyList.indexOf('');
         proxyList.splice(index, 1);
         helper.shuffle(proxyList);
         const promiseWorker = [];
-        for (let index = 0; index < 10; index++) {
-            helper.timeout(20 * index).then(() => {
+        for (let index = 0; index < 2; index++) {
+            helper.timeout(100 * index).then(() => {
 
                 apiImmutable.get_list_order(helper.initAgent(helper.proxyInit(proxyList[helper.getRandomInt(1, proxyList.length - 1)]))).then((res) => {
                     // console.log('res.data.result.length');
@@ -145,14 +145,12 @@ function start(port, userListItems) {
                     console.log(e);
                 })
 
-                if (index >= 9) {
-                
-                }
+              
             })
 
         };
 
-        helper.timeout(4000).then(async ()=> {
+        helper.timeout(10000).then(async ()=> {
             setInterval(() => {
                 console.log('Progress in ' + worker_get_items_for_name.threads.length + ' workers');
                 

@@ -1,7 +1,7 @@
 
 
 const apiImmutable = require('../controller/apiClass');
-
+const helper = require('../helper');
 const Piscina = require('piscina');
 const path = require('path');
 const workerWhile = new Piscina({
@@ -9,9 +9,14 @@ const workerWhile = new Piscina({
     // maxQueue: 2,
     // maxThreads: 50
 });
+const worker_scanPrice = new Piscina({
+    filename: path.resolve('./worker_dir', 'scanPrice.js'),
+    // maxQueue: 2,
+    // maxThreads: 50
+});
 
 function start(itemsArray) {
-    return new Promise(async (resolve) => {
+    return new Promise((resolve) => {
         const arrayPromise = [];
 
         const filterArray = [];
@@ -31,7 +36,14 @@ function start(itemsArray) {
             // console.log(ele);
             // workerWhile.run({item: ele})
 
-            arrayPromise.push(workerWhile.run({ item: ele }));
+           workerWhile.run({ item: ele }).then((res)=> {
+            if (Array.isArray(res)) {
+                arrayPromise.push(worker_scanPrice.run({ array_item: res.flat() }))
+
+            }
+
+ 
+            });
 
 
 
@@ -47,12 +59,16 @@ function start(itemsArray) {
 
         });
 
-        await Promise.allSettled(arrayPromise).then(() => {
-            resolve()
-        }).catch(e => {
-            console.log(e);
-            resolve()
+        helper.timeout(60000).then(async ()=> {
+            await Promise.allSettled(arrayPromise).then(() => {
+                return resolve()
+            }).catch(e => {
+                console.log(e);
+                return resolve()
+            })
         })
+
+     
 
     })
 }

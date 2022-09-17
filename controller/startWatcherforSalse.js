@@ -21,7 +21,7 @@ function get_Items_My_Wallet_and_start_watcher_workers() {
 
         let list = fs.readFileSync(`./proxy/proxyValid.txt`, { encoding: 'utf8', flag: 'r' });
         console.log(typeof list);
-        const proxyList = list.split('\n', 3000);
+        const proxyList = list.split('\n', 5000);
         helper.shuffle(proxyList);
 
         // const arrayResultFindForName = [];

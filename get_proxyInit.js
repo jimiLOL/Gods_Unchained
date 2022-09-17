@@ -27,15 +27,24 @@ const checktProxy = (name_worker) => {
           const proxyItem = helper.proxyInit(p);
           // const agent = new SocksProxyAgent(proxy);
           await helper.getIP(helper.initAgent(proxyItem)).then(res => {
+            if (res.hasOwnProperty('title')) {
+              fs.appendFile(`./proxy/proxyValid.txt`, `${p}\n`, function (error) {
+                if (error) throw error;
+                i++
+                if (i == proxy.length) {
+                  resolve()
+                }
+              });
 
-            // filterProxy.push(e);
-            fs.appendFile(`./proxy/proxyValid.txt`, `${p}\n`, function (error) {
-              if (error) throw error;
+            } else {
               i++
               if (i == proxy.length) {
                 resolve()
               }
-            });
+            }
+
+            // filterProxy.push(e);
+          
         
 
           }).catch(e => {

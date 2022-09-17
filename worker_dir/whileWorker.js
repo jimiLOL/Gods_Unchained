@@ -8,10 +8,9 @@ function start(item) {
     return new Promise(async (resolve) => {
         let list = fs.readFileSync(`./proxy/proxyValid.txt`, { encoding: 'utf8', flag: 'r' });
         // console.log(typeof list);
-        const proxyList = list.split('\n', 3000);
+        const proxyList = list.split('\n', 5000);
         let index = proxyList.indexOf('');
         proxyList.splice(index, 1);
-        helper.shuffle(proxyList);
 
         const result = []
         let cursor = 'init';
@@ -21,6 +20,8 @@ function start(item) {
 
         try {
             while (cursor) {
+                helper.shuffle(proxyList);
+
                 i++
                 if (i > proxyList.length - 1) {
                     i = 0;
@@ -36,7 +37,6 @@ function start(item) {
                 // console.log(cursor);
                 if (i >= 5) {
                     cursor = null;
-                    resolve(result)
 
 
                 } else if (breakVar) {
@@ -47,7 +47,11 @@ function start(item) {
 
                 }
                 if (Array.isArray(res?.data?.result)) {
-                    result.push(res.data.result)
+                    res.data.result.forEach(item => {
+                    result.push({token_id: item.token_id})
+                        
+                    });
+                    res.data.result.splice(0, res?.data.result.length-1)
 
 
                 }
@@ -56,6 +60,8 @@ function start(item) {
 
 
             }
+            resolve(result)
+
 
         } catch (e) {
             console.log(e);
@@ -71,21 +77,23 @@ module.exports = ({ item }) => {
     return new Promise((resolve, reject) => {
         // console.log('Начинаем сбор карточек с такими же именами');
         let startTime = new Date().getTime();
-        const promiseArray = []
+        // const promiseArray = []
 
 
-        const Piscina = require('piscina');
-        const path = require('path');
-        const worker_scanPrice = new Piscina({
-            filename: path.resolve('./worker_dir', 'scanPrice.js'),
-            // maxQueue: 2,
-            // maxThreads: 50
-        });
+        // const Piscina = require('piscina');
+        // const path = require('path');
+        // const worker_scanPrice = new Piscina({
+        //     filename: path.resolve('./worker_dir', 'scanPrice.js'),
+        //     // maxQueue: 2,
+        //     // maxThreads: 50
+        // });
+        // нельзя ее сюда импортирвоть это ведет к утечке памяти!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+        // надо наверное возвращать значения и оттуда уже запускать другие воркеры.
 
 
 
 
-        start(item).then(async (res) => {
+        start(item).then((res) => {
             let end = new Date().getTime();
             // promiseArray.push(worker_scanPrice.run({ array_item: res.flat() }))
             console.log(`Worker whileWorker end timestamp ${end-startTime}`);
@@ -97,7 +105,7 @@ module.exports = ({ item }) => {
             //     return resolve()
             // })
 
-            // resolve(res);
+            resolve(res);
         }).catch(e => {
             console.log('Worker Error whileWorker');
 

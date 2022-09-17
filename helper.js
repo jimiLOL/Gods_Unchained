@@ -24,7 +24,7 @@ function proxyInit(proxy) {
     } catch (e) {
         console.log(e);
         console.log(proxy);
-        process.exit(1)
+        // process.exit(1)
     }
 
 
@@ -32,10 +32,10 @@ function proxyInit(proxy) {
 async function getIP(agent) {
     return await axios.get('https://api.ipify.org', { httpsAgent: agent }).then(res => {
         console.log('PROXY IP^ ' + res.data);
-        return res.data
+        return {title: 'ok'}
     }).catch(e => {
         console.log(e.message);
-        return e.message
+        return {error: e.message}
     })
 };
 
