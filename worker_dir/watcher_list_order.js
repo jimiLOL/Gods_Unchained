@@ -10,8 +10,8 @@ const path = require('path');
 
 const worker_get_items_for_name = new Piscina({
     filename: path.resolve('./worker_dir', 'getItemsinWhile.js'),
-    maxQueue: 2,
-    maxThreads: 4
+    maxQueue: 8,
+    maxThreads: 40
 });
 
 // это будут глобалные Workers
@@ -29,8 +29,8 @@ function start(port, userListItems) {
             helper.timeout(20 * index).then(() => {
 
                 apiImmutable.get_list_order(helper.initAgent(helper.proxyInit(proxyList[helper.getRandomInt(1, proxyList.length - 1)]))).then((res) => {
-                    console.log('res.data.result.length');
-                    console.log(res.data.result.length);
+                    // console.log('res.data.result.length');
+                    // console.log(res.data.result.length);
                     if (Array.isArray(res.data.result)) {
                         //   const filterArray = [];
 
@@ -95,22 +95,19 @@ function start(port, userListItems) {
 
                                     if (itemsArray.length != 0) {
                                         console.log('Создаем воркер itemsArray.length = ' + itemsArray.length);
+                                        console.log(itemsArray[0].name);
+                                        console.log('in work ' + worker_get_items_for_name.threads.length + ' workers');
+                                        const newArray = itemsArray.slice(0, itemsArray.length-1);
+                                        itemsArray.splice(0, itemsArray.length-1)
+
                                         promiseWorker.push(worker_get_items_for_name.run({
                                             // port: channel.port1,
                                             // starttime: start,
-                                            itemsArray: itemsArray
+                                            itemsArray: newArray
                                         },
                                             //  {transferList: [channel.port1]}
-                                        ).then((message) => {
-
-                                            console.log(message);
-                                            resolve()
-    
-                                        }).catch(e => {
-                                            console.log(e);
-                                            resolve()
-                                        }));
-                                        itemsArray.length = 0;
+                                        ));
+                                        // itemsArray.length = 0;
                                     }
                                     
 
@@ -144,6 +141,8 @@ function start(port, userListItems) {
 
 
 
+                }).catch(e=> {
+                    console.log(e);
                 })
 
                 if (index >= 9) {
@@ -154,12 +153,16 @@ function start(port, userListItems) {
         };
 
         helper.timeout(4000).then(async ()=> {
-           return await Promise.allSettled(promiseWorker).then((r) => {
-                console.log(r);
-                return resolve()
+            setInterval(() => {
+                console.log('Progress in ' + worker_get_items_for_name.threads.length + ' workers');
+                
+            }, 10000);
+             await Promise.allSettled(promiseWorker).then((r) => {
+                console.log('=======\nPromise end\n==============');
+                  resolve()
             }).catch(e => {
                 console.log(e);
-               return resolve()
+                 resolve()
             })
 
         })

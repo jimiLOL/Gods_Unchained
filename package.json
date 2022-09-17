@@ -10,6 +10,9 @@
     "server_gu": "nodemon server_gu",
     "start": "node --max-old-space-size=32192 --experimental-modules server_gu.js"
   },
+  "engines" : { 
+    "node" : ">=16.11.0"
+  },
   "dependencies": {
     "axios": "^0.27.2",
     "bcrypt": "^5.0.1",

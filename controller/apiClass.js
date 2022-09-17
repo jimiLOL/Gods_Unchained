@@ -13,7 +13,7 @@ const apiImmutable = {
 
     },
     async get_assets_for_name(name, agent, cursor) {
-        console.log(name);
+        // console.log(name);
         if (name.includes('"')) {
             name = name.replace('"', '');
         }
@@ -21,11 +21,11 @@ const apiImmutable = {
             name = name.replace(' ', '_');
         };
         if (cursor.length> 10) {
-        return await axios.get(`https://api.x.immutable.com/v1/assets?name=${name}&status=imx&order_by=updated_at&buy_metadata=%7B%22quality%22%3A%5B%22Meteorite%22%5D%7D&cursor=${cursor}`, {httpsAgent: agent})
+        return await axios.get(`https://api.x.immutable.com/v1/assets?name=${name}&status=imx&order_by=updated_at&metadata=%7B%22quality%22%3A%5B%22Meteorite%22%5D%7D&cursor=${cursor}`, {httpsAgent: agent})
 
 
         } else {
-        return await axios.get(`https://api.x.immutable.com/v1/assets?name=${name}&status=imx&order_by=updated_at&buy_metadata=%7B%22quality%22%3A%5B%22Meteorite%22%5D%7D`, {httpsAgent: agent})
+        return await axios.get(`https://api.x.immutable.com/v1/assets?name=${name}&status=imx&order_by=updated_at&metadata=%7B%22quality%22%3A%5B%22Meteorite%22%5D%7D`, {httpsAgent: agent})
 
 
         }

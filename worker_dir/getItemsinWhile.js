@@ -6,8 +6,8 @@ const Piscina = require('piscina');
 const path = require('path');
 const workerWhile = new Piscina({
     filename: path.resolve('./worker_dir', 'whileWorker.js'),
-    maxQueue: 2,
-    maxThreads: 50
+    // maxQueue: 2,
+    // maxThreads: 50
 });
 
 function start(itemsArray) {
@@ -31,14 +31,7 @@ function start(itemsArray) {
             // console.log(ele);
             // workerWhile.run({item: ele})
 
-            arrayPromise.push(workerWhile.run({ item: ele }).then(() => {
-                resolve()
-
-            }).catch(e => {
-                console.log(e);
-                resolve()
-
-            }));
+            arrayPromise.push(workerWhile.run({ item: ele }));
 
 
 
@@ -72,12 +65,15 @@ function start(itemsArray) {
 module.exports = ({ itemsArray }) => {
     return new Promise((resolve, reject) => {
         console.log('Начинаем сбор карточек с такими же именами');
+        let startTime = new Date().getTime();
+
 
 
 
 
         start(itemsArray).then((res) => {
-            console.log('Worker getItemsinWhile end');
+            let end = new Date().getTime();
+            console.log(`Worker getItemsinWhile end ${end-startTime}`);
 
             resolve(res);
         }).catch(e => {

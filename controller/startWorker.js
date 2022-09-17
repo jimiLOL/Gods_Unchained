@@ -24,7 +24,7 @@ function start() {
         fs.writeFileSync(`./proxy/proxy.txt`, '');
 
 
-        let newArray = res.data.split("\n", 20);
+        let newArray = res.data.split("\n", 500);
         console.log(newArray[0]);
 
         console.log(newArray.length);
@@ -43,7 +43,7 @@ function start() {
             checktProxy('proxy').then(async () => {
                 const userListItems = await helper.timeout(500).then(() => init())  // получение карточек нашего кошелька
                 console.log('userListItems count ' + userListItems.length);
-                setInterval(() => {
+                // setInterval(() => {
                     // i++
 
                     // arrayPromise.forEach(worker => {
@@ -73,7 +73,7 @@ function start() {
 
 
 
-                }, 60000);
+                // }, 60000);
 
 
                 
