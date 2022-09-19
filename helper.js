@@ -30,7 +30,7 @@ function proxyInit(proxy) {
 
 };
 async function getIP(agent) {
-    return await axios.get('https://api.ipify.org', { httpsAgent: agent }).then(res => {
+    return await axios.get('https://api.ipify.org', { httpsAgent: agent, timeout: 10000 }).then(res => {
         console.log('PROXY IP^ ' + res.data);
         return {title: 'ok'}
     }).catch(e => {
@@ -72,7 +72,15 @@ function delDublicateProxy(proxy) {
     return newProxyArray
 };
 
-
+function makeid(length) {
+    var result   = '';
+    var characters  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random()*charactersLength));
+   }
+   return result;
+};
  
 
 function filterProxy(arrayProxy) {
@@ -97,6 +105,6 @@ function timeout(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-  const helper = { shuffle, proxyInit, getIP, uuid, getRandomInt, initAgent, timeout, delDublicateProxy, filterProxy };
+  const helper = { shuffle, proxyInit, getIP, uuid, getRandomInt, initAgent, timeout, delDublicateProxy, filterProxy, makeid };
   module.exports = helper;
 

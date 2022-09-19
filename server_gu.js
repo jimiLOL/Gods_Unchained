@@ -25,6 +25,7 @@ server.register(require('fastify-cors'),
 );
 
 
+ 
 start()
 
 

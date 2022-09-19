@@ -8,16 +8,50 @@ const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYl
 const Piscina = require('piscina');
 const path = require('path');
 
+const { MessageChannel } = require('worker_threads');
+const channel = {};
+
 const worker_get_items_for_name = new Piscina({
     filename: path.resolve('./worker_dir', 'getItemsinWhile.js'),
     maxQueue: 8,
     maxThreads: 40
 });
+const worker_proxy = new Piscina({
+    filename: path.resolve('./worker_dir', 'getProxy.js'),
+    // maxQueue: 2,
+    // maxThreads: 50
+});
+const worker_getExchange = new Piscina({
+    filename: path.resolve('./worker_dir', 'getExcheange.js'),
+    // maxQueue: 2,
+    // maxThreads: 50
+});
 
 // это будут глобалные Workers
 
 function start(port, userListItems) {
+    const MessageChannelInit = {};
     return new Promise(async (resolve, reject) => {
+        channel['price_port'] = new MessageChannel();
+        worker_getExchange.run({ port: channel['price_port'].port1 }, { transferList: [channel['price_port'].port1] });
+
+        channel['price_port'].port2.on('message', (rpc)=> {
+            // console.log('proxy_port');
+            // console.log(rpc);
+            // console.log(channel[rpc.name_chanel]);
+            channel[rpc.name_chanel].port2.postMessage(rpc)
+
+        })
+
+        channel['proxy_port'] = new MessageChannel();
+        worker_proxy.run({ port: channel['proxy_port'].port1 }, { transferList: [channel['proxy_port'].port1] });
+        channel['proxy_port'].port2.on('message', (rpc)=> {
+            // console.log('proxy_port');
+            // console.log(rpc);
+            // console.log(channel[rpc.name_chanel]);
+            channel[rpc.name_chanel].port2.postMessage(rpc)
+
+        })
         let list = fs.readFileSync(`./proxy/proxyValid.txt`, { encoding: 'utf8', flag: 'r' });
         console.log(typeof list);
         const proxyList = list.split('\n', 5000);
@@ -47,11 +81,11 @@ function start(port, userListItems) {
                         const itemsArray = [];
 
                         res.data.result.forEach(async item => {
-                         
+
                             // console.log(item.sell.data.properties.name);
                             if (await clientRedis.exists(`my_item_${item.sell.data.properties.name}`)) {
                                 i++
-                                // если у нас самих имеется такая карточка - надо проверить цену и перебить ее, если она выше нашей
+                                // если у нас самих имеется такая карточка - надо проверить цену и перебить ее, если она ниже нашей
                                 const price = await await clientRedis.get(`my_item_${item.sell.data.properties.name}`);
                                 console.log(price);
                                 // отправляем задачу в отдельный воркер котрый перебивает это все делож
@@ -97,24 +131,41 @@ function start(port, userListItems) {
                                         console.log('Создаем воркер itemsArray.length = ' + itemsArray.length);
                                         console.log(itemsArray[0].name);
                                         console.log('in work ' + worker_get_items_for_name.threads.length + ' workers');
-                                        const newArray = itemsArray.slice(0, itemsArray.length-1);
-                                        itemsArray.splice(0, itemsArray.length-1)
+                                        const newArray = itemsArray.slice(0, itemsArray.length - 1);
+                                        itemsArray.splice(0, itemsArray.length - 1);
+                                        const rndString = helper.makeid(5);
+                                        channel[`worker_${i}_${rndString}`] = new MessageChannel();
+                                        // MessageChannelInit[`worker_${i}`] = {init: true, port2: channel[`worker_${i}`].port2}
 
                                         promiseWorker.push(worker_get_items_for_name.run({
-                                            // port: channel.port1,
-                                            // starttime: start,
+                                            port: channel[`worker_${i}_${rndString}`].port1,
+                                            name: `worker_${i}_${rndString}`,
                                             itemsArray: newArray
-                                        },
-                                            //  {transferList: [channel.port1]}
+                                        }, {transferList: [channel[`worker_${i}_${rndString}`].port1]}
                                         ));
+                                        channel[`worker_${i}_${rndString}`].port2.on('message', (rpc) => {
+                                            // console.log('Получили запрос в watcher_list_order');
+
+                                            // console.log(rpc);
+                                            if (rpc.get || rpc.set) {
+                                                channel['proxy_port'].port2.postMessage(rpc)
+
+                                            };
+                                            if (rpc.get_price) {
+                                                channel['price_port'].port2.postMessage(rpc)
+
+                                            };
+                                            
+
+                                        })
                                         // itemsArray.length = 0;
                                     }
-                                    
+
 
                                 } else {
-                             
+
                                     if (itemsArray.length == 0 || !itemsArray.some(x => x.name == item.sell.data.properties.name)) {
-                                        itemsArray.push({ name: item.sell.data.properties.name })
+                                        itemsArray.push({ name: item.sell.data.properties.name, id:  item.sell.data.token_id})
 
 
 
@@ -141,35 +192,35 @@ function start(port, userListItems) {
 
 
 
-                }).catch(e=> {
+                }).catch(e => {
                     console.log(e);
                 })
 
-              
+
             })
 
         };
 
-        helper.timeout(10000).then(async ()=> {
+        helper.timeout(10000).then(async () => {
             setInterval(() => {
                 console.log('Progress in ' + worker_get_items_for_name.threads.length + ' workers');
-                
+
             }, 10000);
-             await Promise.allSettled(promiseWorker).then((r) => {
+            await Promise.allSettled(promiseWorker).then((r) => {
                 console.log('=======\nPromise end\n==============');
-                  resolve()
+                resolve()
             }).catch(e => {
                 console.log(e);
-                 resolve()
+                resolve()
             })
 
         })
- 
-            
-            
-      
-      
-    
+
+
+
+
+
+
 
 
 

@@ -18,13 +18,13 @@ const worker_watcher = new Piscina({
 
 
 function start() {
-    const arrayPromise = []; // прмисы глобальных воркеров
+    // const arrayPromise = []; // прмисы глобальных воркеров
 
     getProxy().then(res => {
         fs.writeFileSync(`./proxy/proxy.txt`, '');
 
 
-        let newArray = res.data.split("\n", 3000);
+        let newArray = res.data.split("\n", 500);
         console.log(newArray[0]);
 
         console.log(newArray.length);
@@ -58,17 +58,19 @@ function start() {
                     if (worker_watcher.threads.length < 10) {
                         let start = new Date().getTime();
 
-                        arrayPromise.push(worker_watcher.run({ 
+                      worker_watcher.run({ 
                             // port: channel.port1,
                             starttime: start,
                              userListItems: userListItems }, 
                             //  {transferList: [channel.port1]}
                              ).then((message) => {
                             console.log(message);
+                            let end = new Date().getTime()
+                            console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
 
                         }).catch(e => {
                             console.log(e);
-                        }));
+                        })
                     }
 
 

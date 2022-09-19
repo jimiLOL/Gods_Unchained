@@ -24,6 +24,16 @@ function start(item, port, name) {
                 
             })
         });
+        port.postMessage({get: true, worker_children_name: name});
+
+        const proxy = await getProxy();
+        const getOnceItem = await apiImmutable.get_one_item_for_id(item.id, helper.initAgent(proxy), null).catch(() => {
+            port.postMessage({set: true, proxy: `${proxy.host}:${proxy.port}`});
+
+            resolve([])
+        });
+        port.postMessage({set: true, proxy: `${proxy.host}:${proxy.port}`});
+
 
 
 
@@ -40,10 +50,16 @@ function start(item, port, name) {
                 
 
 
-                const res = await apiImmutable.get_assets_for_name(item.name, helper.initAgent(proxy), cursor).catch(() => {
+                const res = await apiImmutable.get_list_order_for_filter_proto(getOnceItem.data.metadata.proto, helper.initAgent(proxy), cursor).catch(() => {
                     breakVar = true;
                 });
                 port.postMessage({set: true, proxy: `${proxy.host}:${proxy.port}`});
+                // console.log('Item name ' + item.name + ' item id ' + item.id + ' item name ' + getOnceItem.data.metadata.name);
+
+                // console.log(res.data.result[0].sell.data.properties.name);
+                if (res.data.result.length == 0) {
+                    break
+                }
 
 
                 // console.log(cursor);
@@ -59,11 +75,13 @@ function start(item, port, name) {
 
                 }
                 if (Array.isArray(res?.data?.result)) {
-                    res.data.result.forEach(item => {
-                    result.push({token_id: item.token_id})
+                    result.push(res.data.result)
+
+                    // res.data.result.forEach(item => {
+                    // result.push({token_id: item.token_id})
                         
-                    });
-                    res.data.result.splice(0, res?.data.result.length-1)
+                    // });
+                    // res.data.result.splice(0, res?.data.result.length-1)
 
 
                 }
@@ -72,12 +90,12 @@ function start(item, port, name) {
 
 
             }
-            resolve(result)
+            resolve(result.flat())
 
 
         } catch (e) {
             console.log(e);
-            resolve()
+            resolve([])
 
 
         }
@@ -91,24 +109,12 @@ module.exports = ({ item, port, name }) => {
         let startTime = new Date().getTime();
         // const promiseArray = []
 
-
-        // const Piscina = require('piscina');
-        // const path = require('path');
-        // const worker_scanPrice = new Piscina({
-        //     filename: path.resolve('./worker_dir', 'scanPrice.js'),
-        //     // maxQueue: 2,
-        //     // maxThreads: 50
-        // });
-        // нельзя ее сюда импортирвоть это ведет к утечке памяти!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-        // надо наверное возвращать значения и оттуда уже запускать другие воркеры.
-
-
-
+ 
 
         start(item, port, name).then((res) => {
             let end = new Date().getTime();
             // promiseArray.push(worker_scanPrice.run({ array_item: res.flat() }))
-            console.log(`Worker whileWorker end timestamp ${end-startTime}`);
+            console.log(`Worker whileWorkerForFilter end timestamp ${end-startTime}`);
 
             // await Promise.allSettled(arrayPromise).then(() => {
             //     return resolve()
@@ -119,7 +125,7 @@ module.exports = ({ item, port, name }) => {
 
             resolve(res);
         }).catch(e => {
-            console.log('Worker Error whileWorker');
+            console.log('Worker Error whileWorkerForFilter');
 
             reject(e);
         })

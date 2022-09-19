@@ -1,7 +1,6 @@
 const apiImmutable = require('./apiClass');
 const fs = require('fs');
 const helper = require('../helper');
-const { rejects } = require('assert');
 // этот контроллер сканирует все похожие карточки. не оптимальный алгоритм!
 
 
