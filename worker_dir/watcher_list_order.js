@@ -4,6 +4,9 @@ const helper = require('../helper');
 const Redis = require("ioredis");
 const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
 
+const { utils, BigNumber } = require("ethers");
+
+
 const util = require("util");
 
 const Piscina = require('piscina');
@@ -24,19 +27,14 @@ const worker_proxy = new Piscina({
     // maxQueue: 2,
     // maxThreads: 50
 });
-// const worker_getExchange = new Piscina({
-//     filename: path.resolve('./worker_dir', 'getExcheange.js'),
-//     // maxQueue: 2,
-//     // maxThreads: 50
-// });
+ 
 
 // это будут глобалные Workers
 
 function start(port, name) {
     const MessageChannelInit = {};
     return new Promise(async (resolve, reject) => {
-        channel['price_port'] = new MessageChannel();
-        // worker_getExchange.run({ port: channel['price_port'].port1 }, { transferList: [channel['price_port'].port1] });
+        
 
         port.on('message', (rpc) => {
             // console.log('proxy_port');
@@ -120,13 +118,40 @@ function start(port, name) {
 
                             if (average_price) {
                                 i++
-                                // const price = await await clientRedis.get(`average_price_${item.sell.data.properties.name}`);
-                                let end = new Date().getTime();
-                                // console.log(`Мы уже получили средние значения для такой карточки timestamp -- ${end-s} ms`);
+                                // let star = new Date().getTime();
+                                const db_price = JSON.parse(average_price);
 
-                                // console.log(average_price);
+                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.ETH.count > 30 && db_price.spread_GODS_ETH.spread > 10) {
+                                    
 
-                                // инициализируем воркер на покупку
+                                    let priceItem = BigNumber.from(item.buy.data.quantity_with_fees);
+                                    priceItem = utils.formatUnits(priceItem, '18');
+                                    if (priceItem <= db_price.ETH.min) {
+                                    console.log(db_price);
+                                    console.log('item id ' + item.sell.data.properties.token_id + ' price^ ' +priceItem + ' ETH');
+
+
+                                    console.log('ms click');
+
+                                        // мисклк
+                                    } else if (priceItem <= db_price.ETH.average) {
+                                    console.log(db_price);
+                                    console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
+
+
+                                    console.log('average click');
+
+
+                                    }
+    
+                                    // console.log(db_price);
+                                    // let end = new Date().getTime();
+                                    // console.log(`Рассчеты заняли ${end-star}`);
+    
+                                    // инициализируем воркер на покупку
+
+                                }
+                             
 
 
                             } else if (await clientRedis.exists(`worker_isWork_${item.sell.data.properties.name.replace(' ', '_')}`)) {
@@ -204,7 +229,7 @@ function start(port, name) {
 
                     };
 
-                    helper.timeout(500).then(async ()=> {
+                    helper.timeout(100).then(async ()=> {
                         if (index == iteration_index-1) {
                              
                             setInterval(() => {

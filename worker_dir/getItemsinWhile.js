@@ -122,7 +122,8 @@ function start(itemsArray, port, name) {
                                     min: min[priceObj[price].symbol],
                                     max: max[priceObj[price].symbol],
                                     count: count[priceObj[price].symbol],
-                                    [`${priceObj[price].symbol}-USD`]: priceObj[price].usd
+                                    [`${priceObj[price].symbol}-USD`]: priceObj[price].usd,
+                                    token_address: priceObj[price].token_address
                                 };
 
                             }

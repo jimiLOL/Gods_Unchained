@@ -35,7 +35,10 @@ const apiImmutable = {
  
     },
     async get_list_order(agent) {
-        return await axios.get(`https://api.x.immutable.com/v1/orders?direction=desc&include_fees=true&order_by=created_at&sell_token_address=0xacb3c6a43d15b907e8433077b6d38ae40936fe2c&sell_token_type=ERC721&status=active`, {httpsAgent: agent})
+        const protoEncode = {"quality":["Meteorite"]};
+ 
+        const encodedQuery = encodeURIComponent(JSON.stringify(protoEncode)).replace(/'/g,"%27").replace(/"/g,"%22");	
+        return await axios.get(`https://api.x.immutable.com/v1/orders?direction=desc&include_fees=true&order_by=created_at&sell_token_address=0xacb3c6a43d15b907e8433077b6d38ae40936fe2c&sell_token_type=ERC721&sell_metadata=${encodedQuery}&status=active`, {httpsAgent: agent})
     },
     async get_one_item_for_id(id, agent) {
         return await axios.get(`https://api.x.immutable.com/v1/assets/0xacb3c6a43d15b907e8433077b6d38ae40936fe2c/${id}?include_fees=true`, {httpsAgent: agent})

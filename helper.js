@@ -31,10 +31,10 @@ function proxyInit(proxy) {
 };
 async function getIP(agent) {
     return await axios.get('https://api.ipify.org', { httpsAgent: agent, timeout: 10000 }).then(res => {
-        console.log('PROXY IP^ ' + res.data);
+        // console.log('PROXY IP^ ' + res.data);
         return {title: 'ok'}
     }).catch(e => {
-        console.log(e.message);
+        // console.log(e.message);
         return {error: e.message}
     })
 };
