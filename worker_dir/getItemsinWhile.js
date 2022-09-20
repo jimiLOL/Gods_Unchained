@@ -207,13 +207,13 @@ function start(itemsArray, port, name) {
              
             let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
             console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
-            setInterval(() => {
-                let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
-                console.log(promiseArr[0]);
-                console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
+            // setInterval(() => {
+            //     let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
+            //     console.log(promiseArr[0]);
+            //     console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
 
 
-            }, 5000);
+            // }, 5000);
             await Promise.allSettled(arrayPromise).then(() => {
                 return resolve()
             }).catch(e => {

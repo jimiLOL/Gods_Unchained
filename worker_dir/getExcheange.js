@@ -74,6 +74,14 @@ function start(port) {
             port.postMessage(rpc)
 
         });
+          axios.get('https://api.coingecko.com/api/v3/simple/price?ids=immutable-x%2Cethereum%2Cgods-unchained%2Cguild-of-guardians%2Cusd-coin%2Cecomi%2Capecoin&vs_currencies=usd').then((res) => {
+                let Exchange = new getPrice();
+                actualExchange = Exchange.getExchange(res.data)
+                // console.log(actualExchange);
+
+            }).catch(e=> {
+                console.log(e);
+            })
         setInterval(async () => {
             await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=immutable-x%2Cethereum%2Cgods-unchained%2Cguild-of-guardians%2Cusd-coin%2Cecomi%2Capecoin&vs_currencies=usd').then((res) => {
                 let Exchange = new getPrice();
