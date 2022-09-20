@@ -19,6 +19,16 @@ function start(port, name, item) {
 
 
             }
+            if (taskBuy.size > 50) {
+                let index = 0;
+                taskBuy.forEach((e,i)=> {
+                    index++
+                    if (index < 30) {
+                        taskBuy.delete(i)
+                    }
+                })
+
+            }
 
 
         })
