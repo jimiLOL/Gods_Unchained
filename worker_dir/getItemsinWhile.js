@@ -5,9 +5,11 @@ const helper = require('../helper');
 const Piscina = require('piscina');
 const util = require("util");
 
+const Redis = require("ioredis");
+const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
+
 const { utils, BigNumber } = require("ethers");
 
-// const {BigNumber,FixedFormat,FixedNumber,formatFixed,parseFixed} = require("@ethersproject/bignumber");
 
 const path = require('path');
 // const workerWhile = new Piscina({
@@ -78,6 +80,7 @@ function start(itemsArray, port, name) {
         filterArray.forEach(async (ele, i) => {
             const rndString = helper.makeid(5);
             channel[`workerWhile_${i}_${rndString}`] = new MessageChannel();
+            await clientRedis.set(`worker_isWork_${ele.name.replace(' ', '_')}`, 'work', 'ex', 30);
 
             arrayPromise.push(workerWhileFilter.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async resArray=> {
                 if (Array.isArray(resArray) && resArray.length > 0) {
@@ -134,32 +137,31 @@ function start(itemsArray, port, name) {
 
                             })
                             Object.keys(info).forEach(ele=> {
-                                if (!info.hasOwnProperty('spread_GODS-ETH')) {
-                                    info['spread_GODS-ETH'] = 0;
+                                if (!info.hasOwnProperty('spread_GODS_ETH')) {
+                                    info['spread_GODS_ETH'] = 0;
 
                                 }
                                 if (ele == 'GODS' && info['ETH'] != undefined) {
                                     const priceEth = info['ETH'].average*priceObj['ethereum'].usd;
-                                    console.log('priceEth^  ' + priceEth + ' USD');
+                                    // console.log('priceEth^  ' + priceEth + ' USD');
                                     const priceGODS = info[ele].average*priceObj['gods-unchained'].usd;
-                                    console.log('priceGODS^  ' + priceGODS + ' USD');
+                                    // console.log('priceGODS^  ' + priceGODS + ' USD');
 
-                                  const spread = (priceGODS/priceEth-1)*100;
-                                  console.log('spread: ' + spread);
+                                    info['spread_GODS_ETH'] = {
+                                        spread: (priceGODS/priceEth-1)*100,
+                                        priceEth_USD: priceEth,
+                                        priceGODS_USD: priceGODS
+
+                                    };
                                 //  info['spread_GODS-ETH'] = info['spread_GODS-ETH'] + info[ele].average;
 
 
                                 }
                             })
-                            // resArray.forEach(e=> {
-                            //     sum = Number(e.buy.data.quantity_with_fees)+Number(sum)
-                            // })
-
-                            // const sum = arr.reduce((partial_sum, a) => partial_sum + a.buy.data.quantity_with_fees, 0);
-                            // console.log('Sum ' + sum);
-                            // const average = Number(sum) / resArray.length;
+                            
                             console.log('Average');
                             console.log(info);
+                            clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 150000);
                             console.log('!=======!');
                             // расчитать надо для каждой монеты свою среднию.
     
@@ -180,7 +182,8 @@ function start(itemsArray, port, name) {
 
 
                 }
-            }))
+            }));
+
 
 
             // arrayPromise.push(workerWhile.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async (res) => {
@@ -320,16 +323,33 @@ function start(itemsArray, port, name) {
 
                 port.postMessage(rpc)
 
+            });
+
+            helper.timeout(300).then(async () => {
+                if (filterArray.length-1 == i) {
+                    let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
+                console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
+                setInterval(() => {
+                    let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
+                    console.log(promiseArr[0]);
+                    console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
+    
+    
+                }, 5000);
+                await Promise.allSettled(arrayPromise).then(() => {
+                    return resolve()
+                }).catch(e => {
+                    console.log(e);
+                    return resolve()
+                })
+
+                }
+                
             })
 
 
 
-
-            // arrayPromise.push(worker_pull.run({ array_item: result.flat() }).then(() => {
-
-            // }).catch(e => {
-            //     console.log(e);
-            // }))
+ 
 
 
 
@@ -353,23 +373,23 @@ function start(itemsArray, port, name) {
         // })
 
 
-        helper.timeout(30000).then(async () => {
-            let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
-            console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
-            setInterval(() => {
-                let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
-                console.log(promiseArr[0]);
-                console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
+        // helper.timeout(30000).then(async () => {
+        //     let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
+        //     console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
+        //     setInterval(() => {
+        //         let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
+        //         console.log(promiseArr[0]);
+        //         console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
 
 
-            }, 5000);
-            await Promise.allSettled(arrayPromise).then(() => {
-                return resolve()
-            }).catch(e => {
-                console.log(e);
-                return resolve()
-            })
-        })
+        //     }, 5000);
+        //     await Promise.allSettled(arrayPromise).then(() => {
+        //         return resolve()
+        //     }).catch(e => {
+        //         console.log(e);
+        //         return resolve()
+        //     })
+        // })
 
 
 

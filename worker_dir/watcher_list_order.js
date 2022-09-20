@@ -11,6 +11,8 @@ const path = require('path');
 const { MessageChannel } = require('worker_threads');
 const channel = {};
 
+const iteration_index = 2;
+
 const worker_get_items_for_name = new Piscina({
     filename: path.resolve('./worker_dir', 'getItemsinWhile.js'),
     maxQueue: 8,
@@ -29,13 +31,13 @@ const worker_getExchange = new Piscina({
 
 // это будут глобалные Workers
 
-function start(port, userListItems) {
+function start(port) {
     const MessageChannelInit = {};
     return new Promise(async (resolve, reject) => {
         channel['price_port'] = new MessageChannel();
         worker_getExchange.run({ port: channel['price_port'].port1 }, { transferList: [channel['price_port'].port1] });
 
-        channel['price_port'].port2.on('message', (rpc)=> {
+        channel['price_port'].port2.on('message', (rpc) => {
             // console.log('proxy_port');
             // console.log(rpc);
             // console.log(channel[rpc.name_chanel]);
@@ -45,7 +47,7 @@ function start(port, userListItems) {
 
         channel['proxy_port'] = new MessageChannel();
         worker_proxy.run({ port: channel['proxy_port'].port1 }, { transferList: [channel['proxy_port'].port1] });
-        channel['proxy_port'].port2.on('message', (rpc)=> {
+        channel['proxy_port'].port2.on('message', (rpc) => {
             // console.log('proxy_port');
             // console.log(rpc);
             // console.log(channel[rpc.name_chanel]);
@@ -59,7 +61,7 @@ function start(port, userListItems) {
         proxyList.splice(index, 1);
         helper.shuffle(proxyList);
         const promiseWorker = [];
-        for (let index = 0; index < 2; index++) {
+        for (let index = 0; index < iteration_index; index++) {
             helper.timeout(100 * index).then(() => {
 
                 apiImmutable.get_list_order(helper.initAgent(helper.proxyInit(proxyList[helper.getRandomInt(1, proxyList.length - 1)]))).then((res) => {
@@ -81,12 +83,14 @@ function start(port, userListItems) {
                         const itemsArray = [];
 
                         res.data.result.forEach(async item => {
+                            let s = new Date().getTime()
+
 
                             // console.log(item.sell.data.properties.name);
                             if (await clientRedis.exists(`my_item_${item.sell.data.properties.name}`)) {
                                 i++
                                 // если у нас самих имеется такая карточка - надо проверить цену и перебить ее, если она ниже нашей
-                                const price = await await clientRedis.get(`my_item_${item.sell.data.properties.name}`);
+                                const price = await await clientRedis.get(`my_item_${item.sell.data.properties.name.replace(' ', '_')}`);
                                 console.log(price);
                                 // отправляем задачу в отдельный воркер котрый перебивает это все делож
                                 const worker_set_new_price = new Piscina({
@@ -97,7 +101,7 @@ function start(port, userListItems) {
                                 promiseWorker.push(worker_set_new_price.run({
                                     // port: channel.port1,
                                     // starttime: start,
-                                    userListItems: userListItems
+                                    userListItems: JSON.parse(price)
                                 },
                                     //  {transferList: [channel.port1]}
                                 ).then((message) => {
@@ -108,16 +112,23 @@ function start(port, userListItems) {
                                 }));
 
                             };
+                            
+                            
+                            const average_price = await await clientRedis.get(`average_price_${item.sell.data.properties.name.replace(' ', '_')}`);
 
-                            if (await clientRedis.exists(`average_price_${item.sell.data.properties.name}`)) {
+
+                            if (average_price) {
                                 i++
-                                const price = await await clientRedis.get(`average_price_${item.sell.data.properties.name}`);
-                                console.log(price);
+                                // const price = await await clientRedis.get(`average_price_${item.sell.data.properties.name}`);
+                                let end = new Date().getTime();
+                                console.log(`Мы уже получили средние значения для такой карточки timestamp -- ${end-s} ms`);
+
+                                // console.log(average_price);
 
                                 // инициализируем воркер на покупку
 
 
-                            } else if (await clientRedis.exists(`worker_isWork_${item.sell.data.properties.name}`)) {
+                            } else if (await clientRedis.exists(`worker_isWork_${item.sell.data.properties.name.replace(' ', '_')}`)) {
                                 i++
                                 // проверяем работает какой-либо воркер на сбором для такой карточки
                                 console.log('Worker уже создан для такой задачи');
@@ -141,7 +152,7 @@ function start(port, userListItems) {
                                             port: channel[`worker_${i}_${rndString}`].port1,
                                             name: `worker_${i}_${rndString}`,
                                             itemsArray: newArray
-                                        }, {transferList: [channel[`worker_${i}_${rndString}`].port1]}
+                                        }, { transferList: [channel[`worker_${i}_${rndString}`].port1] }
                                         ));
                                         channel[`worker_${i}_${rndString}`].port2.on('message', (rpc) => {
                                             // console.log('Получили запрос в watcher_list_order');
@@ -155,7 +166,7 @@ function start(port, userListItems) {
                                                 channel['price_port'].port2.postMessage(rpc)
 
                                             };
-                                            
+
 
                                         })
                                         // itemsArray.length = 0;
@@ -165,7 +176,7 @@ function start(port, userListItems) {
                                 } else {
 
                                     if (itemsArray.length == 0 || !itemsArray.some(x => x.name == item.sell.data.properties.name)) {
-                                        itemsArray.push({ name: item.sell.data.properties.name, id:  item.sell.data.token_id})
+                                        itemsArray.push({ name: item.sell.data.properties.name, id: item.sell.data.token_id })
 
 
 
@@ -178,7 +189,10 @@ function start(port, userListItems) {
 
 
 
-                            }
+                            };
+
+
+                            
 
 
 
@@ -186,11 +200,31 @@ function start(port, userListItems) {
                     } else {
                         console.log('Не получили список карточек');
 
+                    };
+
+                    helper.timeout(500).then(async ()=> {
+                        if (promiseWorker.length > 0 && index == iteration_index-1) {
+                             
+                            setInterval(() => {
+                                console.log('Progress in ' + worker_get_items_for_name.threads.length + ' workers');
+
+                            }, 4000);
+                            await Promise.allSettled(promiseWorker).then((r) => {
+                                console.log('==============\nPromise end\n==============');
+                                resolve()
+                            }).catch(e => {
+                                console.log(e);
+                                resolve()
+                            })
+
+                      
+
                     }
+                    })
 
 
 
-
+                  
 
                 }).catch(e => {
                     console.log(e);
@@ -201,20 +235,20 @@ function start(port, userListItems) {
 
         };
 
-        helper.timeout(10000).then(async () => {
-            setInterval(() => {
-                console.log('Progress in ' + worker_get_items_for_name.threads.length + ' workers');
+        //  helper.timeout(1000).then(async () => {
+        //     setInterval(() => {
+        //         console.log('Progress in ' + worker_get_items_for_name.threads.length + ' workers');
 
-            }, 10000);
-            await Promise.allSettled(promiseWorker).then((r) => {
-                console.log('=======\nPromise end\n==============');
-                resolve()
-            }).catch(e => {
-                console.log(e);
-                resolve()
-            })
+        //     }, 10000);
+        //     await Promise.allSettled(promiseWorker).then((r) => {
+        //         console.log('=======\nPromise end\n==============');
+        //         resolve()
+        //     }).catch(e => {
+        //         console.log(e);
+        //         resolve()
+        //     })
 
-        })
+        // })
 
 
 
@@ -234,7 +268,7 @@ function start(port, userListItems) {
 }
 
 
-module.exports = ({ port, userListItems, starttime }) => {
+module.exports = ({ port, starttime }) => {
     return new Promise((resolve, reject) => {
         let end = new Date().getTime()
         console.log(`Start worker timestamp ${end - starttime} ms`);
@@ -242,7 +276,7 @@ module.exports = ({ port, userListItems, starttime }) => {
 
 
 
-        start(port, userListItems).then((res) => {
+        start(port).then((res) => {
             console.log('Worker watcher_list_order end');
 
             resolve(res);

@@ -57,7 +57,7 @@ function start(item, port, name) {
                 // console.log('Item name ' + item.name + ' item id ' + item.id + ' item name ' + getOnceItem.data.metadata.name);
 
                 // console.log(res.data.result[0].sell.data.properties.name);
-                if (res.data.result.length == 0) {
+                if (res?.data?.result?.length == 0) {
                     break
                 }
 

@@ -2,7 +2,7 @@
 const { default: axios } = require("axios");
 const fs = require('fs')
 const helper = require('../helper');
-const { init } = require('../controller/startWatcherforSalse');
+const { init } = require('./startWatcherMyItems');
 const { MessageChannel } = require('worker_threads');
 const channel = new MessageChannel();
 const { checktProxy } = require("../get_proxyInit");
@@ -41,8 +41,8 @@ function start() {
             // const task = {};
             // let i = 0;
             checktProxy('proxy').then(async () => {
-                const userListItems = await helper.timeout(500).then(() => init())  // получение карточек нашего кошелька
-                console.log('userListItems count ' + userListItems.length);
+                // const userListItems = await helper.timeout(500).then(() => init())  // получение карточек нашего кошелька
+                // console.log('userListItems count ' + userListItems.length);
                 // setInterval(() => {
                     // i++
 
@@ -61,7 +61,8 @@ function start() {
                       worker_watcher.run({ 
                             // port: channel.port1,
                             starttime: start,
-                             userListItems: userListItems }, 
+                            //  userListItems: userListItems
+                             }, 
                             //  {transferList: [channel.port1]}
                              ).then((message) => {
                             console.log(message);
@@ -75,7 +76,7 @@ function start() {
 
 
 
-                // }, 60000);
+                // }, 1000);
 
 
                 

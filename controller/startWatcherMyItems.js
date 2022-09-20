@@ -1,17 +1,11 @@
 const apiImmutable = require('./apiClass');
 const fs = require('fs');
 const helper = require('../helper');
-// этот контроллер сканирует все похожие карточки. не оптимальный алгоритм!
 
 
-// const Piscina = require('piscina');
-// const path = require('path');
-// const worker_pull = new Piscina({
-//     filename: path.resolve('./worker_dir', 'scanPrice.js'),
-//     maxQueue: 50,
-//     maxThreads: 100
-// });
-
+ 
+// const Redis = require("ioredis");
+// const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
 
 function get_Items_My_Wallet_and_start_watcher_workers() {
     return new Promise(async (resolve, reject) => {
@@ -31,10 +25,11 @@ function get_Items_My_Wallet_and_start_watcher_workers() {
               let i = 0;
 
             const filterArray = [];
-            r.data.result.forEach(e=> {
+            r.data.result.forEach(async e=> {
             //    const filter = filterArray.filter(x=> x.metadata.name == e.metadata.name);
                if (!filterArray.some(x=> x.metadata.name == e.metadata.name)) {
-                filterArray.push(e)
+                filterArray.push(e);
+                // await clientRedis.set(`my_item_${e.name.replace()}`, ) 
 
 
                };
@@ -125,7 +120,25 @@ function get_Items_My_Wallet_and_start_watcher_workers() {
 
   function init() {
     return new Promise((resolve)=> get_Items_My_Wallet_and_start_watcher_workers().then((res)=> resolve(res)).catch(e=> []) )
-    console.log('init');
     // return await get_Items_My_Wallet_and_start_watcher_workers() 
 }
-module.exports = { init }
+// module.exports = { init }
+
+module.exports = () => {
+    return new Promise((resolve, reject) => {
+        let end = new Date().getTime()
+
+
+
+
+        init().then((res) => {
+            console.log('Worker startWatcherMyItems end');
+
+            resolve(res);
+        }).catch(e => {
+            console.log('Worker Error startWatcherMyItems');
+
+            reject(e);
+        })
+    })
+};
