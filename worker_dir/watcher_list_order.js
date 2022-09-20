@@ -208,6 +208,9 @@ function start(port, name) {
                              
                             setInterval(() => {
                                 console.log('Progress in ' + worker_get_items_for_name.threads.length + ' workers');
+                                let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
+                                console.log(promiseArr[0]);
+                                console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
 
                             }, 4000);
                             await Promise.allSettled(promiseWorker).then((r) => {
