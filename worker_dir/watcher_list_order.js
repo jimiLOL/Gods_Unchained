@@ -11,7 +11,7 @@ const path = require('path');
 const { MessageChannel } = require('worker_threads');
 const channel = {};
 
-const iteration_index = 2;
+const iteration_index = 10;
 
 const worker_get_items_for_name = new Piscina({
     filename: path.resolve('./worker_dir', 'getItemsinWhile.js'),
@@ -23,21 +23,21 @@ const worker_proxy = new Piscina({
     // maxQueue: 2,
     // maxThreads: 50
 });
-const worker_getExchange = new Piscina({
-    filename: path.resolve('./worker_dir', 'getExcheange.js'),
-    // maxQueue: 2,
-    // maxThreads: 50
-});
+// const worker_getExchange = new Piscina({
+//     filename: path.resolve('./worker_dir', 'getExcheange.js'),
+//     // maxQueue: 2,
+//     // maxThreads: 50
+// });
 
 // это будут глобалные Workers
 
-function start(port) {
+function start(port, name) {
     const MessageChannelInit = {};
     return new Promise(async (resolve, reject) => {
         channel['price_port'] = new MessageChannel();
-        worker_getExchange.run({ port: channel['price_port'].port1 }, { transferList: [channel['price_port'].port1] });
+        // worker_getExchange.run({ port: channel['price_port'].port1 }, { transferList: [channel['price_port'].port1] });
 
-        channel['price_port'].port2.on('message', (rpc) => {
+        port.on('message', (rpc) => {
             // console.log('proxy_port');
             // console.log(rpc);
             // console.log(channel[rpc.name_chanel]);
@@ -121,7 +121,7 @@ function start(port) {
                                 i++
                                 // const price = await await clientRedis.get(`average_price_${item.sell.data.properties.name}`);
                                 let end = new Date().getTime();
-                                console.log(`Мы уже получили средние значения для такой карточки timestamp -- ${end-s} ms`);
+                                // console.log(`Мы уже получили средние значения для такой карточки timestamp -- ${end-s} ms`);
 
                                 // console.log(average_price);
 
@@ -131,7 +131,7 @@ function start(port) {
                             } else if (await clientRedis.exists(`worker_isWork_${item.sell.data.properties.name.replace(' ', '_')}`)) {
                                 i++
                                 // проверяем работает какой-либо воркер на сбором для такой карточки
-                                console.log('Worker уже создан для такой задачи');
+                                // console.log('Worker уже создан для такой задачи');
 
                             } else {
                                 i++
@@ -163,7 +163,8 @@ function start(port) {
 
                                             };
                                             if (rpc.get_price) {
-                                                channel['price_port'].port2.postMessage(rpc)
+                                                rpc['globalWorker'] = name;
+                                                port.postMessage(rpc);
 
                                             };
 
@@ -268,7 +269,7 @@ function start(port) {
 }
 
 
-module.exports = ({ port, starttime }) => {
+module.exports = ({ port, starttime, name }) => {
     return new Promise((resolve, reject) => {
         let end = new Date().getTime()
         console.log(`Start worker timestamp ${end - starttime} ms`);
@@ -276,10 +277,11 @@ module.exports = ({ port, starttime }) => {
 
 
 
-        start(port).then((res) => {
+        start(port, name).then((res) => {
             console.log('Worker watcher_list_order end');
+            port.close()
 
-            resolve(res);
+            resolve({name: name});
         }).catch(e => {
             console.log('Worker Error watcher_list_order');
 

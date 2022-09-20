@@ -12,21 +12,13 @@ const { utils, BigNumber } = require("ethers");
 
 
 const path = require('path');
-// const workerWhile = new Piscina({
-//     filename: path.resolve('./worker_dir', 'whileWorker.js'),
-//     // maxQueue: 2,
-//     maxThreads: 20
-// });
+
 const workerWhileFilter = new Piscina({
     filename: path.resolve('./worker_dir', 'whileWorkerForFilter.js'),
     // maxQueue: 2,
     maxThreads: 25
 });
-// const worker_scanPrice = new Piscina({
-//     filename: path.resolve('./worker_dir', 'scanPrice.js'),
-//     // maxQueue: 2,
-//     maxThreads: 80
-// });
+
 
 const { MessageChannel } = require('worker_threads');
 const channel = {};
@@ -38,7 +30,7 @@ function start(itemsArray, port, name) {
 
         const filterArray = [];
         let objectPrice;
-        const getPrice = () => new Promise(async (resolve)=> {
+        const getPrice = () => new Promise(async (resolve) => {
             let rpc = {
                 get_price: true,
                 name_chanel: name
@@ -54,7 +46,7 @@ function start(itemsArray, port, name) {
         })
 
         port.on('message', (rpc) => {
-      
+
             if (rpc.get) {
                 channel[rpc.worker_children_name].port2.postMessage(rpc)
 
@@ -75,6 +67,9 @@ function start(itemsArray, port, name) {
             };
 
         });
+        if (filterArray.length == 0) {
+            resolve()
+        }
         console.log('Будет создано ' + filterArray.length + '  задач для сбора');
 
         filterArray.forEach(async (ele, i) => {
@@ -82,95 +77,95 @@ function start(itemsArray, port, name) {
             channel[`workerWhile_${i}_${rndString}`] = new MessageChannel();
             await clientRedis.set(`worker_isWork_${ele.name.replace(' ', '_')}`, 'work', 'ex', 30);
 
-            arrayPromise.push(workerWhileFilter.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async resArray=> {
+            arrayPromise.push(workerWhileFilter.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async resArray => {
                 if (Array.isArray(resArray) && resArray.length > 0) {
                     const priceObj = await getPrice();
 
                     try {
-                     
-                            // console.log(BigInt(resArray[0].buy.data.quantity_with_fees));
-                            console.log(Number(resArray[0].buy.data.quantity_with_fees));
-                            // resArray.sort((a, b) => (BigInt(a.buy.data.quantity_with_fees) < BigInt(b.buy.data.quantity_with_fees)) ? -1 : ((BigInt(a.buy.data.quantity_with_fees) > BigInt(b.buy.data.quantity_with_fees)) ? 1 : 0))
-                            resArray.sort((a, b) => Number(a.buy.data.quantity_with_fees) - Number(b.buy.data.quantity_with_fees));
-                            const info = {};
-                            const average = {};
-                            const min = {};
-                            const max = {};
-                            const count = {};
-                            Object.keys(priceObj).forEach(price=> {
-                             
-                                // console.log('Расчет средней для ' + priceObj[price].symbol);
-                                average[priceObj[price].symbol] = BigNumber.from(0);
-                                min[priceObj[price].symbol] = 0;
-                                max[priceObj[price].symbol] = 0;
-                                count[priceObj[price].symbol] = 0;
-                                const allERCPrice = resArray.filter(x=> x.buy.data.token_address == priceObj[price].token_address || x.buy.type == 'ETH' && priceObj[price].symbol == 'ETH');
-                                if (allERCPrice.length > 0) {
-                                    const arrayPrice = [];
-                                 
-                                    allERCPrice.forEach(e=> {
-                                        average[priceObj[price].symbol] = BigNumber.from(e.buy.data.quantity_with_fees).add(average[priceObj[price].symbol]);
-                                        const priceOne = BigNumber.from(e.buy.data.quantity_with_fees);
-                                        // console.log(utils.formatUnits(priceOne, priceObj[price].decimals) + ' ' + priceObj[price].symbol);
-                                        // console.log(`${priceObj[price].symbol} == ${utils.formatUnits(priceOne, priceObj[price].decimals)*priceObj[price].usd} USD`);
-                                        arrayPrice.push(utils.formatUnits(priceOne, priceObj[price].decimals));
-                                        info['name'] = e.sell.data.properties.name;
 
-                                    });
-                                    // average[priceObj[price].symbol] = average[priceObj[price].symbol]/allERCPrice.length;
-                                    average[priceObj[price].symbol] = utils.formatUnits(average[priceObj[price].symbol], priceObj[price].decimals)/allERCPrice.length;
-                                    min[priceObj[price].symbol] = Math.min(...arrayPrice);
-                                    max[priceObj[price].symbol] = Math.max(...arrayPrice);
-                                    count[priceObj[price].symbol] = arrayPrice.length;
-                                    info[priceObj[price].symbol] = {
-                                        average: average[priceObj[price].symbol],
-                                        min: min[priceObj[price].symbol],
-                                        max: max[priceObj[price].symbol],
-                                        count: count[priceObj[price].symbol],
-                                        [`${priceObj[price].symbol}-USD`]: priceObj[price].usd
-                                    };
+                        // console.log(BigInt(resArray[0].buy.data.quantity_with_fees));
+                        // console.log(Number(resArray[0].buy.data.quantity_with_fees));
+                        // resArray.sort((a, b) => (BigInt(a.buy.data.quantity_with_fees) < BigInt(b.buy.data.quantity_with_fees)) ? -1 : ((BigInt(a.buy.data.quantity_with_fees) > BigInt(b.buy.data.quantity_with_fees)) ? 1 : 0))
+                        resArray.sort((a, b) => Number(a.buy.data.quantity_with_fees) - Number(b.buy.data.quantity_with_fees));
+                        const info = {};
+                        const average = {};
+                        const min = {};
+                        const max = {};
+                        const count = {};
+                        Object.keys(priceObj).forEach(price => {
 
-                                }
+                            // console.log('Расчет средней для ' + priceObj[price].symbol);
+                            average[priceObj[price].symbol] = BigNumber.from(0);
+                            min[priceObj[price].symbol] = 0;
+                            max[priceObj[price].symbol] = 0;
+                            count[priceObj[price].symbol] = 0;
+                            const allERCPrice = resArray.filter(x => x.buy.data.token_address == priceObj[price].token_address || x.buy.type == 'ETH' && priceObj[price].symbol == 'ETH');
+                            if (allERCPrice.length > 0) {
+                                const arrayPrice = [];
 
-                               
-                              
+                                allERCPrice.forEach(e => {
+                                    average[priceObj[price].symbol] = BigNumber.from(e.buy.data.quantity_with_fees).add(average[priceObj[price].symbol]);
+                                    const priceOne = BigNumber.from(e.buy.data.quantity_with_fees);
+                                    // console.log(utils.formatUnits(priceOne, priceObj[price].decimals) + ' ' + priceObj[price].symbol);
+                                    // console.log(`${priceObj[price].symbol} == ${utils.formatUnits(priceOne, priceObj[price].decimals)*priceObj[price].usd} USD`);
+                                    arrayPrice.push(utils.formatUnits(priceOne, priceObj[price].decimals));
+                                    info['name'] = e.sell.data.properties.name;
 
-                            })
-                            Object.keys(info).forEach(ele=> {
-                                if (!info.hasOwnProperty('spread_GODS_ETH')) {
-                                    info['spread_GODS_ETH'] = 0;
+                                });
+                                // average[priceObj[price].symbol] = average[priceObj[price].symbol]/allERCPrice.length;
+                                average[priceObj[price].symbol] = utils.formatUnits(average[priceObj[price].symbol], priceObj[price].decimals) / allERCPrice.length;
+                                min[priceObj[price].symbol] = Math.min(...arrayPrice);
+                                max[priceObj[price].symbol] = Math.max(...arrayPrice);
+                                count[priceObj[price].symbol] = arrayPrice.length;
+                                info[priceObj[price].symbol] = {
+                                    average: average[priceObj[price].symbol],
+                                    min: min[priceObj[price].symbol],
+                                    max: max[priceObj[price].symbol],
+                                    count: count[priceObj[price].symbol],
+                                    [`${priceObj[price].symbol}-USD`]: priceObj[price].usd
+                                };
 
-                                }
-                                if (ele == 'GODS' && info['ETH'] != undefined) {
-                                    const priceEth = info['ETH'].average*priceObj['ethereum'].usd;
-                                    // console.log('priceEth^  ' + priceEth + ' USD');
-                                    const priceGODS = info[ele].average*priceObj['gods-unchained'].usd;
-                                    // console.log('priceGODS^  ' + priceGODS + ' USD');
+                            }
 
-                                    info['spread_GODS_ETH'] = {
-                                        spread: (priceGODS/priceEth-1)*100,
-                                        priceEth_USD: priceEth,
-                                        priceGODS_USD: priceGODS
 
-                                    };
+
+
+                        })
+                        Object.keys(info).forEach(ele => {
+                            if (!info.hasOwnProperty('spread_GODS_ETH')) {
+                                info['spread_GODS_ETH'] = 0;
+
+                            }
+                            if (ele == 'GODS' && info['ETH'] != undefined) {
+                                const priceEth = info['ETH'].average * priceObj['ethereum'].usd;
+                                // console.log('priceEth^  ' + priceEth + ' USD');
+                                const priceGODS = info[ele].average * priceObj['gods-unchained'].usd;
+                                // console.log('priceGODS^  ' + priceGODS + ' USD');
+
+                                info['spread_GODS_ETH'] = {
+                                    spread: (priceGODS / priceEth - 1) * 100,
+                                    priceEth_USD: priceEth,
+                                    priceGODS_USD: priceGODS
+
+                                };
                                 //  info['spread_GODS-ETH'] = info['spread_GODS-ETH'] + info[ele].average;
 
 
-                                }
-                            })
-                            
-                            console.log('Average');
-                            console.log(info);
-                            clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 150000);
-                            console.log('!=======!');
-                            // расчитать надо для каждой монеты свою среднию.
-    
-    
-                            console.log('Сделок за последние 3 дня ' + resArray.length);
-                      
-                       
+                            }
+                        })
+
+                        // console.log('Average');
+                        // console.log(info);
+                        clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 150000);
+                        // console.log('!=======!');
+                        // расчитать надо для каждой монеты свою среднию.
+
+
+                        // console.log('Сделок за последние 3 дня ' + resArray.length);
+
+
                         // console.log(resArray[resArray.length - 1]);
-                          return info
+                        return info
 
 
                     } catch (e) {
@@ -186,138 +181,9 @@ function start(itemsArray, port, name) {
 
 
 
-            // arrayPromise.push(workerWhile.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async (res) => {
-            //     if (Array.isArray(res) && res.length > 0) {
-            //         const promiseArr = [];
-            //         const resArray = res.flat();
 
-            //         for (let index = 0; index < Math.ceil(resArray.length / 50); index++) {
-            //             const rndString = helper.makeid(5);
-
-            //             channel[`worker_scanPrice_${i}_${rndString}`] = new MessageChannel();
-            //             channel[`worker_scanPrice_${i}_${rndString}`].port2.on('message', (rpc) => {
-            //                 // if (rpc.get && rpc.worker_children_name.includes('worker_scanPrice_')) {
-            //                 //     console.log('Получили запрос от ' + rpc.worker_children_name);
-            //                 //     console.log(rpc);
-
-
-            //                 // }
-            //                 rpc['name_chanel'] = name;
-
-
-            //                 port.postMessage(rpc)
-
-            //             });
-            //             let newArray = resArray.splice(0, 50);
-
-            //             promiseArr.push(worker_scanPrice.run({ array_item: newArray, port: channel[`worker_scanPrice_${i}_${rndString}`].port1, name: `worker_scanPrice_${i}_${rndString}` }, { transferList: [channel[`worker_scanPrice_${i}_${rndString}`].port1] }));
-
-            //         };
-
-
-            //         const priceObj = await getPrice();
-                   
-
-            //         await Promise.allSettled(promiseArr).then((res) => {
-
-            //             const arr = [];
-            //             res.forEach(element => {
-            //                 arr.push(element.value);
-
-            //             });
-            //             console.log('Сортируем');
-                        
-            //             const resArray = arr.flat();
-            //             arr.length = 0;
-            //             try {
-            //                 if (Array.isArray(resArray) && resArray.length > 0) {
-            //                     // console.log(BigInt(resArray[0].buy.data.quantity_with_fees));
-            //                     console.log(Number(resArray[0].buy.data.quantity_with_fees));
-            //                     // resArray.sort((a, b) => (BigInt(a.buy.data.quantity_with_fees) < BigInt(b.buy.data.quantity_with_fees)) ? -1 : ((BigInt(a.buy.data.quantity_with_fees) > BigInt(b.buy.data.quantity_with_fees)) ? 1 : 0))
-            //                     resArray.sort((a, b) => Number(a.buy.data.quantity_with_fees) - Number(b.buy.data.quantity_with_fees));
-            //                     const info = {};
-            //                     const average = {};
-            //                     const min = {};
-            //                     const max = {};
-            //                     const count = {};
-            //                     Object.keys(priceObj).forEach(price=> {
-                                 
-            //                         console.log('Расчет средней для ' + priceObj[price].symbol);
-            //                         average[priceObj[price].symbol] = BigNumber.from(0);
-            //                         min[priceObj[price].symbol] = 0;
-            //                         max[priceObj[price].symbol] = 0;
-            //                         count[priceObj[price].symbol] = 0;
-            //                         const allERCPrice = resArray.filter(x=> x.buy.data.token_address == priceObj[price].token_address || x.buy.type == 'ETH' && priceObj[price].symbol == 'ETH');
-            //                         if (allERCPrice.length > 0) {
-            //                             const arrayPrice = [];
-                                     
-            //                             allERCPrice.forEach(e=> {
-            //                                 average[priceObj[price].symbol] = BigNumber.from(e.buy.data.quantity_with_fees).add(average[priceObj[price].symbol]);
-            //                                 const priceOne = BigNumber.from(e.buy.data.quantity_with_fees);
-            //                                 console.log(utils.formatUnits(priceOne, priceObj[price].decimals) + ' ' + priceObj[price].symbol);
-            //                                 console.log(`${priceObj[price].symbol} == ${utils.formatUnits(priceOne, priceObj[price].decimals)*priceObj[price].usd} USD`);
-            //                                 arrayPrice.push(utils.formatUnits(priceOne, priceObj[price].decimals));
-            //                                 info['name'] = e.sell.data.properties.name;
-    
-            //                             });
-            //                             // average[priceObj[price].symbol] = average[priceObj[price].symbol]/allERCPrice.length;
-            //                             average[priceObj[price].symbol] = utils.formatUnits(average[priceObj[price].symbol], priceObj[price].decimals)/allERCPrice.length;
-            //                             min[priceObj[price].symbol] = Math.min(...arrayPrice);
-            //                             max[priceObj[price].symbol] = Math.max(...arrayPrice);
-            //                             count[priceObj[price].symbol] = arrayPrice.length;
-            //                             info[priceObj[price].symbol] = {
-            //                                 average: average[priceObj[price].symbol],
-            //                                 min: min[priceObj[price].symbol],
-            //                                 max: max[priceObj[price].symbol],
-            //                                 count: count[priceObj[price].symbol],
-            //                             };
-
-            //                         }
-                                  
-
-            //                     })
-            //                     // resArray.forEach(e=> {
-            //                     //     sum = Number(e.buy.data.quantity_with_fees)+Number(sum)
-            //                     // })
-    
-            //                     // const sum = arr.reduce((partial_sum, a) => partial_sum + a.buy.data.quantity_with_fees, 0);
-            //                     // console.log('Sum ' + sum);
-            //                     // const average = Number(sum) / resArray.length;
-            //                     console.log('Average');
-            //                     console.log(info);
-            //                     console.log('!=======!');
-            //                     // расчитать надо для каждой монеты свою среднию.
-        
-        
-            //                     console.log('Сделок за последние 3 дня ' + resArray.length);
-            //                 }
-                           
-            //                 // console.log(resArray[resArray.length - 1]);
-
-            //             } catch (e) {
-            //                 console.log(resArray[0]);
-
-            //                 console.log(e);
-
-            //             }
-              
-            //               return(average)
-
-            //         });
-
-            //     } else {
-            //         return {}
-            //     }
-
-
-            // }));
             channel[`workerWhile_${i}_${rndString}`].port2.on('message', (rpc) => {
-                // if (rpc.get && rpc.worker_children_name.includes('worker_scanPrice_')) {
-                //     console.log('Получили запрос от ' + rpc.worker_children_name);
-                //     console.log(rpc);
 
-
-                // }
                 rpc['name_chanel'] = name;
 
 
@@ -326,70 +192,36 @@ function start(itemsArray, port, name) {
             });
 
             helper.timeout(300).then(async () => {
-                if (filterArray.length-1 == i) {
+                if (filterArray.length - 1 == i) {
                     let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
-                console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
-                setInterval(() => {
-                    let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
-                    console.log(promiseArr[0]);
                     console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
-    
-    
-                }, 5000);
-                await Promise.allSettled(arrayPromise).then(() => {
-                    return resolve()
-                }).catch(e => {
-                    console.log(e);
-                    return resolve()
-                })
+                    setInterval(() => {
+                        let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
+                        console.log(promiseArr[0]);
+                        console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
+
+
+                    }, 5000);
+                    await Promise.allSettled(arrayPromise).then(() => {
+                        return resolve()
+                    }).catch(e => {
+                        console.log(e);
+                        return resolve()
+                    })
 
                 }
-                
+
             })
 
 
 
- 
+
 
 
 
 
         });
-        // Object.keys(channel).forEach(chanel => {
-        //     channel[chanel].port2.on('message', (rpc) => {
-        //         if (rpc.get && rpc.worker_children_name.includes('worker_scanPrice_')) {
-        //             console.log('Получили запрос от ' + rpc.worker_children_name);
-        //             console.log(rpc);
 
-
-        //         }
-        //         rpc['name_chanel'] = name;
-
-
-        //         port.postMessage(rpc)
-
-        //     })
-
-        // })
-
-
-        // helper.timeout(30000).then(async () => {
-        //     let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
-        //     console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
-        //     setInterval(() => {
-        //         let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
-        //         console.log(promiseArr[0]);
-        //         console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
-
-
-        //     }, 5000);
-        //     await Promise.allSettled(arrayPromise).then(() => {
-        //         return resolve()
-        //     }).catch(e => {
-        //         console.log(e);
-        //         return resolve()
-        //     })
-        // })
 
 
 
@@ -412,7 +244,7 @@ module.exports = ({ itemsArray, port, name }) => {
 
         start(itemsArray, port, name).then((res) => {
             let end = new Date().getTime();
-            console.log(`================\nWorker getItemsinWhile ${name} end ${end - startTime}`);
+            console.log(`================\nWorker getItemsinWhile ${name} end ${end - startTime} ms`);
 
             resolve(res);
         }).catch(e => {

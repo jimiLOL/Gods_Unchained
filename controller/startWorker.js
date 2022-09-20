@@ -4,7 +4,7 @@ const fs = require('fs')
 const helper = require('../helper');
 const { init } = require('./startWatcherMyItems');
 const { MessageChannel } = require('worker_threads');
-const channel = new MessageChannel();
+const channel = {};
 const { checktProxy } = require("../get_proxyInit");
 
 const Piscina = require('piscina');
@@ -15,16 +15,32 @@ const worker_watcher = new Piscina({
     maxQueue: 2,
     maxThreads: 10
 });
-
+const worker_getExchange = new Piscina({
+    filename: path.resolve('./worker_dir', 'getExcheange.js'),
+    // maxQueue: 2,
+    // maxThreads: 50
+});
 
 function start() {
     // const arrayPromise = []; // прмисы глобальных воркеров
+    channel['price_port'] = new MessageChannel();
+
+    worker_getExchange.run({ port: channel['price_port'].port1 }, { transferList: [channel['price_port'].port1] });
+
+    channel['price_port'].port2.on('message', (rpc) => {
+        // console.log('proxy_port');
+        // console.log(rpc);
+        // console.log(channel[rpc.name_chanel]);
+        channel[rpc.globalWorker].port2.postMessage(rpc)
+
+    })
+
 
     getProxy().then(res => {
         fs.writeFileSync(`./proxy/proxy.txt`, '');
 
 
-        let newArray = res.data.split("\n", 500);
+        let newArray = res.data.split("\n", 3000);
         console.log(newArray[0]);
 
         console.log(newArray.length);
@@ -43,7 +59,7 @@ function start() {
             checktProxy('proxy').then(async () => {
                 // const userListItems = await helper.timeout(500).then(() => init())  // получение карточек нашего кошелька
                 // console.log('userListItems count ' + userListItems.length);
-                // setInterval(() => {
+                setInterval(() => {
                     // i++
 
                     // arrayPromise.forEach(worker => {
@@ -57,26 +73,36 @@ function start() {
 
                     if (worker_watcher.threads.length < 10) {
                         let start = new Date().getTime();
+                        const rndString = helper.makeid(8);
+                        channel[`globalWorker_${rndString}`] = new MessageChannel();
+
 
                       worker_watcher.run({ 
-                            // port: channel.port1,
+                            port: channel[`globalWorker_${rndString}`].port1,
+                            name: `globalWorker_${rndString}`,
                             starttime: start,
                             //  userListItems: userListItems
                              }, 
-                            //  {transferList: [channel.port1]}
+                             {transferList: [channel[`globalWorker_${rndString}`].port1]}
                              ).then((message) => {
-                            console.log(message);
+                                console.log(message);
+                                channel[message.name].port2.close();
+                               delete channel[message.name];
                             let end = new Date().getTime()
                             console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
 
                         }).catch(e => {
                             console.log(e);
+                        });
+                        channel[`globalWorker_${rndString}`].port2.on('message', (rpc)=> {
+                            channel['price_port'].port2.postMessage(rpc)
+
                         })
                     }
 
 
 
-                // }, 1000);
+                }, 1000);
 
 
                 
