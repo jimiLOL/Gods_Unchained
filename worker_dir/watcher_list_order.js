@@ -121,6 +121,7 @@ function start(port, name) {
                                 // let star = new Date().getTime();
                                 const db_price = JSON.parse(average_price);
 
+
                                 if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.ETH.count > 30 && db_price.spread_GODS_ETH.spread > 10) {
                                     
 
@@ -128,15 +129,24 @@ function start(port, name) {
                                     priceItem = utils.formatUnits(priceItem, '18');
                                     if (priceItem <= db_price.ETH.min) {
                                     console.log(db_price);
-                                    console.log('item id ' + item.sell.data.properties.token_id + ' price^ ' +priceItem + ' ETH');
+                                    console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
 
 
                                     console.log('ms click');
+                                    fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: ms click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${db_price}`, function (error) {
+                                        
+                                    })
+
+                                  
 
                                         // мисклк
                                     } else if (priceItem <= db_price.ETH.average) {
                                     console.log(db_price);
                                     console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
+                                    fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: average click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${db_price}`, function (error) {
+                                        
+                                    })
+
 
 
                                     console.log('average click');
@@ -307,7 +317,7 @@ module.exports = ({ port, starttime, name }) => {
 
         start(port, name).then((res) => {
             console.log('Worker watcher_list_order end');
-            port.close()
+            // port.close()
 
             resolve({name: name});
         }).catch(e => {

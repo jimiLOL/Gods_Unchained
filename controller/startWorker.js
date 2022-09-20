@@ -86,8 +86,8 @@ function start() {
                              {transferList: [channel[`globalWorker_${rndString}`].port1]}
                              ).then((message) => {
                                 console.log(message);
-                                channel[message.name].port2.close();
-                               delete channel[message.name];
+                                // channel[message.name].port2.close();
+                            //    delete channel[message.name];
                             let end = new Date().getTime()
                             console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
 
