@@ -127,29 +127,43 @@ function start(port, name) {
 
                                     let priceItem = BigNumber.from(item.buy.data.quantity_with_fees);
                                     priceItem = utils.formatUnits(priceItem, '18');
+                                    let rpc = {
+                                        init_buy: true,
+                                        id: item.sell.data.token_id,
+                                        db_price: db_price,
+                                        priceItem: priceItem,
+                                        item: item,
+                                        event_type: ''
+                                    }
                                     if (priceItem <= db_price.ETH.min) {
-                                    console.log(db_price);
-                                    console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
+                                        rpc.event_type = 'ms click';
+                                       
+                                        port.postMessage(rpc)
+                                    // console.log(db_price);
+                                    // console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
 
 
-                                    console.log('ms click');
-                                    fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: ms click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}\n\r`, function (error) {
+                                    // console.log('ms click');
+                                    // fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: ms click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}\n\r`, function (error) {
                                         
-                                    })
+                                    // })
 
                                   
 
                                         // мисклк
                                     } else if (priceItem <= db_price.ETH.average) {
-                                    console.log(db_price);
-                                    console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
-                                    fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: average click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}\n\r`, function (error) {
+                                        rpc.event_type = 'average click';
+                                        port.postMessage(rpc)
+
+                                    // console.log(db_price);
+                                    // console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
+                                    // fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: average click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}\n\r`, function (error) {
                                         
-                                    })
+                                    // })
 
 
 
-                                    console.log('average click');
+                                    // console.log('average click');
 
 
                                     }
@@ -242,18 +256,18 @@ function start(port, name) {
                     helper.timeout(100).then(async ()=> {
                         if (index == iteration_index-1) {
                              
-                            setInterval(() => {
-                                console.log('Progress in ' + worker_get_items_for_name.threads.length + ' workers');
-                                let promiseArr = promiseWorker.filter(x => util.inspect(x).includes("pending"));
-                                console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + promiseWorker.length);
+                            // setInterval(() => {
+                            //     console.log('Progress in ' + worker_get_items_for_name.threads.length + ' workers');
+                            //     let promiseArr = promiseWorker.filter(x => util.inspect(x).includes("pending"));
+                            //     console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + promiseWorker.length);
 
-                            }, 4000);
+                            // }, 4000);
                             await Promise.allSettled(promiseWorker).then((r) => {
                                 console.log('==============\nPromise end\n==============');
-                                resolve()
+                                return resolve()
                             }).catch(e => {
                                 console.log(e);
-                                resolve()
+                                return resolve()
                             })
 
                       
