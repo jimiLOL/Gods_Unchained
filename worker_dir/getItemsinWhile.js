@@ -68,7 +68,7 @@ function start(itemsArray, port, name) {
 
         });
         if (filterArray.length == 0) {
-            resolve()
+           return resolve()
         }
         console.log('Будет создано ' + filterArray.length + '  задач для сбора');
 
