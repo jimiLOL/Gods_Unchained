@@ -120,6 +120,8 @@ function start(port, name) {
                                 i++
                                 // let star = new Date().getTime();
                                 const db_price = JSON.parse(average_price);
+                                
+                                
 
 
                                 if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.ETH.count > 30 && db_price.spread_GODS_ETH.spread > 10) {

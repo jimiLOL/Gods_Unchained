@@ -1,6 +1,8 @@
 
 const Redis = require("ioredis");
 const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
+const fs = require('fs');
+
 
 function start(port, name, item) {
     return new Promise(async (resolve) => {
