@@ -10,7 +10,7 @@ function start(port, name, item) {
         port.on('message', (rpc)=> {
 
             if (!taskBuy.has(rpc.id)) {
-                taskBuy.set(rpc.id, rpc.item)
+                taskBuy.set(rpc.id, rpc.item.sell.data.properties.name)
 
                 fs.appendFile(`./result/result_${rpc.item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: ms click item id ${rpc.item.sell.data.token_id} price^ ${rpc.priceItem} ETH\n${JSON.stringify(rpc.db_price)}\n\r`, function (error) {
                                         
