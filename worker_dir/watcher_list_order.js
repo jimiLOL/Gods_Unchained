@@ -133,7 +133,7 @@ function start(port, name) {
 
 
                                     console.log('ms click');
-                                    fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: ms click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${db_price}`, function (error) {
+                                    fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: ms click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}`, function (error) {
                                         
                                     })
 
@@ -143,7 +143,7 @@ function start(port, name) {
                                     } else if (priceItem <= db_price.ETH.average) {
                                     console.log(db_price);
                                     console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
-                                    fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: average click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${db_price}`, function (error) {
+                                    fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: average click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}`, function (error) {
                                         
                                     })
 
