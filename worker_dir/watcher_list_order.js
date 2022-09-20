@@ -204,7 +204,7 @@ function start(port, name) {
                     };
 
                     helper.timeout(500).then(async ()=> {
-                        if (promiseWorker.length > 0 && index == iteration_index-1) {
+                        if (index == iteration_index-1) {
                              
                             setInterval(() => {
                                 console.log('Progress in ' + worker_get_items_for_name.threads.length + ' workers');
