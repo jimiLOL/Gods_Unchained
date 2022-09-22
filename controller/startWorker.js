@@ -12,8 +12,8 @@ const path = require('path');
 
 const worker_watcher = new Piscina({
     filename: path.resolve('./worker_dir', 'watcher_list_order.js'),
-    maxQueue: 2,
-    maxThreads: 10
+    maxQueue: 1,
+    maxThreads: 20
 });
 const worker_getExchange = new Piscina({
     filename: path.resolve('./worker_dir', 'getExcheange.js'),
@@ -91,7 +91,7 @@ function start() {
                     // console.log('start');
                     console.log('Global worker count ' + worker_watcher.threads.length);
 
-                    if (worker_watcher.threads.length < 10) {
+                    if (worker_watcher.threads.length < 8) {
                         let start = new Date().getTime();
                         const rndString = helper.makeid(8);
                         channel[`globalWorker_${rndString}`] = new MessageChannel();
@@ -129,7 +129,7 @@ function start() {
 
 
 
-                }, 1000);
+                }, 500);
 
 
                 

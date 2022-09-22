@@ -15,7 +15,7 @@ const path = require('path');
 const { MessageChannel } = require('worker_threads');
 const channel = {};
 
-const iteration_index = 10;
+const iteration_index = 3;
 
 const worker_get_items_for_name = new Piscina({
     filename: path.resolve('./worker_dir', 'getItemsinWhile.js'),
