@@ -7,7 +7,7 @@ const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYl
 const { utils, BigNumber } = require("ethers");
 
 
-const util = require("util");
+// const util = require("util");
 
 const Piscina = require('piscina');
 const path = require('path');
@@ -27,20 +27,26 @@ const worker_proxy = new Piscina({
     // maxQueue: 2,
     // maxThreads: 50
 });
- 
+let objectPrice;
 
 // это будут глобалные Workers
 
 function start(port, name) {
     const MessageChannelInit = {};
     return new Promise(async (resolve, reject) => {
-        
+
 
         port.on('message', (rpc) => {
             // console.log('proxy_port');
             // console.log(rpc);
             // console.log(channel[rpc.name_chanel]);
-            channel[rpc.name_chanel].port2.postMessage(rpc)
+            if (rpc.internal) {
+                objectPrice = rpc.price;
+
+            } else {
+                channel[rpc.name_chanel].port2.postMessage(rpc)
+
+            }
 
         })
 
@@ -86,33 +92,64 @@ function start(port, name) {
 
 
                             // console.log(item.sell.data.properties.name);
-                            if (await clientRedis.exists(`my_item_${item.sell.data.properties.name}`)) {
+                            if (await clientRedis.llen(`my_item_${item.sell.data.properties.name}`) > 0) {
                                 i++
                                 // если у нас самих имеется такая карточка - надо проверить цену и перебить ее, если она ниже нашей
-                                const price = await await clientRedis.get(`my_item_${item.sell.data.properties.name.replace(' ', '_')}`);
-                                console.log(price);
-                                // отправляем задачу в отдельный воркер котрый перебивает это все делож
-                                const worker_set_new_price = new Piscina({
-                                    filename: path.resolve('./worker_dir', '.js'),
-                                    maxQueue: 2,
-                                    maxThreads: 2
-                                });
-                                promiseWorker.push(worker_set_new_price.run({
-                                    // port: channel.port1,
-                                    // starttime: start,
-                                    userListItems: JSON.parse(price)
-                                },
-                                    //  {transferList: [channel.port1]}
-                                ).then((message) => {
-                                    console.log(message);
+                                const price = await clientRedis.lrange(`my_item_${item.sell.data.properties.name.replace(' ', '_')}`, 0, -1);
+                                let priceItem = BigNumber.from(item.buy.data.quantity_with_fees);
+                                priceItem = utils.formatUnits(priceItem, '18');
+                                let rpc = {
+                                    get_price: true,
+                                    // name_chanel: name,
+                                    internal: true,
+                                    globalWorker: name
+                                };
+                                while (!objectPrice) {
+                                    await helper.timeout(20);
+                                    console.log('Ждем новые цены в watcher_list_order...');
 
-                                }).catch(e => {
-                                    console.log(e);
-                                }));
+                                }
+
+                                let newArray = price.filter(x => {
+                                    let y = JSON.parse(x);
+                                    if (y.date < new Date().getTime() - 24 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && (y.priceItem * objectPrice['ethereum'].usd) > (priceItem * objectPrice['gods-unchained'].usd)) {
+                                        return y
+                                    }
+
+                                });
+                                console.log(newArray);
+
+                                if (newArray.length > 0) {
+                                    newArray.forEach(element => {
+                                        // отправляем задачу в отдельный воркер котрый перебивает это все делож
+
+                                    });
+
+
+                                }
+
+                                // const worker_set_new_price = new Piscina({
+                                //     filename: path.resolve('./worker_dir', '.js'),
+                                //     maxQueue: 2,
+                                //     maxThreads: 2
+                                // });
+
+                                // promiseWorker.push(worker_set_new_price.run({
+                                //     // port: channel.port1,
+                                //     // starttime: start,
+                                //     userListItems: JSON.parse(price)
+                                // },
+                                //     //  {transferList: [channel.port1]}
+                                // ).then((message) => {
+                                //     console.log(message);
+
+                                // }).catch(e => {
+                                //     console.log(e);
+                                // }));
 
                             };
-                            
-                            
+
+
                             const average_price = await await clientRedis.get(`average_price_${item.sell.data.properties.name.replace(' ', '_')}`);
 
 
@@ -120,12 +157,12 @@ function start(port, name) {
                                 i++
                                 // let star = new Date().getTime();
                                 const db_price = JSON.parse(average_price);
-                                
-                                
+
+
 
 
                                 if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.ETH.count > 30 && db_price.spread_GODS_ETH.spread > 10) {
-                                    
+
 
                                     let priceItem = BigNumber.from(item.buy.data.quantity_with_fees);
                                     priceItem = utils.formatUnits(priceItem, '18');
@@ -139,45 +176,45 @@ function start(port, name) {
                                     }
                                     if (priceItem <= db_price.ETH.min) {
                                         rpc.event_type = 'ms click';
-                                       
+
                                         port.postMessage(rpc)
-                                    // console.log(db_price);
-                                    // console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
+                                        // console.log(db_price);
+                                        // console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
 
 
-                                    // console.log('ms click');
-                                    // fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: ms click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}\n\r`, function (error) {
-                                        
-                                    // })
+                                        // console.log('ms click');
+                                        // fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: ms click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}\n\r`, function (error) {
 
-                                  
+                                        // })
+
+
 
                                         // мисклк
                                     } else if (priceItem <= db_price.ETH.average) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
-                                    // console.log(db_price);
-                                    // console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
-                                    // fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: average click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}\n\r`, function (error) {
-                                        
-                                    // })
+                                        // console.log(db_price);
+                                        // console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
+                                        // fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: average click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}\n\r`, function (error) {
+
+                                        // })
 
 
 
-                                    // console.log('average click');
+                                        // console.log('average click');
 
 
                                     }
-    
+
                                     // console.log(db_price);
                                     // let end = new Date().getTime();
                                     // console.log(`Рассчеты заняли ${end-star}`);
-    
+
                                     // инициализируем воркер на покупку
 
                                 }
-                             
+
 
 
                             } else if (await clientRedis.exists(`worker_isWork_${item.sell.data.properties.name.replace(' ', '_')}`)) {
@@ -245,7 +282,7 @@ function start(port, name) {
                             };
 
 
-                            
+
 
 
 
@@ -255,9 +292,9 @@ function start(port, name) {
 
                     };
 
-                    helper.timeout(100).then(async ()=> {
-                        if (index == iteration_index-1) {
-                             
+                    helper.timeout(100).then(async () => {
+                        if (index == iteration_index - 1) {
+
                             // setInterval(() => {
                             //     console.log('Progress in ' + worker_get_items_for_name.threads.length + ' workers');
                             //     let promiseArr = promiseWorker.filter(x => util.inspect(x).includes("pending"));
@@ -272,14 +309,14 @@ function start(port, name) {
                                 return resolve()
                             })
 
-                      
 
-                    }
+
+                        }
                     })
 
 
 
-                  
+
 
                 }).catch(e => {
                     console.log(e);
@@ -335,7 +372,7 @@ module.exports = ({ port, starttime, name }) => {
             console.log('Worker watcher_list_order end');
             // port.close()
 
-            resolve({name: name});
+            resolve({ name: name });
         }).catch(e => {
             console.log('Worker Error watcher_list_order');
 

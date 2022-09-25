@@ -20,11 +20,10 @@ const config = getConfig({
 // const coreSdkWorkflows = new Workflows(coreSdkConfig);
 
 const tokenAddress = '0xacb3c6a43d15b907e8433077b6d38ae40936fe2c';
-  
+
 
 const privateKey = '0940e5a0a8d1f5b26638671f7e91388c6ba689a86c45361f1d71b8804d439dc2';
-const provider = new AlchemyProvider('mainnet', '_qSfSMAPno3c1rCcufjgEwdqUJmTmDbF');
-const signer = new Wallet(privateKey).connect(provider);
+// const signer = new Wallet(privateKey).connect(provider);
 
 
 // const linkAddress = 'https://link.x.immutable.com';
@@ -41,25 +40,33 @@ const generateWalletConnection = async (provider) => {
 
     return {
         l1Signer,
-        l2Signer        
+        l2Signer
     };
 };
 const coreSdkWorkflows = new Workflows(config);
- 
-async function startTest() { 
-const WC = await generateWalletConnection(provider); // создаем подключение 
+let WC;
 
-    let s = new Date().getTime();
+(async () => {
+    const provider = new AlchemyProvider('mainnet', '_qSfSMAPno3c1rCcufjgEwdqUJmTmDbF');
+
+    WC = await generateWalletConnection(provider); // создаем подключение 
+
+})();
+
+async function init_Order({tokenId, price}) {
+
+
+    // let s = new Date().getTime();
 
 
     // const chainID = await signer.getChainId();
     // console.log(chainID); // этот код не обязательный, просто показывает в какой мы сети
 
- 
 
-     let tokenId = '138712946';
 
-     
+    //  let tokenId = '138712946';
+
+
 
     const now = new Date(Date.now());
     now.setMonth(now.getMonth() + 1);
@@ -67,7 +74,7 @@ const WC = await generateWalletConnection(provider); // создаем подк�
 
     const orderParameters = {
         // Change '0.1' to any value of the currency wanted to sell this asset
-        amount_buy: utils.parseEther('60.2').toString(),
+        amount_buy: utils.parseEther(String(price)).toString(),
         // Change '1' to any value indicating the number of assets you are selling
         amount_sell: '1',
         expiration_timestamp: timestamp,
@@ -81,14 +88,14 @@ const WC = await generateWalletConnection(provider); // создаем подк�
                 decimals: 18, // Or any decimals used by the token
             },
         },
-        
+
         // The asset being sold
         token_sell: {
             type: 'ERC721',
             data: {
                 // The collection address of this asset
                 token_address: tokenAddress,
-                
+
                 // The ID of this asset
                 token_id: tokenId,
             },
@@ -100,19 +107,20 @@ const WC = await generateWalletConnection(provider); // создаем подк�
     // console.log(await WC.l1Signer.getAddress()); // смотрим наш адрес 
 
 
- 
+
 
     const response = await coreSdkWorkflows.createOrder(
         WC, orderParameters
     );
     // This will log the response specified in this API: https://docs.x.immutable.com/reference/#/operations/createOrder
-    console.log(response);
-    let end = new Date().getTime();
-    console.log(`Finish ${end-s}`);
- 
-  
+    // console.log(response);
+    return response
+    // let end = new Date().getTime();
+    // console.log(`Finish ${end-s}`);
+
+
 
 }
 
 
-module.exports = { startTest }
+module.exports = { init_Order }

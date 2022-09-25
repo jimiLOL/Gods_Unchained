@@ -26,13 +26,19 @@ const worker_createTrade = new Piscina({
     // maxQueue: 2,
     maxThreads: 1
 });
-
+const worker_createOrder = new Piscina({
+    filename: path.resolve('./worker_dir', 'createOrder.js'),
+    // maxQueue: 2,
+    maxThreads: 1
+});
 function start() {
     // const arrayPromise = []; // прмисы глобальных воркеров
     channel['create_trade'] = new MessageChannel();
+    channel['create_order'] = new MessageChannel();
 
 
     worker_createTrade.run({ port: channel['create_trade'].port1 }, { transferList: [channel['create_trade'].port1] });
+    worker_createOrder.run({ port: channel['create_order'].port1 }, { transferList: [channel['create_order'].port1] });
 
     channel['create_trade'].port2.on('message', (rpc) => {
         // console.log('proxy_port');
@@ -40,7 +46,7 @@ function start() {
         // console.log(channel[rpc.name_chanel]);
         // channel[rpc.globalWorker].port2.postMessage(rpc)
 
-    })
+    });
 
 
     channel['price_port'] = new MessageChannel();
@@ -121,6 +127,10 @@ function start() {
                             }
                             if (rpc.init_buy) {
                                 channel['create_trade'].port2.postMessage(rpc)
+
+                            }
+                            if (rpc.init_order) {
+                                channel['create_order'].port2.postMessage(rpc)
 
                             }
 

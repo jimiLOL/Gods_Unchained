@@ -24,9 +24,7 @@ server.register(require('fastify-cors'),
 } // только для разработки
 );
 
-// const {startTest} = require('./testBuyNft');
-const {startTest} = require('./testCreateOrder');
-startTest()
+ 
 // start()
 
 
