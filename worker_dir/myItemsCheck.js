@@ -28,7 +28,7 @@ function start() {
                            
                             let newPrice = utils.formatUnits(String(sellPrice), '18');
     
-                            const result = await init_Order({tokenId: itemData.token_id, price: Number(newPrice).toFixed(2), workerType: 'myItemsCheck'}).then(async res=> {
+                            const result = await init_Order({tokenId: itemData.token_id, price: Number(newPrice).toFixed(8), workerType: 'myItemsCheck'}).then(async res=> {
                             await clientRedis.lpush(ele, JSON.stringify(itemData));
                             return res
 
