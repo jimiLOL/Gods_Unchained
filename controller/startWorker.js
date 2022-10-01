@@ -7,6 +7,9 @@ const { MessageChannel } = require('worker_threads');
 const channel = {};
 const { checktProxy } = require("../get_proxyInit");
 
+const CronJob = require("cron").CronJob;
+const CronTime = require("cron").CronTime;
+
 const Piscina = require('piscina');
 const path = require('path');
 
@@ -28,6 +31,11 @@ const worker_createTrade = new Piscina({
 });
 const worker_createOrder = new Piscina({
     filename: path.resolve('./worker_dir', 'createOrder.js'),
+    // maxQueue: 2,
+    maxThreads: 1
+});
+const check_my_items = new Piscina({
+    filename: path.resolve('./worker_dir', 'myItemsCheck.js'),
     // maxQueue: 2,
     maxThreads: 1
 });
@@ -167,6 +175,27 @@ function getProxy() {
                 reject();
             });
     });
-}
+};
+
+const startCheck = new CronJob(new Date(), async ()=> {
+    check_my_items.run({}).then(()=> {
+        startCron(startCheck, 900);
+    }).catch(e=> {
+        console.log(e);
+        startCron(startCheck, 900);
+
+
+    })
+
+});
+startCron(startCheck, 2)
+
+function startCron(cron, time) {
+    let d = new Date();
+    d.setSeconds(d.getSeconds() + time);
+    cron.setTime(new CronTime(d));
+    cron.start();
+    return cron.nextDates();
+};
 
 module.exports = { start }

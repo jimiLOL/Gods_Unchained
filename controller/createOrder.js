@@ -53,7 +53,9 @@ let WC;
 
 })();
 
-async function init_Order({tokenId, price}) {
+async function init_Order({tokenId, price, workerType}) {
+    console.log(tokenId, price, workerType);
+    console.log(typeof price);
 
 
     // let s = new Date().getTime();
@@ -111,7 +113,9 @@ async function init_Order({tokenId, price}) {
 
     const response = await coreSdkWorkflows.createOrder(
         WC, orderParameters
-    );
+    ).catch(e=> {
+        console.log(e.message);
+    });
     // This will log the response specified in this API: https://docs.x.immutable.com/reference/#/operations/createOrder
     // console.log(response);
     return response

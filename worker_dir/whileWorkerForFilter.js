@@ -28,6 +28,7 @@ function start(item, port, name) {
 
         const proxy = await getProxy();
         const getOnceItem = await apiImmutable.get_one_item_for_id(item.id, helper.initAgent(proxy), null).catch(() => {
+            cursor = null;
             port.postMessage({set: true, proxy: `${proxy.host}:${proxy.port}`});
 
             resolve([])
@@ -57,7 +58,7 @@ function start(item, port, name) {
                 // console.log('Item name ' + item.name + ' item id ' + item.id + ' item name ' + getOnceItem.data.metadata.name);
 
                 // console.log(res.data.result[0].sell.data.properties.name);
-                if (res?.data?.result?.length == 0) {
+                if (res?.data?.result?.length == 0 || breakVar) {
                     break
                 }
 

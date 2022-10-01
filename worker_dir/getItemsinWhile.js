@@ -89,6 +89,7 @@ function start(itemsArray, port, name) {
                         resArray.sort((a, b) => Number(a.buy.data.quantity_with_fees) - Number(b.buy.data.quantity_with_fees));
                         const info = {};
                         const average = {};
+                        const average_big = {};
                         const min = {};
                         const max = {};
                         const count = {};
@@ -96,6 +97,7 @@ function start(itemsArray, port, name) {
 
                             // console.log('Расчет средней для ' + priceObj[price].symbol);
                             average[priceObj[price].symbol] = BigNumber.from(0);
+                            average_big[priceObj[price].symbol] = 0;
                             min[priceObj[price].symbol] = 0;
                             max[priceObj[price].symbol] = 0;
                             count[priceObj[price].symbol] = 0;
@@ -105,6 +107,7 @@ function start(itemsArray, port, name) {
 
                                 allERCPrice.forEach(e => {
                                     average[priceObj[price].symbol] = BigNumber.from(e.buy.data.quantity_with_fees).add(average[priceObj[price].symbol]);
+                                    average_big[priceObj[price].symbol] = Number(e.buy.data.quantity_with_fees) + average_big[priceObj[price].symbol];
                                     const priceOne = BigNumber.from(e.buy.data.quantity_with_fees);
                                     // console.log(utils.formatUnits(priceOne, priceObj[price].decimals) + ' ' + priceObj[price].symbol);
                                     // console.log(`${priceObj[price].symbol} == ${utils.formatUnits(priceOne, priceObj[price].decimals)*priceObj[price].usd} USD`);
@@ -119,12 +122,14 @@ function start(itemsArray, port, name) {
                                 count[priceObj[price].symbol] = arrayPrice.length;
                                 info[priceObj[price].symbol] = {
                                     average: average[priceObj[price].symbol],
+                                    average_big: average_big[priceObj[price].symbol]/allERCPrice.length,
                                     min: min[priceObj[price].symbol],
                                     max: max[priceObj[price].symbol],
                                     count: count[priceObj[price].symbol],
                                     [`${priceObj[price].symbol}-USD`]: priceObj[price].usd,
                                     token_address: priceObj[price].token_address
                                 };
+                                // console.log(info[priceObj[price].symbol]);
 
                             }
 

@@ -75,7 +75,7 @@ async function buyNFT(order_id) {
     );
     // This will log the response specified in this API: https://docs.x.immutable.com/reference/#/operations/createOrder
     // console.log(response);
-    // return response
+    return response
 
 
 

@@ -41,14 +41,19 @@ function start(port, name, item) {
                 taskBuy.set(rpc.id, rpc.item.sell.data.properties.name)
                 await buyNFT(rpc.item.order_id).then(async res => {
                     console.log(res);
-                    if (res?.order_id) {
-                        await clientRedis.lpush(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, JSON.stringify({ date: new Date().getTime(), order_id: res.order_id, price_buy: rpc.priceItem, db_price: rpc.db_price }))
+                    if (res?.trade_id) {
+                        console.info('Совершили покупку - trade_id: ' + res?.trade_id);
+                        await clientRedis.lpush(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, JSON.stringify({ date: new Date().getTime(), trade_id: res.trade_id, price_buy: rpc.priceItem, db_price: rpc.db_price, init_order: false, item_name: rpc.item.sell.data.properties.name, token_id: rpc.item.sell.data.token_id }))
 
 
                     } else {
                         console.log('===============\n====!Покупка не удалась!====\n===============');
                     }
 
+                }).catch(e=> {
+                    console.log('===============\n====!Произошла ошибка на этапе покупки====\n===============');
+
+                    console.log(e);
                 });
 
 

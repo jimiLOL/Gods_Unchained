@@ -25,7 +25,7 @@ server.register(require('fastify-cors'),
 );
 
  
-// start()
+start()
 
 
 server.register(require('./routers'));
