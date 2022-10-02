@@ -65,40 +65,80 @@ function start(port) {
                 return this.prices;
 
             }
+            // getBalance(res) {
+            //     res.forEach(ele => {
+            //         ele.token_address
+
+            //     });
+            //     return this.prices
+            // }
         }
         let actualExchange;
+        // let Exchange;
+        let actualBalance = {};
+
+
+
         port.on('message', (rpc) => {
             // console.log(rpc);
             rpc['set_price'] = true;
             rpc['price'] = actualExchange;
+            rpc['walletBalance'] = actualBalance;
             port.postMessage(rpc)
 
         });
-          axios.get('https://api.coingecko.com/api/v3/simple/price?ids=immutable-x%2Cethereum%2Cgods-unchained%2Cguild-of-guardians%2Cusd-coin%2Cecomi%2Capecoin&vs_currencies=usd').then((res) => {
-                let Exchange = new getPrice();
-                actualExchange = Exchange.getExchange(res.data)
-                // console.log(actualExchange);
+        axios.get('https://api.coingecko.com/api/v3/simple/price?ids=immutable-x%2Cethereum%2Cgods-unchained%2Cguild-of-guardians%2Cusd-coin%2Cecomi%2Capecoin&vs_currencies=usd').then((res) => {
+            let Exchange = new getPrice();
+            actualExchange = Exchange.getExchange(res.data)
+            // console.log(actualExchange);
 
-            }).catch(e=> {
-                console.log(e);
-            })
+        }).catch(e => {
+            console.log(e);
+        });
+        axios.get('https://api.x.immutable.com/v2/balances/0xb8F202dC3242A6b17d7Be5e2956aC2680EAf223c').then((res) => {
+            // Exchange.getBalance()
+            if (Array.isArray(res.data.result)) {
+                res.data.result.forEach(e => {
+                    actualBalance[e.symbol] = e.balance;
+                });
+            }
+
+
+        }).catch(e => {
+            console.log(e.message);
+        });
         setInterval(async () => {
             await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=immutable-x%2Cethereum%2Cgods-unchained%2Cguild-of-guardians%2Cusd-coin%2Cecomi%2Capecoin&vs_currencies=usd').then((res) => {
                 let Exchange = new getPrice();
                 actualExchange = Exchange.getExchange(res.data)
                 // console.log(actualExchange);
 
-            }).catch(e=> {
+            }).catch(e => {
                 console.log(e);
-            })
+            });
+            await axios.get('https://api.x.immutable.com/v2/balances/0xb8F202dC3242A6b17d7Be5e2956aC2680EAf223c').then((res) => {
+                // Exchange.getBalance()
+                if (Array.isArray(res.data.result)) {
+                    res.data.result.forEach(e => {
+                        actualBalance[e.symbol] = e.balance;
+                    });
+                }
+
+
+            }).catch(e => {
+                console.log(e.message);
+            });
+
 
         }, 10000);
 
 
 
 
+
     })
 }
+
 
 
 module.exports = ({ port }) => {

@@ -10,7 +10,10 @@ const {init_Order} = require('../controller/createOrder');
 function start(port, name) {
     return new Promise((resolve, reject)=> {
         port.on('message', async (rpc)=> {
+            console.log('==============\nCreate Order');
             console.log(rpc);
+            console.log('==============');
+
             await init_Order({tokenId: rpc.tokenId, price: price}).then(async res=> {
                 console.log(res);
 

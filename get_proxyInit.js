@@ -13,7 +13,7 @@ const checktProxy = (name_worker) => {
 
     // if (fs.existsSync(`./proxy/${name_worker}.txt`)) {
     let list = fs.readFileSync(`./proxy/${name_worker}.txt`, { encoding: 'utf8', flag: 'r' });
-    console.log(typeof list);
+    // console.log(typeof list);
     const proxy = list.split('\n', 10000);
     console.log(proxy.length);
     const filterProxy = [];

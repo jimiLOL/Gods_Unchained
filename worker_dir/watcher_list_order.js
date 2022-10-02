@@ -30,7 +30,7 @@ const worker_proxy = new Piscina({
     // maxThreads: 50
 });
 let objectPrice;
-
+let walletBalance;
 
 // (async()=> {
 //     // Очищаем базу
@@ -68,6 +68,16 @@ function start(port, name) {
             // console.log(channel[rpc.name_chanel]);
             if (rpc.internal) {
                 objectPrice = rpc.price;
+                walletBalance = rpc.walletBalance;
+                if (!rpc.walletBalance) {
+                    let newRpc = {
+                        get_price: true,
+                        // name_chanel: name,
+                        internal: true,
+                        globalWorker: name
+                    };
+                    port.postMessage(newRpc)
+                }
 
             } else {
                 channel[rpc.name_chanel].port2.postMessage(rpc)
@@ -86,12 +96,19 @@ function start(port, name) {
 
         })
         let list = fs.readFileSync(`./proxy/proxyValid.txt`, { encoding: 'utf8', flag: 'r' });
-        console.log(typeof list);
+        // console.log(typeof list);
         const proxyList = list.split('\n', 5000);
         let index = proxyList.indexOf('');
         proxyList.splice(index, 1);
         helper.shuffle(proxyList);
         const promiseWorker = [];
+        let rpc = {
+            get_price: true,
+            // name_chanel: name,
+            internal: true,
+            globalWorker: name
+        };
+        port.postMessage(rpc);
         for (let index = 0; index < iteration_index; index++) {
             helper.timeout(100 * index).then(() => {
 
@@ -112,62 +129,24 @@ function start(port, name) {
                         // })
                         let i = 0;
                         const itemsArray = [];
+                        
+                        while (!walletBalance.hasOwnProperty('ETH')) {
+                            helper.timeout(20);
+                            console.log('Ждем данные по балансу..');
 
+                        }
                      
 
                         res.data.result.forEach(async item => {
                            
-                            let s = new Date().getTime()
+                           
+                            // let s = new Date().getTime()
 
 
                             // console.log(item.sell.data.properties.name);
                             
 
-                            if (await clientRedis.llen(`my_item_${item.sell.data.properties.name}`) > 0) {
-                                console.log('============\nIt`s item is on the list\n=============');
-                                i++
-                                // если у нас самих имеется такая карточка - надо проверить цену и перебить ее, если она ниже нашей
-                                const price = await clientRedis.lrange(`my_item_${item.sell.data.properties.name.replace(' ', '_')}`, 0, -1);
-                                let priceItem = BigNumber.from(item.buy.data.quantity_with_fees);
-                                priceItem = utils.formatUnits(priceItem, '18');
-                                let rpc = {
-                                    get_price: true,
-                                    // name_chanel: name,
-                                    internal: true,
-                                    globalWorker: name
-                                };
-                                while (!objectPrice) {
-                                    await helper.timeout(20);
-                                    console.log('Ждем новые цены в watcher_list_order...');
-
-                                }
-
-                                let newArray = price.filter(x => {
-                                    let y = JSON.parse(x);
-                                    let eth = y.ETH.average * objectPrice['ethereum'].usd;
-                                    let gods = priceItem * objectPrice['gods-unchained'].usd;
-                                    if (y.date < new Date().getTime() - 24 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth > gods && y.price_buy < (priceItem * objectPrice['ethereum'].usd)) {
-                                        return y
-                                    }
-
-                                });
-                                console.log(newArray);
-
-
-                                newArray.forEach(element => {
-                                    console.log(`Инициализируем create_order ${element.trade_id}`);
-                                    rpc['tokenId'] = element.trade_id;
-                                    rpc['price'] = priceItem - (priceItem * 0.1);
-                                    port.postMessage(rpc)
-                                    // отправляем задачу в отдельный воркер котрый перебивает это все делож
-
-                                });
-
-
-
- 
-
-                            };
+                            
 
 
                             const average_price = await clientRedis.get(`average_price_${item.sell.data.properties.name.replace(' ', '_')}`);
@@ -186,6 +165,9 @@ function start(port, name) {
 
                                     let priceItem = BigNumber.from(item.buy.data.quantity_with_fees);
                                     priceItem = utils.formatUnits(priceItem, '18');
+                                    let myBalanceETH = utils.formatUnits(walletBalance.ETH, '18');
+                                    // console.log(myBalanceETH);
+                                    // console.log(priceItem <= myBalanceETH);
                                     let rpc = {
                                         init_buy: true,
                                         id: item.sell.data.token_id,
@@ -194,7 +176,7 @@ function start(port, name) {
                                         item: item,
                                         event_type: ''
                                     }
-                                    if (priceItem <= db_price.ETH.min) {
+                                    if (priceItem <= db_price.ETH.min && priceItem <= myBalanceETH) {
                                         rpc.event_type = 'ms click';
 
                                         port.postMessage(rpc)
@@ -210,7 +192,7 @@ function start(port, name) {
 
 
                                         // мисклк
-                                    } else if (priceItem <= db_price.ETH.average) {
+                                    } else if (priceItem <= db_price.ETH.average && priceItem <= myBalanceETH) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
@@ -302,6 +284,53 @@ function start(port, name) {
                             };
 
 
+                            if (await clientRedis.llen(`my_item_${item.sell.data.properties.name}`) > 0) {
+                                console.log('============\nIt`s item is on the list\n=============');
+                                i++
+                                // если у нас самих имеется такая карточка - надо проверить цену и перебить ее, если она ниже нашей
+                                const price = await clientRedis.lrange(`my_item_${item.sell.data.properties.name.replace(' ', '_')}`, 0, -1);
+                                let priceItem = BigNumber.from(item.buy.data.quantity_with_fees);
+                                priceItem = utils.formatUnits(priceItem, '18');
+                                let rpc = {
+                                    init_order: true,
+                                    // name_chanel: name,
+                                    internal: true,
+                                    globalWorker: name
+                                };
+                                while (!objectPrice) {
+                                    await helper.timeout(20);
+                                    console.log('Ждем новые цены в watcher_list_order...');
+
+                                }
+
+                                let newArray = price.filter(x => {
+                                    let y = JSON.parse(x);
+                                    let eth = y.ETH.average * objectPrice['ethereum'].usd;
+                                    let gods = priceItem * objectPrice['gods-unchained'].usd;
+                                    if (y.date < new Date().getTime() - 24 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth > gods && y.price_buy < (priceItem * objectPrice['ethereum'].usd)) {
+                                        return y
+                                    }
+
+                                });
+                                console.log(newArray);
+
+
+                                newArray.forEach(element => {
+                                    console.log(`Инициализируем create_order ${element.trade_id}`);
+                                    rpc['tokenId'] = element.trade_id;
+                                    rpc['price'] = priceItem - (priceItem * 0.1);
+                                    port.postMessage(rpc)
+                                    // отправляем задачу в отдельный воркер котрый перебивает это все делож
+
+                                });
+
+
+
+ 
+
+                            };
+
+
 
 
 
@@ -322,7 +351,7 @@ function start(port, name) {
 
                             // }, 4000);
                             await Promise.allSettled(promiseWorker).then((r) => {
-                                console.log('==============\nPromise end\n==============');
+                                // console.log('==============\nPromise end\n==============');
                                 return resolve()
                             }).catch(e => {
                                 console.log(e);
