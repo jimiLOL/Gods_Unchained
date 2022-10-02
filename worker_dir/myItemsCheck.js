@@ -3,7 +3,7 @@
   const { init_Order } = require('../controller/createOrder');
   const Redis = require("ioredis");
   const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
-const { utils, BigNumber } = require("ethers");
+const { utils } = require("ethers");
 
 
 function start() {

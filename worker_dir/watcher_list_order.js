@@ -307,7 +307,7 @@ function start(port, name) {
                                     let y = JSON.parse(x);
                                     let eth = y.ETH.average * objectPrice['ethereum'].usd;
                                     let gods = priceItem * objectPrice['gods-unchained'].usd;
-                                    if (y.date < new Date().getTime() - 24 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth > gods && y.price_buy < (priceItem * objectPrice['ethereum'].usd)) {
+                                    if (y.date < new Date().getTime() - 24 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth > gods && y.price_buy < (priceItem * objectPrice['ethereum'].usd) && y.init_order) {
                                         return y
                                     }
 
