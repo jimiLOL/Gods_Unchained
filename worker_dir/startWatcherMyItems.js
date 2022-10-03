@@ -1,4 +1,5 @@
-const apiImmutable = require('./apiClass');
+
+const apiImmutable = require('../controller/apiClass');
 const fs = require('fs');
 const helper = require('../helper');
 
@@ -33,7 +34,9 @@ function get_Items_My_Wallet_and_start_watcher_workers() {
                     let item_js = JSON.parse(item);
                     let filter = r.data.result.filter(x => x.token_id == item_js.token_id && item_js.init_order);
                     if (filter.length == 0) {
-                        await clientRedis.lrem(ele, 1, item_js.token_id);
+                        console.log(item_js.token_id);
+                       const result =  await clientRedis.lrem(ele, 1, item);
+                       console.log(result);
 
                     };
                     i++
@@ -166,3 +169,7 @@ module.exports = () => {
         })
     })
 };
+
+
+
+ 

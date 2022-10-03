@@ -20,7 +20,7 @@ function start() {
                     setTimeout(async () => {
                         const average_price = await clientRedis.get(`average_price_${itemData.item_name.replace(' ', '_')}`);
                         if (average_price) {
-                            await clientRedis.lrem(ele, 1, itemData.trade_id);
+                            await clientRedis.lrem(ele, 1, element);
                             itemData.init_order = true;
                             let item = JSON.parse(average_price);
                            

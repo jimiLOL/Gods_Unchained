@@ -39,6 +39,11 @@ const check_my_items = new Piscina({
     // maxQueue: 2,
     maxThreads: 1
 });
+const delete_sell_items = new Piscina({
+    filename: path.resolve('./worker_dir', 'startWatcherMyItems.js'),
+    // maxQueue: 2,
+    maxThreads: 1
+});
 function start() {
     // const arrayPromise = []; // прмисы глобальных воркеров
     channel['create_trade'] = new MessageChannel();
@@ -178,6 +183,7 @@ function getProxy() {
 };
 
 const startCheck = new CronJob(new Date(), async ()=> {
+    delete_sell_items.run({});
     check_my_items.run({}).then(()=> {
         startCron(startCheck, 900);
     }).catch(e=> {
