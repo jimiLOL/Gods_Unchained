@@ -30,7 +30,7 @@ const worker_proxy = new Piscina({
     // maxThreads: 50
 });
 let objectPrice;
-let walletBalance;
+let walletBalance = {};
 
 // (async()=> {
 //     // Очищаем базу
@@ -129,12 +129,20 @@ function start(port, name) {
                         // })
                         let i = 0;
                         const itemsArray = [];
-                        
-                        while (!walletBalance.hasOwnProperty('ETH')) {
-                            helper.timeout(20);
-                            console.log('Ждем данные по балансу..');
 
+                        try {
+                            while (!walletBalance.hasOwnProperty('ETH')) {
+                                helper.timeout(20);
+                                console.log('Ждем данные по балансу..');
+    
+                            }
+
+                        } catch (e) {
+                            console.log(e);
+                            console.log(walletBalance);
                         }
+                        
+                     
                      
 
                         res.data.result.forEach(async item => {
@@ -306,20 +314,25 @@ function start(port, name) {
 
                                 let newArray = price.filter(x => {
                                     let y = JSON.parse(x);
-                                    let eth = y.ETH.average * objectPrice['ethereum'].usd;
+                                    // console.log(y);
+                                    let eth = y.price_buy * objectPrice['ethereum'].usd;
                                     let gods = priceItem * objectPrice['gods-unchained'].usd;
-                                    if (y.date < new Date().getTime() - 24 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth > gods && y.price_buy < (priceItem * objectPrice['ethereum'].usd) && y.init_order) {
+                                   
+                                    // console.log(eth, gods, eth > gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
+
+                                    if (y.date < new Date().getTime() - 26 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth > gods && y.init_order) {
                                         return y
                                     }
 
                                 });
-                                console.log(newArray);
+                                console.log('Отфильтровали ' + newArray.length);
 
 
                                 newArray.forEach(element => {
-                                    console.log(`Инициализируем create_order ${element.trade_id}`);
-                                    rpc['tokenId'] = element.trade_id;
-                                    rpc['price'] = priceItem - (priceItem * 0.1);
+                                    console.log(`Инициализируем create_order ${element.token_id}`);
+                                    rpc['tokenId'] = element.token_id;
+                                    rpc['price'] = priceItem - (priceItem * 0.03);
+                                    console.log(rpc);
                                     port.postMessage(rpc)
                                     // отправляем задачу в отдельный воркер котрый перебивает это все делож
 
@@ -369,7 +382,7 @@ function start(port, name) {
 
 
                 }).catch(e => {
-                    console.log(e.message);
+                    console.log(e);
                 })
 
 
