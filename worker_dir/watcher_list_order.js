@@ -319,6 +319,8 @@ function start(port, name) {
                                     // console.log(y);
                                     let eth = y.price_buy * objectPrice['ethereum'].usd;
                                     let gods = priceItem * objectPrice['gods-unchained'].usd;
+
+                                    console.log(y.token_id);
                                    
                                     console.log(eth, gods, eth < gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
 
