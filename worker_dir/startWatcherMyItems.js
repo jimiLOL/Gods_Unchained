@@ -21,7 +21,7 @@ function get_Items_My_Wallet_and_start_watcher_workers() {
         // const arrayResultFindForName = [];
         // const arrayPromise = []; // прмисы глобальных воркеров
 
-        await apiImmutable.get_list_my_item('0xb8F202dC3242A6b17d7Be5e2956aC2680EAf223c', helper.initAgent(helper.proxyInit(proxyList[helper.getRandomInt(1, proxyList.length - 1)]))).then(async r => {
+        await apiImmutable.get_list_my_item('0xb8F202dC3242A6b17d7Be5e2956aC2680EAf223c').then(async r => {
             // console.log(r.data.result);
             let i = 0;
 

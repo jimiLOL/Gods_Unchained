@@ -10,7 +10,7 @@ const apiImmutable = {
 
     },
     async get_list_my_item(wallet, agent) {
-        return await axios.get(`https://api.x.immutable.com/v1/assets?&order_by=created_at&user=${wallet}`, {httpsAgent: agent})
+        return await axios.get(`https://api.x.immutable.com/v1/assets?&order_by=created_at&user=${wallet}`)
 
     
 
