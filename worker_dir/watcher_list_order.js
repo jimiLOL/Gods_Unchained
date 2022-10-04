@@ -329,11 +329,12 @@ function start(port, name) {
 
 
                                 newArray.forEach(element => {
-                                    console.log(`Инициализируем create_order ${element.token_id}`);
-                                    console.log(element);
-                                    console.log(typeof element);
+                                    let ele = JSON.parse(element);
+                                    console.log(`Инициализируем create_order ${ele.token_id}`);
+                                    console.log(ele);
+                                    console.log(typeof ele);
 
-                                    rpc['tokenId'] = element.token_id;
+                                    rpc['tokenId'] = ele.token_id;
                                     rpc['price'] = priceItem - 0.0001;
                                     console.log(rpc);
                                     port.postMessage(rpc)
