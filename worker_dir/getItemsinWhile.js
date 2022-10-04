@@ -36,7 +36,15 @@ function start(itemsArray, port, name) {
                 name_chanel: name
             }
             port.postMessage(rpc)
+            let i = 0;
             while (!objectPrice) {
+                i++
+                if (i > 20) {
+                    port.postMessage(rpc);
+                    i = 0;
+
+
+                }
                 await helper.timeout(20);
                 console.log('Ждем новые цены...');
 
