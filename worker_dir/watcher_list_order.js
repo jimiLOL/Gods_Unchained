@@ -318,9 +318,9 @@ function start(port, name) {
                                     let eth = y.price_buy * objectPrice['ethereum'].usd;
                                     let gods = priceItem * objectPrice['gods-unchained'].usd;
                                    
-                                    // console.log(eth, gods, eth > gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
+                                    console.log(eth, gods, eth > gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
 
-                                    if (y.date < new Date().getTime() - 26 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth > gods && y.init_order) {
+                                    if (y.date < new Date().getTime() - 26 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth < gods && y.init_order) {
                                         return y
                                     }
 
@@ -338,7 +338,7 @@ function start(port, name) {
                                     rpc['price'] = priceItem - 0.01;
                                     // console.log(rpc);
                                     setTimeout(() => {
-                                    port.postMessage(rpc)
+                                    // port.postMessage(rpc)
                                         
                                     }, 1200*index);
                                     // отправляем задачу в отдельный воркер котрый перебивает это все делож
