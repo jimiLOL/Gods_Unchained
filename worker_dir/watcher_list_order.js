@@ -335,7 +335,7 @@ function start(port, name) {
                                     // console.log(typeof ele);
 
                                     rpc['tokenId'] = ele.token_id;
-                                    rpc['price'] = priceItem - 0.0001;
+                                    rpc['price'] = priceItem - 0.01;
                                     console.log(rpc);
                                     port.postMessage(rpc)
                                     // отправляем задачу в отдельный воркер котрый перебивает это все делож
