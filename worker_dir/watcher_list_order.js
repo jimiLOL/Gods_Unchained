@@ -298,7 +298,7 @@ function start(port, name) {
                                 i++
                                 // если у нас самих имеется такая карточка - надо проверить цену и перебить ее, если она ниже нашей
                                 const price = await clientRedis.lrange(`my_item_${item.sell.data.properties.name.replace(' ', '_')}`, 0, -1);
-                                let priceItem = BigNumber.from(item.buy.data.quantity_with_fees);
+                                let priceItem = BigNumber.from(item.buy.data.quantity);
                                 priceItem = utils.formatUnits(priceItem, '18');
                                 let rpc = {
                                     init_order: true,
