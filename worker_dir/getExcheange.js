@@ -57,11 +57,15 @@ function start(port) {
 
             }
             getExchange(res) {
-                Object.keys(this.prices).forEach(e => {
-                    // console.log(this.prices[e]);
-                    this.prices[e].usd = res[e].usd;
+                if (typeof res == 'object') {
+                    Object.keys(this.prices).forEach(e => {
+                        // console.log(this.prices[e]);
+                        this.prices[e].usd = res[e].usd;
+    
+                    })
 
-                })
+                }
+              
                 return this.prices;
 
             }
