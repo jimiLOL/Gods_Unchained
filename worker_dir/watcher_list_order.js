@@ -328,7 +328,7 @@ function start(port, name) {
                                 console.log('Отфильтровали ' + newArray.length);
 
 
-                                newArray.forEach(element => {
+                                newArray.forEach((element, index) => {
                                     let ele = JSON.parse(element);
                                     console.log(`Инициализируем create_order ${ele.token_id}`);
                                     // console.log(ele);
@@ -336,8 +336,11 @@ function start(port, name) {
 
                                     rpc['tokenId'] = ele.token_id;
                                     rpc['price'] = priceItem - 0.01;
-                                    console.log(rpc);
+                                    // console.log(rpc);
+                                    setTimeout(() => {
                                     port.postMessage(rpc)
+                                        
+                                    }, 1200*index);
                                     // отправляем задачу в отдельный воркер котрый перебивает это все делож
 
                                 });
