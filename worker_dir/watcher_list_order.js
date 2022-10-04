@@ -330,8 +330,10 @@ function start(port, name) {
 
                                 newArray.forEach(element => {
                                     console.log(`Инициализируем create_order ${element.token_id}`);
+                                    console.log(element);
+
                                     rpc['tokenId'] = element.token_id;
-                                    rpc['price'] = priceItem - (priceItem * 0.03);
+                                    rpc['price'] = priceItem - 0.0001;
                                     console.log(rpc);
                                     port.postMessage(rpc)
                                     // отправляем задачу в отдельный воркер котрый перебивает это все делож
