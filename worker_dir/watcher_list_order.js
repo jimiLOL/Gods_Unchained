@@ -331,6 +331,7 @@ function start(port, name) {
                                 newArray.forEach(element => {
                                     console.log(`Инициализируем create_order ${element.token_id}`);
                                     console.log(element);
+                                    console.log(typeof element);
 
                                     rpc['tokenId'] = element.token_id;
                                     rpc['price'] = priceItem - 0.0001;
