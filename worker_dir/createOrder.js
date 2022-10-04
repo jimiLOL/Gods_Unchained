@@ -14,7 +14,7 @@ function start(port, name) {
             console.log(rpc);
             console.log('==============');
 
-            await init_Order({tokenId: rpc.tokenId, price: price}).then(async res=> {
+            await init_Order({tokenId: rpc.tokenId, price: rpc.price}).then(async res=> {
                 console.log(res);
 
             })
