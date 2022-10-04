@@ -317,14 +317,14 @@ function start(port, name) {
                                 let newArray = price.filter(x => {
                                     let y = JSON.parse(x);
                                     // console.log(y);
-                                    let eth = y.price_buy * objectPrice['ethereum'].usd;
-                                    let gods = priceItem * objectPrice['gods-unchained'].usd;
+                                    let eth = y.price_buy * objectPrice['ethereum'].usd; // за что мы купили
+                                    let gods = priceItem * objectPrice['gods-unchained'].usd; // текущий лот в на бирже
 
-                                    console.log(y.token_id);
+                                    // console.log(y.token_id);
                                    
-                                    console.log(eth, gods, eth < gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
+                                    // console.log(eth, gods, eth <= gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
 
-                                    if (y.date < new Date().getTime() - 26 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth < gods && y.init_order) {
+                                    if (y.date < new Date().getTime() - 26 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth <= gods && y.init_order) {
                                         return y
                                     }
 
