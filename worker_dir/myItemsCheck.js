@@ -53,6 +53,9 @@ function start() {
 
             
         });
+        if (keys_db.length == 0) {
+            resolve()
+        }
 
 
 
