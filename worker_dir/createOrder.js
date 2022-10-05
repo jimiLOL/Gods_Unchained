@@ -1,6 +1,6 @@
 
-// const Redis = require("ioredis");
-// const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
+const Redis = require("ioredis");
+const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
 
 
 const {init_Order} = require('../controller/createOrder');
@@ -19,6 +19,17 @@ function start(port, name) {
                 setTimeout(async () => {
                     await init_Order({tokenId: rpc.tokenId, price: rpc.price}).then(async res=> {
                         console.log(res);
+                        const price = await clientRedis.lrange(rpc.item_key, 0, -1);
+                        price.foreach(async x=> {
+                            let y = JSON.parse(x);
+                            if (y.token_id == rpc.tokenId) {
+                                y['price_gods_order'] = rpc.price;
+                                 await clientRedis.lrem(rpc.item_key, 1, x);
+                                  await clientRedis.lpush(rpc.item_key, JSON.stringify(y));
+
+
+                            }
+                        })
         
                     })
                     

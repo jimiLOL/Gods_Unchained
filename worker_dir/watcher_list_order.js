@@ -306,7 +306,8 @@ function start(port, name) {
                                     internal: true,
                                     globalWorker: name,
                                     timeout: 1000,
-                                    index: 0
+                                    index: 0,
+                                    item_key: `my_item_${item.sell.data.properties.name.replace(' ', '_')}`
                                 };
                                 while (!objectPrice) {
                                     await helper.timeout(20);
@@ -315,7 +316,7 @@ function start(port, name) {
                                 }
 
                                 let newArray = price.filter(x => {
-                                    let y = JSON.parse(x);
+                                    let y = JSON.parse(x);s
                                     // console.log(y);
                                     let eth = (y.price_buy * objectPrice['ethereum'].usd).toFixed(4); // за что мы купили
                                     let gods = (priceItem * objectPrice['gods-unchained'].usd).toFixed(4); // текущий лот в на бирже
@@ -323,8 +324,9 @@ function start(port, name) {
                                     // console.log(y.token_id);
                                    
                                     // console.log(eth, gods, eth <= gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
+                                    let gods_var = y?.price_gods_order ? y.price_gods_order:99999;
 
-                                    if (item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth <= gods && y.init_order) {
+                                    if (item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth <= gods && y.init_order && gods_var > gods) {
                                         return y
                                     }
 
