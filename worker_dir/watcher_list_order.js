@@ -316,7 +316,7 @@ function start(port, name) {
                                 }
 
                                 let newArray = price.filter(x => {
-                                    let y = JSON.parse(x);s
+                                    let y = JSON.parse(x);
                                     // console.log(y);
                                     let eth = (y.price_buy * objectPrice['ethereum'].usd).toFixed(4); // за что мы купили
                                     let gods = (priceItem * objectPrice['gods-unchained'].usd).toFixed(4); // текущий лот в на бирже
