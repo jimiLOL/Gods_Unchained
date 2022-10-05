@@ -168,7 +168,7 @@ function start(port, name) {
 
 
 
-                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.ETH.count > 30 && db_price.spread_GODS_ETH.spread > 10) {
+                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.ETH.count > 30 && db_price.spread_GODS_ETH.spread > 25) {
 
 
                                     let priceItem = BigNumber.from(item.buy.data.quantity_with_fees);
@@ -324,7 +324,7 @@ function start(port, name) {
                                    
                                     // console.log(eth, gods, eth <= gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
 
-                                    if (y.date < new Date().getTime() - 26 * 60 * 60 * 1000 && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth <= gods && y.init_order) {
+                                    if (item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth <= gods && y.init_order) {
                                         return y
                                     }
 

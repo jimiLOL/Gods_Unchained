@@ -94,7 +94,7 @@ function start(itemsArray, port, name) {
                         // console.log(BigInt(resArray[0].buy.data.quantity_with_fees));
                         // console.log(Number(resArray[0].buy.data.quantity_with_fees));
                         // resArray.sort((a, b) => (BigInt(a.buy.data.quantity_with_fees) < BigInt(b.buy.data.quantity_with_fees)) ? -1 : ((BigInt(a.buy.data.quantity_with_fees) > BigInt(b.buy.data.quantity_with_fees)) ? 1 : 0))
-                        resArray.sort((a, b) => Number(a.buy.data.quantity_with_fees) - Number(b.buy.data.quantity_with_fees));
+                        resArray.sort((a, b) => Number(a.buy.data.quantity) - Number(b.buy.data.quantity));
                         const info = {};
                         const average = {};
                         const average_big = {};
@@ -114,9 +114,9 @@ function start(itemsArray, port, name) {
                                 const arrayPrice = [];
 
                                 allERCPrice.forEach(e => {
-                                    average[priceObj[price].symbol] = BigNumber.from(e.buy.data.quantity_with_fees).add(average[priceObj[price].symbol]);
-                                    average_big[priceObj[price].symbol] = Number(e.buy.data.quantity_with_fees) + average_big[priceObj[price].symbol];
-                                    const priceOne = BigNumber.from(e.buy.data.quantity_with_fees);
+                                    average[priceObj[price].symbol] = BigNumber.from(e.buy.data.quantity).add(average[priceObj[price].symbol]);
+                                    average_big[priceObj[price].symbol] = Number(e.buy.data.quantity) + average_big[priceObj[price].symbol];
+                                    const priceOne = BigNumber.from(e.buy.data.quantity);
                                     // console.log(utils.formatUnits(priceOne, priceObj[price].decimals) + ' ' + priceObj[price].symbol);
                                     // console.log(`${priceObj[price].symbol} == ${utils.formatUnits(priceOne, priceObj[price].decimals)*priceObj[price].usd} USD`);
                                     arrayPrice.push(utils.formatUnits(priceOne, priceObj[price].decimals));
