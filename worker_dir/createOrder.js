@@ -17,7 +17,7 @@ function start(port, name) {
             if (rpc?.timeout) {
 
                 setTimeout(async () => {
-                    await init_Order({tokenId: rpc.tokenId, price: rpc.price}).then(async res=> {
+                    await init_Order({tokenId: rpc.tokenId, price: Number(rpc.price).toFixed(8)}).then(async res=> {
                         console.log(res);
                         const price = await clientRedis.lrange(rpc.item_key, 0, -1);
                         price.foreach(async x=> {
