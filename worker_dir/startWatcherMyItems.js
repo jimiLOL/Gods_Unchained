@@ -13,44 +13,82 @@ function get_Items_My_Wallet_and_start_watcher_workers() {
 
 
 
-        let list = fs.readFileSync(`./proxy/proxyValid.txt`, { encoding: 'utf8', flag: 'r' });
-        // console.log(typeof list);
-        const proxyList = list.split('\n', 5000);
-        helper.shuffle(proxyList);
+        // let list = fs.readFileSync(`./proxy/proxyValid.txt`, { encoding: 'utf8', flag: 'r' });
+        // // console.log(typeof list);
+        // const proxyList = list.split('\n', 5000);
+        // helper.shuffle(proxyList);
 
         // const arrayResultFindForName = [];
         // const arrayPromise = []; // прмисы глобальных воркеров
+        const result = [];
 
         await apiImmutable.get_list_my_item('0xb8F202dC3242A6b17d7Be5e2956aC2680EAf223c').then(async r => {
-            // console.log(r.data.result);
-            let i = 0;
+            try {
+                // console.log(r.data.cursor.length);
 
-            // const filterArray = [];
-            const keys_db = await clientRedis.keys('my_item_*');
-
-            keys_db.forEach(async (ele, index) => {
-                const itemList = await clientRedis.lrange(ele, 0, -1);
-                itemList.forEach(async item => {
-                    let item_js = JSON.parse(item);
-                    let filter = r.data.result.filter(x => x.token_id == item_js.token_id && item_js.init_order);
-                    if (filter.length == 0) {
-                        console.log(item_js.token_id);
-                       const result =  await clientRedis.lrem(ele, 1, item);
-                       console.log(result);
-
-                    };
-                    i++
+                console.log('result.length ' + r.data.result.length);
+                r.data.result.forEach(e=> {
+                    result.push(e)
 
                 });
-                if (keys_db.length == i) {
-                    return resolve()
+    
+                if (r.data.cursor.length != 0) {
+                    // console.log(r.data.cursor);
+                    let cursor = r.data.cursor;
+                    let ini = 0;
+                    while (cursor.length > 3) {
+                        ini++;
+                        console.log(ini);
+                        await helper.timeout(500*ini).then(async ()=> {
+                            const res = await apiImmutable.get_list_my_item('0xb8F202dC3242A6b17d7Be5e2956aC2680EAf223c', cursor);
+                            res.data.result.forEach(e=> {
+                                result.push(e)
+            
+                            });
+                            console.log(cursor);
+                            cursor = res.data.cursor;
 
+                        })
+                 
+    
+    
+                    }
+    
+                }  
+                console.log(result.length);
+                let i = 0;
+    
+                // const filterArray = [];
+                const keys_db = await clientRedis.keys('my_item_*');
+    
+                keys_db.forEach(async (ele, index) => {
+                    const itemList = await clientRedis.lrange(ele, 0, -1);
+                    itemList.forEach(async item => {
+                        let item_js = JSON.parse(item);
+                        let filter = result.filter(x => x.token_id == item_js.token_id && item_js.init_order);
+                        if (filter.length == 0) {
+                            console.log(item_js.token_id);
+                           const result =  await clientRedis.lrem(ele, 1, item);
+                           console.log(result);
+    
+                        };
+                        i++
+    
+                    });
+                    if (keys_db.length == i) {
+                        return resolve()
+    
+    
+                    }
+    
+    
+    
+                })
 
-                }
-
-
-
-            })
+            } catch (e) {
+                console.log(e);
+            }
+           
 
             // r.data.result.forEach(async e => {
             //     //    const filter = filterArray.filter(x=> x.metadata.name == e.metadata.name);

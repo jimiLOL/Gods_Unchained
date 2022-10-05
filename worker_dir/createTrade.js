@@ -43,7 +43,27 @@ function start(port, name, item) {
                     console.log(res);
                     if (res?.trade_id) {
                         console.info('Совершили покупку - trade_id: ' + res?.trade_id);
-                        await clientRedis.lpush(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, JSON.stringify({ date: new Date().getTime(), trade_id: res.trade_id, price_buy: rpc.priceItem, db_price: rpc.db_price, init_order: false, item_name: rpc.item.sell.data.properties.name, token_id: rpc.item.sell.data.token_id }))
+                        const price = await clientRedis.lrange(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, 0, -1);
+                        let filter = price.filter(x=> {
+                            let y = JSON.parse(x);
+                            if (y.token_id == rpc.item.sell.data.token_id) {
+                                return x
+                            }
+                        });
+                        if (filter.length == 0) {
+                            await clientRedis.lpush(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, JSON.stringify({ date: new Date().getTime(), trade_id: res.trade_id, price_buy: rpc.priceItem, db_price: rpc.db_price, init_order: false, item_name: rpc.item.sell.data.properties.name, token_id: rpc.item.sell.data.token_id }))
+
+                        } else {
+                            filter.forEach(async element => {
+                            await clientRedis.lrem(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, 1, element);
+
+                                
+                            });
+                            await clientRedis.lpush(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, JSON.stringify({ date: new Date().getTime(), trade_id: res.trade_id, price_buy: rpc.priceItem, db_price: rpc.db_price, init_order: false, item_name: rpc.item.sell.data.properties.name, token_id: rpc.item.sell.data.token_id }))
+
+                            
+                        }
+
 
 
                     } else {
@@ -64,11 +84,11 @@ function start(port, name, item) {
 
 
             }
-            if (taskBuy.size > 50) {
+            if (taskBuy.size > 550) {
                 let index = 0;
                 taskBuy.forEach((e, i) => {
                     index++
-                    if (index < 30) {
+                    if (index < 150) {
                         taskBuy.delete(i)
                     }
                 })

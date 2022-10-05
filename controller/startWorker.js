@@ -2,7 +2,7 @@
 const { default: axios } = require("axios");
 const fs = require('fs')
 const helper = require('../helper');
-const { init } = require('./startWatcherMyItems');
+// const { init } = require('./startWatcherMyItems');
 const { MessageChannel } = require('worker_threads');
 const channel = {};
 const { checktProxy } = require("../get_proxyInit");

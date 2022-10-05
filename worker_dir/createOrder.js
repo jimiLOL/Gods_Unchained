@@ -25,6 +25,7 @@ function start(port, name) {
                             if (y.token_id == rpc.tokenId) {
                                 y['price_gods_order'] = rpc.price;
                                  await clientRedis.lrem(rpc.item_key, 1, x);
+                                //  await clientRedis.lrem(rpc.item_key, 1, y.token_id);
                                   await clientRedis.lpush(rpc.item_key, JSON.stringify(y));
 
 
