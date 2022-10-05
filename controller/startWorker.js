@@ -79,7 +79,7 @@ function start() {
         fs.writeFileSync(`./proxy/proxy.txt`, '');
 
 
-        let newArray = res.data.split("\n", 5100);
+        let newArray = res.data.split("\n", 3000);
         console.log(newArray[0]);
 
         console.log(newArray.length);

@@ -16,7 +16,7 @@ function start() {
             const price = await clientRedis.lrange(ele, 0, -1);
             price.forEach((element, i) => {
                 let itemData = JSON.parse(element);
-                if (itemData.date > new Date().getTime()-24*60*60*1000 && !itemData.init_order) {
+                if (itemData.date < new Date().getTime()-25*60*60*1000 && !itemData.init_order) {
                     setTimeout(async () => {
                         const average_price = await clientRedis.get(`average_price_${itemData.item_name.replace(' ', '_')}`);
                         if (average_price) {
