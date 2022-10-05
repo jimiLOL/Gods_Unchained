@@ -20,7 +20,7 @@ function start(port, name) {
                     await init_Order({tokenId: rpc.tokenId, price: Number(rpc.price).toFixed(8)}).then(async res=> {
                         console.log(res);
                         const price = await clientRedis.lrange(rpc.item_key, 0, -1);
-                        price.foreach(async x=> {
+                        price.forEach(async x=> {
                             let y = JSON.parse(x);
                             if (y.token_id == rpc.tokenId) {
                                 y['price_gods_order'] = rpc.price;
