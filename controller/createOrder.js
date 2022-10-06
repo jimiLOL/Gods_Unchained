@@ -55,7 +55,7 @@ let WC;
 
 async function init_Order({tokenId, price, workerType}) {
     console.log(tokenId, price, workerType);
-    console.log(typeof price);
+    // console.log(typeof price);
 
 
     // let s = new Date().getTime();

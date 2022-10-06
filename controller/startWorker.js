@@ -75,95 +75,95 @@ function start() {
     })
 
 
-    // getProxy().then(res => {
-    //     fs.writeFileSync(`./proxy/proxy.txt`, '');
+    getProxy().then(res => {
+        fs.writeFileSync(`./proxy/proxy.txt`, '');
 
 
-    //     let newArray = res.data.split("\n", 3000);
-    //     console.log(newArray[0]);
+        let newArray = res.data.split("\n", 3000);
+        console.log(newArray[0]);
 
-    //     console.log(newArray.length);
-    //     newArray.forEach(p => {
-    //         fs.appendFile(`./proxy/proxy.txt`, `${p}\n`, function (error) {
-    //             if (error) {
-    //                 console.log(error);
-    //             };
-    //         });
+        console.log(newArray.length);
+        newArray.forEach(p => {
+            fs.appendFile(`./proxy/proxy.txt`, `${p}\n`, function (error) {
+                if (error) {
+                    console.log(error);
+                };
+            });
 
-    //     });
+        });
 
-    //     setTimeout(() => {
-    //         // const task = {};
-    //         // let i = 0;
-    //         checktProxy('proxy').then(async () => {
-    //             // const userListItems = await helper.timeout(500).then(() => init())  // получение карточек нашего кошелька
-    //             // console.log('userListItems count ' + userListItems.length);
-    //             setInterval(() => {
-    //                 // i++
+        setTimeout(() => {
+            // const task = {};
+            // let i = 0;
+            checktProxy('proxy').then(async () => {
+                // const userListItems = await helper.timeout(500).then(() => init())  // получение карточек нашего кошелька
+                // console.log('userListItems count ' + userListItems.length);
+                setInterval(() => {
+                    // i++
 
-    //                 // arrayPromise.forEach(worker => {
-    //                 //     console.log(worker);
-    //                 // console.log(worker.destroy());
+                    // arrayPromise.forEach(worker => {
+                    //     console.log(worker);
+                    // console.log(worker.destroy());
 
                         
-    //                 // });
-    //                 // console.log('start');
-    //                 // console.log('Global worker count ' + worker_watcher.threads.length);
+                    // });
+                    // console.log('start');
+                    // console.log('Global worker count ' + worker_watcher.threads.length);
 
-    //                 if (worker_watcher.threads.length < 8) {
-    //                     let start = new Date().getTime();
-    //                     const rndString = helper.makeid(8);
-    //                     channel[`globalWorker_${rndString}`] = new MessageChannel();
-
-
-    //                   worker_watcher.run({ 
-    //                         port: channel[`globalWorker_${rndString}`].port1,
-    //                         name: `globalWorker_${rndString}`,
-    //                         starttime: start,
-    //                         //  userListItems: userListItems
-    //                          }, 
-    //                          {transferList: [channel[`globalWorker_${rndString}`].port1]}
-    //                          ).then((message) => {
-    //                             console.log(message);
-    //                             // channel[message.name].port2.close();
-    //                         //    delete channel[message.name];
-    //                         let end = new Date().getTime()
-    //                         console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
-
-    //                     }).catch(e => {
-    //                         console.log(e);
-    //                     });
-    //                     channel[`globalWorker_${rndString}`].port2.on('message', (rpc)=> {
-    //                         if (rpc.get_price) {
-    //                             channel['price_port'].port2.postMessage(rpc)
-
-    //                         }
-    //                         if (rpc.init_buy) {
-    //                             channel['create_trade'].port2.postMessage(rpc)
-
-    //                         }
-    //                         if (rpc.init_order) {
-    //                             channel['create_order'].port2.postMessage(rpc)
-
-    //                         }
-
-    //                     })
-    //                 }
+                    if (worker_watcher.threads.length < 8) {
+                        let start = new Date().getTime();
+                        const rndString = helper.makeid(8);
+                        channel[`globalWorker_${rndString}`] = new MessageChannel();
 
 
+                      worker_watcher.run({ 
+                            port: channel[`globalWorker_${rndString}`].port1,
+                            name: `globalWorker_${rndString}`,
+                            starttime: start,
+                            //  userListItems: userListItems
+                             }, 
+                             {transferList: [channel[`globalWorker_${rndString}`].port1]}
+                             ).then((message) => {
+                                // console.log(message);
+                                // channel[message.name].port2.close();
+                            //    delete channel[message.name];
+                            let end = new Date().getTime()
+                            console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
 
-    //             }, 500);
+                        }).catch(e => {
+                            console.log(e);
+                        });
+                        channel[`globalWorker_${rndString}`].port2.on('message', (rpc)=> {
+                            if (rpc.get_price) {
+                                channel['price_port'].port2.postMessage(rpc)
+
+                            }
+                            if (rpc.init_buy) {
+                                channel['create_trade'].port2.postMessage(rpc)
+
+                            }
+                            if (rpc.init_order) {
+                                channel['create_order'].port2.postMessage(rpc)
+
+                            }
+
+                        })
+                    }
+
+
+
+                }, 500);
 
 
                 
 
-    //         });
+            });
 
-    //     }, 1000);
+        }, 1000);
 
 
 
-    // })
+    })
 }
 
 function getProxy() {
