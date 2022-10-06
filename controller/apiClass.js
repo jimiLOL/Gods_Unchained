@@ -62,7 +62,7 @@ const apiImmutable = {
         // const encodedQuery = encode(protoEncode)
         const encodedQuery = encodeURIComponent(JSON.stringify(protoEncode)).replace(/'/g, "%27").replace(/"/g, "%22");
         // console.log(encodedQuery);
-        return axios.get(`https://api.x.immutable.com/v1/orders?direction=asc&include_fees=true&order_by=buy_quantity&page_size=200&sell_metadata=${encodedQuery}&sell_token_address=0xacb3c6a43d15b907e8433077b6d38ae40936fe2c&status=filled&min_timestamp=${date}`, { httpsAgent: agent })
+        return axios.get(`https://api.x.immutable.com/v1/orders?direction=asc&include_fees=true&order_by=updated_at&page_size=200&sell_metadata=${encodedQuery}&sell_token_address=0xacb3c6a43d15b907e8433077b6d38ae40936fe2c&status=filled&min_timestamp=${date}`, { httpsAgent: agent })
 
 
 
