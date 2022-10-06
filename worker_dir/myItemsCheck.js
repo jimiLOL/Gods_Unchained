@@ -15,31 +15,31 @@ function start() {
  
 
         keys_db.forEach(async (ele, index) => {
-            let price = await clientRedis.lrange(ele, 0, 700);
+            // let price = await clientRedis.lrange(ele, 0, 700);
             // let filter = itemData.filter(x=> x.token_id == items.token_id);
             console.log(ele + ' - ' + price.length);
 
-            price.forEach(items => {
-                let itemData = JSON.parse(items);
+            // price.forEach(items => {
+            //     let itemData = JSON.parse(items);
 
-                let filter = price.filter(x => {
-                    let y = JSON.parse(x);
-                    if (y.token_id == itemData.token_id) {
-                        return x
-                    }
-                });
-                if (filter.length > 1) {
-                console.log('дублей - ' + filter.length);
+            //     let filter = price.filter(x => {
+            //         let y = JSON.parse(x);
+            //         if (y.token_id == itemData.token_id) {
+            //             return x
+            //         }
+            //     });
+            //     if (filter.length > 1) {
+            //     console.log('дублей - ' + filter.length);
 
-                    filter.forEach(async item => {
-                        const result = await clientRedis.lrem(ele, 1, item);
-                        console.log('result ' + result);
+            //         filter.forEach(async (item, i) => {
+            //             const result = await clientRedis.lrem(ele, 1, item);
+            //             console.log('result ' + result);
 
 
-                    });
-                }
-            }); // удаляем дубли из базы
-            price = await clientRedis.lrange(ele, 0, -1);
+            //         });
+            //     }
+            // }); // удаляем дубли из базы
+           const price = await clientRedis.lrange(ele, 0, -1);
             price.forEach((element, i) => {
                 let itemData = JSON.parse(element);
 
@@ -49,7 +49,7 @@ function start() {
                         const average_price = await clientRedis.get(`average_price_${itemData.item_name.replace(' ', '_')}`);
                         if (average_price) {
                             await clientRedis.lrem(ele, 1, element);
-                            await clientRedis.lrem(ele, 1, itemData.token_id);
+                            // await clientRedis.lrem(ele, 1, itemData.token_id);
                             itemData.init_order = true;
                             let item = JSON.parse(average_price);
 
