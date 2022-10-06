@@ -19,7 +19,7 @@ function start() {
             let price = await clientRedis.lrange(ele, 0, 700);
             console.log(ele + ' - ' + price.length);
 
-            price.forEach(async items => {
+            price.forEach(async (items, i) => {
                 let itemData = JSON.parse(items);
 
                 let filter = price.filter(x => {
@@ -28,7 +28,7 @@ function start() {
                         return x
                     }
                 });
-                if (filter.length > 1) {
+                if (filter.length > 1 && i == price.length) {
                 console.log('дублей - ' + filter.length);
                 const result = await clientRedis.lrem(ele, filter.length-1, items);
                 console.log('result ' + result);
