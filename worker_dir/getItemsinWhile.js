@@ -152,9 +152,9 @@ function start(itemsArray, port, name) {
                                     [`${priceObj[price].symbol}-USD`]: priceObj[price].usd,
                                     token_address: priceObj[price].token_address
                                 };
-                                console.log(resArray[0].sell.data.properties.name);
+                                // console.log(resArray[0].sell.data.properties.name);
 
-                                console.log(info[priceObj[price].symbol]);
+                                // console.log(info[priceObj[price].symbol]);
 
                             }
 
