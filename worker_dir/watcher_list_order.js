@@ -322,13 +322,13 @@ function start(port, name) {
                                     // console.log(eth, gods, eth <= gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
                                     let gods_var = y?.price_gods_order ? y.price_gods_order:99999;
 
-                                    if (item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && eth <= gods && y.init_order && gods_var > priceItem) {
+                                    if (item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && (eth*1.1) <= gods && y.init_order && gods_var > priceItem) {
                                         return y
                                     }
 
                                 });
                                 console.log('Отфильтровали ' + newArray.length);
-                                console.log(priceItem, gods_var, gods);
+                                // console.log(priceItem, gods_var, gods);
 
 
                                 newArray.forEach((element, index) => {
