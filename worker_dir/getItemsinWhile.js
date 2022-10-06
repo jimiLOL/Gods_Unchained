@@ -86,7 +86,7 @@ function start(itemsArray, port, name) {
             await clientRedis.set(`worker_isWork_${ele.name.replace(' ', '_')}`, 'work', 'ex', 30);
 
             arrayPromise.push(workerWhileFilter.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async resArray => {
-                if (Array.isArray(resArray) && resArray.length > 0) {
+                if (Array.isArray(resArray) && resArray.length > 10) {
                     const priceObj = await getPrice();
 
                     try {
@@ -137,7 +137,7 @@ function start(itemsArray, port, name) {
                                     [`${priceObj[price].symbol}-USD`]: priceObj[price].usd,
                                     token_address: priceObj[price].token_address
                                 };
-                                // console.log(info[priceObj[price].symbol]);
+                                console.log(info[priceObj[price].symbol]);
 
                             }
 
@@ -189,6 +189,9 @@ function start(itemsArray, port, name) {
 
                     }
 
+
+                } else {
+                     await clientRedis.set(`worker_isWork_${ele.name.replace(' ', '_')}`, 'work', 'ex', 900);
 
                 }
             }));
