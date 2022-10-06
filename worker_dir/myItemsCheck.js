@@ -17,7 +17,7 @@ function start() {
         keys_db.forEach(async (ele, index) => {
             // let price = await clientRedis.lrange(ele, 0, 700);
             // let filter = itemData.filter(x=> x.token_id == items.token_id);
-            console.log(ele + ' - ' + price.length);
+            // console.log(ele + ' - ' + price.length);
 
             // price.forEach(items => {
             //     let itemData = JSON.parse(items);
