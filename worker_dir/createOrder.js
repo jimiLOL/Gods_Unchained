@@ -70,11 +70,11 @@ function start(port, name) {
                 }
 
             }
-            if (taskBuy.size > 50) {
+            if (taskBuy.size > 5) {
                 let index = 0;
                 taskBuy.forEach((e, i) => {
                     index++
-                    if (index < 10) {
+                    if (index < 2) {
                         taskBuy.delete(i)
                     }
                 })
