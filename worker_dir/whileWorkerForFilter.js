@@ -64,7 +64,7 @@ function start(item, port, name) {
 
 
                 // console.log(cursor);
-                if (i >= 2) {
+                if (i >= 3) {
                     cursor = null;
 
 
