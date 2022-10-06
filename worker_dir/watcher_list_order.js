@@ -435,7 +435,7 @@ function start(port, name) {
 module.exports = ({ port, starttime, name }) => {
     return new Promise((resolve, reject) => {
         let end = new Date().getTime()
-        console.log(`Start worker timestamp ${end - starttime} ms`);
+        // console.log(`Start worker timestamp ${end - starttime} ms`);
 
 
 

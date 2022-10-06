@@ -128,7 +128,7 @@ function start() {
                                 // channel[message.name].port2.close();
                             //    delete channel[message.name];
                             let end = new Date().getTime()
-                            console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
+                            // console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
 
                         }).catch(e => {
                             console.log(e);
