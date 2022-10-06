@@ -116,9 +116,9 @@ function start(itemsArray, port, name) {
                                 priceArray.push(Number(x.buy.data.quantity));
 
                             });
-                            const max = Math.max(...priceArray);
-                            const min = Math.min(...priceArray);
-                            const filtered = allERCPrice.filter(x => Number(x.buy.data.quantity) > helper.randn_bm(min, max, 3));
+                            const maxVar = Math.max(...priceArray);
+                            const minVar = Math.min(...priceArray);
+                            const filtered = allERCPrice.filter(x => Number(x.buy.data.quantity) > helper.randn_bm(minVar, maxVar, 3));
                             console.log('История после фильтрации по среднему отклонению "3" - ' + filtered.length);
 
                             if (filtered.length > 0) {
