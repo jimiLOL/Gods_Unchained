@@ -441,7 +441,7 @@ module.exports = ({ port, starttime, name }) => {
 
 
         start(port, name).then((res) => {
-            console.log('Worker watcher_list_order end');
+            // console.log('Worker watcher_list_order end');
             // port.close()
 
             resolve({ name: name });
