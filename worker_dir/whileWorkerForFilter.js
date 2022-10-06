@@ -117,7 +117,7 @@ function start(item, port, name) {
 
 
 
-            resolve(filtered)
+            resolve(newArray)
 
 
         } catch (e) {
