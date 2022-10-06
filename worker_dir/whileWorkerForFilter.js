@@ -91,7 +91,20 @@ function start(item, port, name) {
 
 
             }
-            resolve(result.flat())
+            const newArray = result.flat();
+            console.log('Получили историю - ' + newArray.length);
+            newArray.forEach((ele, i) => {
+                let filter = newArray.filter(x=> x.order_id == ele.order_id);
+                if (filter.length > 1) {
+                    newArray.splice(i, 1);
+
+                }
+                
+            });
+            console.log('история после фильтрации - ' + newArray.length);
+
+
+            resolve(newArray)
 
 
         } catch (e) {
