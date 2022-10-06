@@ -76,7 +76,7 @@ function start(itemsArray, port, name) {
 
         });
         if (filterArray.length == 0) {
-           return resolve()
+            return resolve()
         }
         console.log('Будет создано ' + filterArray.length + '  задач для сбора');
 
@@ -110,10 +110,25 @@ function start(itemsArray, port, name) {
                             max[priceObj[price].symbol] = 0;
                             count[priceObj[price].symbol] = 0;
                             const allERCPrice = resArray.filter(x => x.buy.data.token_address == priceObj[price].token_address || x.buy.type == 'ETH' && priceObj[price].symbol == 'ETH');
-                            if (allERCPrice.length > 0) {
+
+                            const priceArray = [];
+                            allERCPrice.forEach(x => {
+                                priceArray.push(Number(x.buy.data.quantity));
+
+                            });
+                            const max = Math.max(...priceArray);
+                            const min = Math.min(...priceArray);
+                            const filtered = allERCPrice.filter(x => Number(x.buy.data.quantity) > helper.randn_bm(min, max, 3));
+                            console.log('История после фильтрации по среднему отклонению "3" - ' + filtered.length);
+
+                            if (filtered.length > 0) {
                                 const arrayPrice = [];
 
-                                allERCPrice.forEach(e => {
+                                filtered.forEach(e => {
+
+
+
+
                                     average[priceObj[price].symbol] = BigNumber.from(e.buy.data.quantity).add(average[priceObj[price].symbol]);
                                     average_big[priceObj[price].symbol] = Number(e.buy.data.quantity) + average_big[priceObj[price].symbol];
                                     const priceOne = BigNumber.from(e.buy.data.quantity);
@@ -130,13 +145,15 @@ function start(itemsArray, port, name) {
                                 count[priceObj[price].symbol] = arrayPrice.length;
                                 info[priceObj[price].symbol] = {
                                     average: Number(average[priceObj[price].symbol]).toFixed(4),
-                                    average_big: average_big[priceObj[price].symbol]/allERCPrice.length,
+                                    average_big: average_big[priceObj[price].symbol] / allERCPrice.length,
                                     min: Number(min[priceObj[price].symbol]).toFixed(4),
                                     max: Number(max[priceObj[price].symbol]).toFixed(4),
                                     count: count[priceObj[price].symbol],
                                     [`${priceObj[price].symbol}-USD`]: priceObj[price].usd,
                                     token_address: priceObj[price].token_address
                                 };
+                                console.log(resArray[0].sell.data.properties.name);
+
                                 console.log(info[priceObj[price].symbol]);
 
                             }
@@ -191,7 +208,7 @@ function start(itemsArray, port, name) {
 
 
                 } else {
-                     await clientRedis.set(`worker_isWork_${ele.name.replace(' ', '_')}`, 'work', 'ex', 900);
+                    await clientRedis.set(`worker_isWork_${ele.name.replace(' ', '_')}`, 'work', 'ex', 900);
 
                 }
             }));
@@ -208,7 +225,7 @@ function start(itemsArray, port, name) {
 
             });
 
-          
+
 
 
 
@@ -220,7 +237,7 @@ function start(itemsArray, port, name) {
         });
 
         helper.timeout(1000).then(async () => {
-             
+
             let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
             console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
             // setInterval(() => {
@@ -237,9 +254,9 @@ function start(itemsArray, port, name) {
                 return resolve()
             })
 
-    
 
-    })
+
+        })
 
 
 

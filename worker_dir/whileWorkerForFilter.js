@@ -102,17 +102,17 @@ function start(item, port, name) {
                 
             });
             console.log('История после фильтрации - ' + newArray.length);
-            const priceArray = [];
-            newArray.forEach(x=> {
-                priceArray.push(Number(x.buy.data.quantity));
+            // const priceArray = [];
+            // newArray.forEach(x=> {
+            //     priceArray.push(Number(x.buy.data.quantity));
 
-            });
-            const max = Math.max(...priceArray);
-            const min = Math.min(...priceArray);
+            // });
+            // const max = Math.max(...priceArray);
+            // const min = Math.min(...priceArray);
             
 
-            const filtered = newArray.filter(x => Number(x.buy.data.quantity) > helper.randn_bm(min, max, 3));
-            console.log('История после фильтрации по среднему отклонению "3" - ' + filtered.length);
+            // const filtered = newArray.filter(x => Number(x.buy.data.quantity) > helper.randn_bm(min, max, 3));
+            // console.log('История после фильтрации по среднему отклонению "3" - ' + filtered.length);
 
 
 
