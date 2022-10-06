@@ -10,6 +10,11 @@ const {init_Order} = require('../controller/createOrder');
 function start(port, name) {
     return new Promise((resolve, reject)=> {
         port.on('message', async (rpc)=> {
+        const taskBuy = new Map([]);
+
+        if (!taskBuy.has(rpc.tokenId)) {
+            taskBuy.set(rpc.tokenId, rpc.item_key)
+
             console.log('==============\nCreate Order');
             console.log(rpc);
             console.log('==============');
@@ -17,7 +22,16 @@ function start(port, name) {
             if (rpc?.timeout) {
 
                 setTimeout(async () => {
-                    await init_Order({tokenId: rpc.tokenId, price: Number(rpc.price).toFixed(8)-Number(rpc.price*0.09).toFixed(8)}).then(async res=> {
+                    let price = 0;
+                    if (rpc.hasOwnProperty('globalWorker')) {
+                        price = Number(rpc.price).toFixed(8);
+
+                        
+                    } else {
+                        price = Number(rpc.price).toFixed(8)-Number(rpc.price*0.09).toFixed(8);
+
+                    }
+                    await init_Order({tokenId: rpc.tokenId, price: price}).then(async res=> {
                         console.log(res);
                         const price = await clientRedis.lrange(rpc.item_key, 0, -1);
                         console.log('При создании ордера база создержит по ключу ' + price.length);
@@ -44,6 +58,20 @@ function start(port, name) {
     
                 })
             }
+
+        }
+        if (taskBuy.size > 2000) {
+            let index = 0;
+            taskBuy.forEach((e, i) => {
+                index++
+                if (index < 500) {
+                    taskBuy.delete(i)
+                }
+            })
+
+        }
+
+           
 
          
         })
