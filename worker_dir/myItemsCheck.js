@@ -12,39 +12,38 @@ function start() {
 
         const keys_db = await clientRedis.keys('my_item_*');
         console.log('keys_db - ' + keys_db.length);
+        // console.log(keys_db);
  
 
         keys_db.forEach(async (ele, index) => {
-            // let price = await clientRedis.lrange(ele, 0, 700);
-            // let filter = itemData.filter(x=> x.token_id == items.token_id);
-            // console.log(ele + ' - ' + price.length);
+            let price = await clientRedis.lrange(ele, 0, 700);
+            console.log(ele + ' - ' + price.length);
 
-            // price.forEach(items => {
-            //     let itemData = JSON.parse(items);
+            price.forEach(async items => {
+                let itemData = JSON.parse(items);
 
-            //     let filter = price.filter(x => {
-            //         let y = JSON.parse(x);
-            //         if (y.token_id == itemData.token_id) {
-            //             return x
-            //         }
-            //     });
-            //     if (filter.length > 1) {
-            //     console.log('дублей - ' + filter.length);
-
-            //         filter.forEach(async (item, i) => {
-            //             const result = await clientRedis.lrem(ele, 1, item);
-            //             console.log('result ' + result);
-
-
-            //         });
-            //     }
-            // }); // удаляем дубли из базы
-           const price = await clientRedis.lrange(ele, 0, -1);
+                let filter = price.filter(x => {
+                    let y = JSON.parse(x);
+                    if (y.token_id == itemData.token_id) {
+                        return x
+                    }
+                });
+                if (filter.length > 1) {
+                console.log('дублей - ' + filter.length);
+                const result = await clientRedis.lrem(ele, filter.length-1, items);
+                console.log('result ' + result);
+ 
+                }
+            }); // удаляем дубли из базы
+            // console.log(ele);
+            price = await clientRedis.lrange(ele, 0, -1);
+        //    console.log(price);
             price.forEach((element, i) => {
                 let itemData = JSON.parse(element);
+                // console.log(itemData);
 
-
-                if (itemData.date < new Date().getTime() - 25 * 60 * 60 * 1000 && !itemData.init_order) {
+                // itemData.date < new Date().getTime() - 25 * 60 * 60 * 1000
+                if (!itemData.init_order) {
                     setTimeout(async () => {
                         const average_price = await clientRedis.get(`average_price_${itemData.item_name.replace(' ', '_')}`);
                         if (average_price) {
@@ -58,7 +57,24 @@ function start() {
                             let newPrice = utils.formatUnits(String(sellPrice), '18');
 
                             const result = await init_Order({ tokenId: itemData.token_id, price: Number(newPrice).toFixed(8), workerType: 'myItemsCheck' }).then(async res => {
-                                await clientRedis.lpush(ele, JSON.stringify(itemData));
+                                const price = await clientRedis.lrange(ele, 0, -1);
+
+                                let filter = price.filter(x => {
+                                    let y = JSON.parse(x);
+                                    if (y.token_id == itemData.token_id) {
+                                        return x
+                                    }
+                                });
+                                if (filter.length == 0) {
+                                    await clientRedis.lpush(ele, JSON.stringify(itemData));
+                                } else {
+                                    await clientRedis.lrem(ele, filter.length, element);
+                                    // удаляем все вхождения 
+                                    await clientRedis.lpush(ele, JSON.stringify(itemData));
+
+
+                                }
+
                                 return res
 
                             });

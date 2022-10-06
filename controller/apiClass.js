@@ -14,7 +14,7 @@ const apiImmutable = {
             return await axios.get(`https://api.x.immutable.com/v1/assets?&order_by=created_at&user=${wallet}`)
 
         } else {
-            console.log(cursor);
+            // console.log(cursor);
             return await axios.get(`https://api.x.immutable.com/v1/assets?&order_by=created_at&user=${wallet}&cursor=${cursor}`)
 
 

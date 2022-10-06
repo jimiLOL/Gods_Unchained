@@ -54,11 +54,9 @@ function start(port, name, item) {
                             await clientRedis.lpush(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, JSON.stringify({ date: new Date().getTime(), trade_id: res.trade_id, price_buy: rpc.priceItem, db_price: rpc.db_price, init_order: false, item_name: rpc.item.sell.data.properties.name, token_id: rpc.item.sell.data.token_id }))
 
                         } else {
-                            filter.forEach(async element => {
-                            await clientRedis.lrem(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, 1, element);
+                            console.log('При покупке в базе содержится - ' + filter.length + ' одинаковых объектов');
+                            await clientRedis.lrem(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, filter.length, element);
 
-                                
-                            });
                             await clientRedis.lpush(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, JSON.stringify({ date: new Date().getTime(), trade_id: res.trade_id, price_buy: rpc.priceItem, db_price: rpc.db_price, init_order: false, item_name: rpc.item.sell.data.properties.name, token_id: rpc.item.sell.data.token_id }))
 
                             
@@ -84,7 +82,7 @@ function start(port, name, item) {
 
 
             }
-            if (taskBuy.size > 550) {
+            if (taskBuy.size > 2550) {
                 let index = 0;
                 taskBuy.forEach((e, i) => {
                     index++

@@ -38,7 +38,7 @@ function get_Items_My_Wallet_and_start_watcher_workers() {
                     let ini = 0;
                     while (cursor.length > 3) {
                         ini++;
-                        console.log(ini);
+                        // console.log(ini);
                         await helper.timeout(500*ini).then(async ()=> {
                             const res = await apiImmutable.get_list_my_item('0xb8F202dC3242A6b17d7Be5e2956aC2680EAf223c', cursor);
                             res.data.result.forEach(e=> {

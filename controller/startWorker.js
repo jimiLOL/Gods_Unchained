@@ -108,7 +108,7 @@ function start() {
                         
                     // });
                     // console.log('start');
-                    console.log('Global worker count ' + worker_watcher.threads.length);
+                    // console.log('Global worker count ' + worker_watcher.threads.length);
 
                     if (worker_watcher.threads.length < 8) {
                         let start = new Date().getTime();

@@ -17,11 +17,13 @@ function start(port, name) {
             if (rpc?.timeout) {
 
                 setTimeout(async () => {
-                    await init_Order({tokenId: rpc.tokenId, price: Number(rpc.price).toFixed(8)}).then(async res=> {
+                    await init_Order({tokenId: rpc.tokenId, price: Number(rpc.price).toFixed(8)-Number(rpc.price*0.09).toFixed(8)}).then(async res=> {
                         console.log(res);
                         const price = await clientRedis.lrange(rpc.item_key, 0, -1);
+                        console.log('При создании ордера база создержит по ключу ' + price.length);
                         price.forEach(async x=> {
                             let y = JSON.parse(x);
+                            
                             if (y.token_id == rpc.tokenId) {
                                 y['price_gods_order'] = rpc.price;
                                  await clientRedis.lrem(rpc.item_key, 1, x);
