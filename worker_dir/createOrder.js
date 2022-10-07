@@ -94,11 +94,11 @@ function start(port, name) {
                 }
 
             }
-            if (taskBuy.size > 5) {
+            if (taskBuy.size > 20) {
                 let index = 0;
                 taskBuy.forEach((e, i) => {
                     index++
-                    if (index < 2) {
+                    if (index < 5) {
                         taskBuy.delete(i)
                     }
                 })
