@@ -24,11 +24,12 @@ function start(port, name) {
 
                     setTimeout(async () => {
                         let price = Number(rpc.price).toFixed(8);
-                        // if (rpc.hasOwnProperty('globalWorker')) {
-                        //     price = Number(rpc.price).toFixed(8);
+                        if (rpc.hasOwnProperty('globalWorker')) {
+                            price = Number(rpc.price).toFixed(8)-Number(rpc.price * 0.09).toFixed(8);
 
 
-                        // } else {
+                        }
+                        //  else {
                         //     price = Number(rpc.price).toFixed(8) - Number(rpc.price * 0.09).toFixed(8);
 
                         // }
