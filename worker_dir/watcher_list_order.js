@@ -32,29 +32,29 @@ const worker_proxy = new Piscina({
 let objectPrice;
 let walletBalance = {};
 
-(async()=> {
-    // Очищаем базу
-    // const keys_db = await clientRedis.keys('my_item_*');
-    // keys_db.forEach(async element => {
-    //     // await clientRedis.del(element)
-    //     let get = await clientRedis.lrange(element, 0, -1);
-    //     get.forEach(ele => {
-    //         fs.appendFile('./keys_db.txt', `${ele}\n`, (error)=> {
-    //             // console.log(error);
-    //         })
-    //     });
+// (async()=> {
+//     // Очищаем базу
+//     // const keys_db = await clientRedis.keys('my_item_*');
+//     // keys_db.forEach(async element => {
+//     //     // await clientRedis.del(element)
+//     //     let get = await clientRedis.lrange(element, 0, -1);
+//     //     get.forEach(ele => {
+//     //         fs.appendFile('./keys_db.txt', `${ele}\n`, (error)=> {
+//     //             // console.log(error);
+//     //         })
+//     //     });
     
         
-    // });
-    const keys_db_s = await clientRedis.keys('average_price_*');
-    keys_db_s.forEach(async element => {
-        await clientRedis.del(element)
-        // fs.appendFile('./keys_db_s.txt', `${element}\n`, (error)=> {
-        //     // console.log(error);
-        // })
+//     // });
+//     const keys_db_s = await clientRedis.keys('average_price_*');
+//     keys_db_s.forEach(async element => {
+//         await clientRedis.del(element)
+//         // fs.appendFile('./keys_db_s.txt', `${element}\n`, (error)=> {
+//         //     // console.log(error);
+//         // })
         
-    });
-})()
+//     });
+// })()
  
 
 function start(port, name) {
@@ -290,7 +290,7 @@ function start(port, name) {
 
 
                             if (await clientRedis.llen(`my_item_${item.sell.data.properties.name.replace(' ', '_')}`) > 0) {
-                                console.log('============\nIt`s item is on the list\n=============');
+                                // console.log('============\nIt`s item is on the list\n=============');
                                 i++
                                 // если у нас самих имеется такая карточка - надо проверить цену и перебить ее, если она ниже нашей
                                 const price = await clientRedis.lrange(`my_item_${item.sell.data.properties.name.replace(' ', '_')}`, 0, -1);
@@ -327,7 +327,10 @@ function start(port, name) {
                                     }
 
                                 });
-                                console.log('Отфильтровали ' + newArray.length);
+                                if (newArray.length > 10) {
+                                    console.log('Отфильтровали ' + newArray.length);
+
+                                }
                                 // console.log(priceItem, gods_var, gods);
 
 
