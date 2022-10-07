@@ -65,6 +65,29 @@ function start(port, name) {
                 } else {
                     await init_Order({ tokenId: rpc.tokenId, price: rpc.price }).then(async res => {
                         console.log(res);
+                        const price = await clientRedis.lrange(rpc.item_key, 0, -1);
+                            console.log('При создании ордера база создержит по ключу ' + price.length);
+                            price.forEach(async x => {
+                                let y = JSON.parse(x);
+
+                                if (y.token_id == rpc.tokenId) {
+                                    // const price = await clientRedis.lrange(rpc.item_key, 0, -1);
+                                    let filter = price.filter(x => {
+                                        let y = JSON.parse(x);
+                                        if (y.token_id == rpc.tokenId) {
+                                            return x
+                                        }
+                                    });
+                                    if (filter.length == 1) {
+                                        y['price_gods_order'] = rpc.price;
+                                        await clientRedis.lrem(rpc.item_key, 1, x);
+                                        await clientRedis.lpush(rpc.item_key, JSON.stringify(y));
+                                    }
+
+
+
+                                }
+                            })
 
                     })
                 }
