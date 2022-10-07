@@ -144,10 +144,10 @@ function start(itemsArray, port, name) {
                                 max[priceObj[price].symbol] = Math.max(...arrayPrice);
                                 count[priceObj[price].symbol] = arrayPrice.length;
                                 info[priceObj[price].symbol] = {
-                                    average: Number(average[priceObj[price].symbol]).toFixed(4),
+                                    average: Number(average[priceObj[price].symbol]).toFixed(8),
                                     average_big: average_big[priceObj[price].symbol] / allERCPrice.length,
-                                    min: Number(min[priceObj[price].symbol]).toFixed(4),
-                                    max: Number(max[priceObj[price].symbol]).toFixed(4),
+                                    min: Number(min[priceObj[price].symbol]).toFixed(9),
+                                    max: Number(max[priceObj[price].symbol]).toFixed(9),
                                     count: count[priceObj[price].symbol],
                                     [`${priceObj[price].symbol}-USD`]: priceObj[price].usd,
                                     token_address: priceObj[price].token_address

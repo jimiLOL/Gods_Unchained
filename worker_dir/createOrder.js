@@ -23,15 +23,15 @@ function start(port, name) {
                 if (rpc?.timeout) {
 
                     setTimeout(async () => {
-                        let price = 0;
-                        if (rpc.hasOwnProperty('globalWorker')) {
-                            price = Number(rpc.price).toFixed(8);
+                        let price = Number(rpc.price).toFixed(8);
+                        // if (rpc.hasOwnProperty('globalWorker')) {
+                        //     price = Number(rpc.price).toFixed(8);
 
 
-                        } else {
-                            price = Number(rpc.price).toFixed(8) - Number(rpc.price * 0.09).toFixed(8);
+                        // } else {
+                        //     price = Number(rpc.price).toFixed(8) - Number(rpc.price * 0.09).toFixed(8);
 
-                        }
+                        // }
                         await init_Order({ tokenId: rpc.tokenId, price: price }).then(async res => {
                             console.log(res);
                             const price = await clientRedis.lrange(rpc.item_key, 0, -1);
