@@ -1,6 +1,6 @@
 
 
-const apiImmutable = require('../controller/apiClass');
+// const apiImmutable = require('../controller/apiClass');
 const helper = require('../helper');
 const Piscina = require('piscina');
 const util = require("util");
@@ -187,7 +187,7 @@ function start(itemsArray, port, name) {
 
                         // console.log('Average');
                         // console.log(info['spread_GODS_ETH']);
-                        clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 150000);
+                        clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 604800);
                         // console.log('!=======!');
                         // расчитать надо для каждой монеты свою среднию.
 

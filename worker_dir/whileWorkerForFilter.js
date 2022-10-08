@@ -64,7 +64,7 @@ function start(item, port, name) {
 
 
                 // console.log(cursor);
-                if (i >= 3) {
+                if (i >= 20) {
                     cursor = null;
 
 

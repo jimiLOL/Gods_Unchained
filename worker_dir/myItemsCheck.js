@@ -9,6 +9,17 @@ const { utils } = require("ethers");
 function start() {
     return new Promise(async (resolve) => {
 
+        // const keys_db_s = await clientRedis.keys('average_price_*');
+        // console.log('keys_db_s - ' + keys_db_s.length);
+
+        // keys_db_s.forEach(async element => {
+        //     await clientRedis.del(element)
+        //     // fs.appendFile('./keys_db_s.txt', `${element}\n`, (error)=> {
+        //     //     // console.log(error);
+        //     // })
+            
+        // });
+
 
         const keys_db = await clientRedis.keys('my_item_*');
         console.log('keys_db - ' + keys_db.length);
