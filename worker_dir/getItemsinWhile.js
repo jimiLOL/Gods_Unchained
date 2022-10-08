@@ -123,6 +123,8 @@ function start(itemsArray, port, name) {
 
                             if (filtered.length > 0) {
                                 const arrayPrice = [];
+                                info['name'] = filtered[0].sell.data.properties.name;
+
 
                                 filtered.forEach(e => {
 
@@ -135,7 +137,6 @@ function start(itemsArray, port, name) {
                                     // console.log(utils.formatUnits(priceOne, priceObj[price].decimals) + ' ' + priceObj[price].symbol);
                                     // console.log(`${priceObj[price].symbol} == ${utils.formatUnits(priceOne, priceObj[price].decimals)*priceObj[price].usd} USD`);
                                     arrayPrice.push(utils.formatUnits(priceOne, priceObj[price].decimals));
-                                    info['name'] = e.sell.data.properties.name;
 
                                 });
                                 // average[priceObj[price].symbol] = average[priceObj[price].symbol]/allERCPrice.length;
@@ -187,7 +188,10 @@ function start(itemsArray, port, name) {
 
                         // console.log('Average');
                         // console.log(info['spread_GODS_ETH']);
-                        clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 604800);
+                        if (info.name) {
+                            clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 604800);
+
+                        }
                         // console.log('!=======!');
                         // расчитать надо для каждой монеты свою среднию.
 
