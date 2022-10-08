@@ -201,6 +201,7 @@ function start(itemsArray, port, name) {
 
                     } catch (e) {
                         console.log(resArray[0]);
+                        console.log(resArray[0].sell.data);
 
                         console.log(e);
 
