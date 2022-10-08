@@ -9,8 +9,8 @@ const { utils } = require("ethers");
 function start() {
     return new Promise(async (resolve) => {
 
-        // const keys_db_s = await clientRedis.keys('average_price_*');
-        // console.log('keys_db_s - ' + keys_db_s.length);
+        const keys_db_s = await clientRedis.keys('average_price_*');
+        console.log('keys_db_s - ' + keys_db_s.length);
 
         // keys_db_s.forEach(async element => {
         //     await clientRedis.del(element)
