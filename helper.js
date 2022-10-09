@@ -1,5 +1,7 @@
 const { default: axios } = require("axios");
 const tunnel = require('tunnel');
+const moment = require('moment');
+
 const fs = require('fs');
 
 function shuffle(array) {
@@ -119,6 +121,96 @@ function randn_bm(min, max, skew) {
     return num;
   }
 
-  const helper = { shuffle, proxyInit, getIP, uuid, getRandomInt, initAgent, timeout, delDublicateProxy, filterProxy, makeid, randn_bm };
+  function setDateFormatMoment(d, setday) {
+    if (setday == "1d") {
+      d = moment(d).format("YYYY-MM-DD");
+  
+      return d;
+    }
+    if (setday == "1h") {
+      // let d = moment(d).format("YYYY-MM-DD[T]HH");
+  
+      d = moment(d).format("YYYY-MM-DD[T]HH");
+  
+      // console.log(setStartTime);
+  
+      return d;
+    }
+    if (setday == "1s") {
+      d = moment(d).format("YYYY-MM-DD[T]HH:mm:ss");
+  
+      return d;
+    }
+    if (setday == "1m") {
+      d = moment(d).format("YYYY-MM-DD[T]HH:mm");
+  
+      return d;
+    }
+    if (setday == "5m") {
+      d = moment(d).format("YYYY-MM-DD[T]HH:mm");
+  
+      return d;
+    }
+    if (setday == "15m") {
+      d = moment(d).format("YYYY-MM-DD[T]HH:mm");
+  
+      return d;
+    }
+    if (setday == "30m") {
+      d = moment(d).format("YYYY-MM-DD[T]HH:mm");
+  
+      return d;
+    }
+    if (setday == "1w") {
+      d = moment(d).format("YYYY-MM-DD");
+  
+      return d;
+    }
+    if (setday == "1month") {
+      d = moment(d).format("YYYY-MM");
+  
+      return d;
+    }
+    if (setday == "2month") {
+      d = moment(d).format("YYYY-MM");
+  
+      return d;
+    }
+    if (setday == "3month") {
+      d = moment(d).format("YYYY-MM");
+  
+      return d;
+    }
+    if (setday == "1y") {
+      d = moment(d).format("YYYY");
+  
+      return d;
+    }
+  }
+  function getMax(arr) {
+    let len = arr.length;
+    let max = -Infinity;
+
+    while (len--) {
+    // console.log(arr[len] > max);
+
+        max = arr[len] > max ? arr[len] : max;
+      // console.log(max);
+
+    }
+    return max;
+}
+
+function getMin(arr) {
+  let len = arr.length;
+  let min = +Infinity;
+
+  while (len--) {
+      min = arr[len] < min ? arr[len] : min;
+  }
+  return min;
+}
+
+  const helper = { shuffle, proxyInit, getIP, uuid, getRandomInt, initAgent, timeout, delDublicateProxy, filterProxy, makeid, randn_bm, setDateFormatMoment, getMin, getMax };
   module.exports = helper;
 

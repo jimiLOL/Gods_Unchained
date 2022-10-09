@@ -101,18 +101,35 @@ function start(item, port, name) {
                 }
                 
             });
-            // console.log('История после фильтрации - ' + newArray.length);
-            // const priceArray = [];
-            // newArray.forEach(x=> {
-            //     priceArray.push(Number(x.buy.data.quantity));
+            // const dateObject = {};
+            // newArray.map(x=> {
+            //     if (dateObject[helper.setDateFormatMoment(x.updated_timestamp, '1d')] == undefined) {
+            //     dateObject[helper.setDateFormatMoment(x.updated_timestamp, '1d')] = []
 
+
+            //     } else {
+            //         dateObject[helper.setDateFormatMoment(x.updated_timestamp, '1d')].push(x)
+
+            //     }
             // });
-            // const max = Math.max(...priceArray);
-            // const min = Math.min(...priceArray);
-            
+            // const order_count = [];
+            // Object.keys(dateObject).forEach(e=> {
+            //     console.log(e, dateObject[e].length);
+            //     order_count.push(dateObject[e].length);
+            // });
+            // const maxVar = Math.max(...order_count);
+            // const minVar = Math.min(...order_count);
+            // Object.keys(dateObject).forEach(e=> {
+            //     if (dateObject[e].length > helper.randn_bm(minVar, maxVar, 3)) {
 
-            // const filtered = newArray.filter(x => Number(x.buy.data.quantity) > helper.randn_bm(min, max, 3));
-            // console.log('История после фильтрации по среднему отклонению "3" - ' + filtered.length);
+            //     }
+            // });
+            // const filtered = newArray.filter(x => Number(x.buy.data.quantity) > helper.randn_bm(minVar, maxVar, 3));
+
+            // let filterDate = newArray.filter(x=> {
+
+            // })
+        
 
 
 
