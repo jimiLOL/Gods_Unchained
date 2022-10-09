@@ -237,7 +237,7 @@ function start(port, name) {
                                     if (itemsArray.length != 0) {
                                         console.log('Создаем воркер itemsArray.length = ' + itemsArray.length);
                                         console.log(itemsArray[0].name);
-                                        console.log('in work ' + worker_get_items_for_name.threads.length + ' workers');
+                                        // console.log('in work ' + worker_get_items_for_name.threads.length + ' workers');
                                         const newArray = itemsArray.slice(0, itemsArray.length - 1);
                                         itemsArray.splice(0, itemsArray.length - 1);
                                         const rndString = helper.makeid(5);
