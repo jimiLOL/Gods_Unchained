@@ -65,7 +65,7 @@ function get_Items_My_Wallet_and_start_watcher_workers() {
                     const itemList = await clientRedis.lrange(ele, 0, -1);
                     itemList.forEach(async item => {
                         let item_js = JSON.parse(item);
-                        let filter = result.filter(x => x.token_id == item_js.token_id && item_js.init_order && item_js.date < new Date().getTime()-30*60*1000);
+                        let filter = result.filter(x => x.token_id == item_js.token_id);
                         if (filter.length == 0) {
                             console.log('Хотим удалить id ' + item_js.token_id);
                         //    const result =  await clientRedis.lrem(ele, 1, item);
