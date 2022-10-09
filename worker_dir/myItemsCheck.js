@@ -4,6 +4,7 @@ const { init_Order } = require('../controller/createOrder');
 const Redis = require("ioredis");
 const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
 const { utils } = require("ethers");
+const fs = require('fs');
 
 
 function start() {
@@ -13,10 +14,11 @@ function start() {
         console.log('keys_db_s - ' + keys_db_s.length);
 
         // keys_db_s.forEach(async element => {
-        //     await clientRedis.del(element)
-        //     // fs.appendFile('./keys_db_s.txt', `${element}\n`, (error)=> {
-        //     //     // console.log(error);
-        //     // })
+        //     // await clientRedis.del(element)
+        //     let item = await clientRedis.get(element)
+        //     fs.appendFile('./keys_db_s.txt', `${item}\n`, (error)=> {
+        //         // console.log(error);
+        //     })
             
         // });
 

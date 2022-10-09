@@ -87,6 +87,23 @@ function start(itemsArray, port, name) {
 
             arrayPromise.push(workerWhileFilter.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async resArray => {
                 if (Array.isArray(resArray) && resArray.length > 10) {
+                    // console.log('resArray.length ' + resArray.length);
+                    resArray.forEach((ele, i) => {
+                        let filter = resArray.filter((x, i)=> {
+                            if (x.order_id == ele.order_id) {
+                                resArray.splice(i, 1);
+
+                            }
+                        });
+                        // if (filter.length > 1) {
+                             
+                        //     resArray.splice(i, 1);
+        
+                        // }
+                        
+                    });
+                    // console.log('resArray.length ' + resArray.length);
+
                     const priceObj = await getPrice();
 
                     try {
@@ -143,6 +160,7 @@ function start(itemsArray, port, name) {
                                 average[priceObj[price].symbol] = utils.formatUnits(average[priceObj[price].symbol], priceObj[price].decimals) / allERCPrice.length;
                                 min[priceObj[price].symbol] = Math.min(...arrayPrice);
                                 max[priceObj[price].symbol] = Math.max(...arrayPrice);
+                                // console.log('arrayPrice.length ' + arrayPrice.length);
                                 count[priceObj[price].symbol] = arrayPrice.length;
                                 info[priceObj[price].symbol] = {
                                     average: Number(average[priceObj[price].symbol]).toFixed(8),
