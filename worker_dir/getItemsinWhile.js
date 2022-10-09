@@ -135,7 +135,7 @@ function start(itemsArray, port, name) {
                             });
                             const maxVar = Math.max(...priceArray);
                             const minVar = Math.min(...priceArray);
-                            const filtered = allERCPrice.filter(x => Number(x.buy.data.quantity) > helper.randn_bm(minVar, maxVar, 3));
+                            const filtered = allERCPrice.filter(x => Number(x.buy.data.quantity) > helper.randn_bm(minVar, maxVar, 5));
                             // console.log('История после фильтрации по среднему отклонению "3" - ' + filtered.length);
 
                             if (filtered.length > 0) {

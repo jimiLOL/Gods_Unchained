@@ -19,14 +19,22 @@ function start() {
         //     // fs.appendFile('./keys_db_s.txt', `${item}\n`, (error)=> {
         //     //     // console.log(error);
         //     // })
-            
+
         // });
 
 
         const keys_db = await clientRedis.keys('my_item_*');
-        console.log('keys_db - ' + keys_db.length);
-        // console.log(keys_db);
- 
+        // console.log('keys_db - ' + keys_db.length);
+        // keys_db.forEach(async element => {
+        //     // await clientRedis.del(element)
+        //     let get = await clientRedis.lrange(element, 0, -1);
+        //     get.forEach(ele => {
+        //         fs.appendFile('./keys_db.txt', `${ele}\n`, (error) => {
+        //             // console.log(error);
+        //         })
+        //     });
+        // });
+
 
         keys_db.forEach(async (ele, index) => {
             let price = await clientRedis.lrange(ele, 0, 700);
@@ -42,15 +50,15 @@ function start() {
                     }
                 });
                 if (filter.length > 1 && i == price.length) {
-                console.log('дублей - ' + filter.length);
-                const result = await clientRedis.lrem(ele, filter.length-1, items);
-                console.log('result ' + result);
- 
+                    console.log('дублей - ' + filter.length);
+                    const result = await clientRedis.lrem(ele, filter.length - 1, items);
+                    console.log('result ' + result);
+
                 }
             }); // удаляем дубли из базы
             // console.log(ele);
             price = await clientRedis.lrange(ele, 0, -1);
-        //    console.log(price);
+            //    console.log(price);
             price.forEach((element, i) => {
                 let itemData = JSON.parse(element);
                 // console.log(itemData);
