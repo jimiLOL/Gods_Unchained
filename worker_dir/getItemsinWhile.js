@@ -88,7 +88,7 @@ function start(itemsArray, port, name) {
             arrayPromise.push(workerWhileFilter.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async resArray => {
                 if (Array.isArray(resArray) && resArray.length > 10) {
                     console.log('resArray.length ' + resArray.length);
-                    for (let index = 0; index < 3; index++) {
+                    for (let index = 0; index < 5; index++) {
                         resArray.forEach((ele, i) => {
                             let filter = resArray.filter(x=> x.order_id == ele.order_id);
                             if (filter.length > 1) {
