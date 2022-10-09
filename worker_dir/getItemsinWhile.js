@@ -90,18 +90,18 @@ function start(itemsArray, port, name) {
                     // console.log('resArray.length ' + resArray.length);
                     for (let index = 0; index < 5; index++) {
                         resArray.forEach((ele, i) => {
-                            let filter = resArray.filter(x=> x.order_id == ele.order_id);
+                            let filter = resArray.filter(x => x.order_id == ele.order_id);
                             if (filter.length > 1) {
-                                 
+
                                 resArray.splice(i, 1);
-            
+
                             }
-                            
+
                         });
                         // console.log('resArray.length ' + resArray.length);
-                        
+
                     }
-                   
+
 
 
                     const priceObj = await getPrice();
@@ -121,7 +121,7 @@ function start(itemsArray, port, name) {
                         Object.keys(priceObj).forEach(price => {
 
                             // console.log('Расчет средней для ' + priceObj[price].symbol);
-                            average[priceObj[price].symbol] = BigNumber.from(0);
+                            average[priceObj[price].symbol] = 0;
                             average_big[priceObj[price].symbol] = 0;
                             min[priceObj[price].symbol] = 0;
                             max[priceObj[price].symbol] = 0;
@@ -135,7 +135,24 @@ function start(itemsArray, port, name) {
                             });
                             const maxVar = Math.max(...priceArray);
                             const minVar = Math.min(...priceArray);
-                            const filtered = allERCPrice.filter(x => Number(x.buy.data.quantity) > helper.randn_bm(minVar, maxVar, 9));
+
+                            const sum = priceArray.reduce((partial_sum, a) => partial_sum + a, 0);
+
+                            const filtered = allERCPrice.filter(x => {
+                                if (allERCPrice.length >= 30) {
+                                    return x
+
+                                } else {
+                                    let f = (x.buy.data.quantity / sum) * 100;
+                                    if (f < (helper.randn_bm(minVar, maxVar, 3) / sum) * 100) {
+                                        return x
+                                    }
+
+                                }
+
+
+
+                            });
                             // console.log('История после фильтрации по среднему отклонению "3" - ' + filtered.length);
 
                             if (filtered.length > 0) {
@@ -148,32 +165,37 @@ function start(itemsArray, port, name) {
 
 
 
-                                    average[priceObj[price].symbol] = BigNumber.from(e.buy.data.quantity).add(average[priceObj[price].symbol]);
+                                    average[priceObj[price].symbol] = Number(e.buy.data.quantity) + average[priceObj[price].symbol];
                                     average_big[priceObj[price].symbol] = Number(e.buy.data.quantity) + average_big[priceObj[price].symbol];
-                                    const priceOne = BigNumber.from(e.buy.data.quantity);
+                                    // const priceOne = BigNumber.from(e.buy.data.quantity);
+
                                     // console.log(utils.formatUnits(priceOne, priceObj[price].decimals) + ' ' + priceObj[price].symbol);
                                     // console.log(`${priceObj[price].symbol} == ${utils.formatUnits(priceOne, priceObj[price].decimals)*priceObj[price].usd} USD`);
-                                    arrayPrice.push(utils.formatUnits(priceOne, priceObj[price].decimals));
+                                    // arrayPrice.push(utils.formatUnits(priceOne, priceObj[price].decimals));
+                                    arrayPrice.push(Number(e.buy.data.quantity));
 
                                 });
-                                // average[priceObj[price].symbol] = average[priceObj[price].symbol]/allERCPrice.length;
-                                average[priceObj[price].symbol] = utils.formatUnits(average[priceObj[price].symbol], priceObj[price].decimals) / allERCPrice.length;
-                                min[priceObj[price].symbol] = Math.min(...arrayPrice);
-                                max[priceObj[price].symbol] = Math.max(...arrayPrice);
+                                average[priceObj[price].symbol] = average[priceObj[price].symbol] / filtered.length;
+                                let bg = BigNumber.from(String(average[priceObj[price].symbol].toFixed()));
+                                // let bg_mod = BigNumber.from(bg).mod(BigNumber.from(String(allERCPrice.length)));
+                                console.log(bg);
+                                average[priceObj[price].symbol] = utils.formatUnits(bg, priceObj[price].decimals);
+                                min[priceObj[price].symbol] = BigNumber.from(String(helper.getMin(arrayPrice)));
+                                max[priceObj[price].symbol] = BigNumber.from(String(helper.getMax(arrayPrice)));
                                 // console.log('arrayPrice.length ' + arrayPrice.length);
                                 count[priceObj[price].symbol] = arrayPrice.length;
                                 info[priceObj[price].symbol] = {
                                     average: Number(average[priceObj[price].symbol]).toFixed(8),
-                                    average_big: average_big[priceObj[price].symbol] / allERCPrice.length,
-                                    min: Number(min[priceObj[price].symbol]).toFixed(9),
-                                    max: Number(max[priceObj[price].symbol]).toFixed(9),
+                                    average_big: average_big[priceObj[price].symbol] / filtered.length,
+                                    min: Number(utils.formatUnits(min[priceObj[price].symbol], priceObj[price].decimals)).toFixed(8),
+                                    max: Number(utils.formatUnits(max[priceObj[price].symbol], priceObj[price].decimals)).toFixed(8),
                                     count: count[priceObj[price].symbol],
                                     [`${priceObj[price].symbol}-USD`]: priceObj[price].usd,
                                     token_address: priceObj[price].token_address
                                 };
                                 // console.log(resArray[0].sell.data.properties.name);
 
-                                // console.log(info[priceObj[price].symbol]);
+                                console.log(info[priceObj[price].symbol]);
 
                             }
 
