@@ -89,17 +89,12 @@ function start(itemsArray, port, name) {
                 if (Array.isArray(resArray) && resArray.length > 10) {
                     // console.log('resArray.length ' + resArray.length);
                     resArray.forEach((ele, i) => {
-                        let filter = resArray.filter((x, i)=> {
-                            if (x.order_id == ele.order_id) {
-                                resArray.splice(i, 1);
-
-                            }
-                        });
-                        // if (filter.length > 1) {
+                        let filter = resArray.filter((x, i)=> x.order_id == ele.order_id);
+                        if (filter.length > 1) {
                              
-                        //     resArray.splice(i, 1);
+                            resArray.splice(i, 1);
         
-                        // }
+                        }
                         
                     });
                     // console.log('resArray.length ' + resArray.length);
