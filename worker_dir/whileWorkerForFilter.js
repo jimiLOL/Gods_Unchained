@@ -92,7 +92,7 @@ function start(item, port, name) {
 
             }
             const newArray = result.flat();
-            console.log('Получили историю - ' + newArray.length);
+            // console.log('Получили историю - ' + newArray.length);
             newArray.forEach((ele, i) => {
                 let filter = newArray.filter(x=> x.order_id == ele.order_id);
                 if (filter.length > 1) {
@@ -101,7 +101,7 @@ function start(item, port, name) {
                 }
                 
             });
-            console.log('История после фильтрации - ' + newArray.length);
+            // console.log('История после фильтрации - ' + newArray.length);
             // const priceArray = [];
             // newArray.forEach(x=> {
             //     priceArray.push(Number(x.buy.data.quantity));

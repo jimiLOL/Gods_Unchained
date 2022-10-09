@@ -87,7 +87,7 @@ function start(itemsArray, port, name) {
 
             arrayPromise.push(workerWhileFilter.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async resArray => {
                 if (Array.isArray(resArray) && resArray.length > 10) {
-                    console.log('resArray.length ' + resArray.length);
+                    // console.log('resArray.length ' + resArray.length);
                     for (let index = 0; index < 5; index++) {
                         resArray.forEach((ele, i) => {
                             let filter = resArray.filter(x=> x.order_id == ele.order_id);
@@ -98,7 +98,7 @@ function start(itemsArray, port, name) {
                             }
                             
                         });
-                        console.log('resArray.length ' + resArray.length);
+                        // console.log('resArray.length ' + resArray.length);
                         
                     }
                    
@@ -136,7 +136,7 @@ function start(itemsArray, port, name) {
                             const maxVar = Math.max(...priceArray);
                             const minVar = Math.min(...priceArray);
                             const filtered = allERCPrice.filter(x => Number(x.buy.data.quantity) > helper.randn_bm(minVar, maxVar, 3));
-                            console.log('История после фильтрации по среднему отклонению "3" - ' + filtered.length);
+                            // console.log('История после фильтрации по среднему отклонению "3" - ' + filtered.length);
 
                             if (filtered.length > 0) {
                                 const arrayPrice = [];
