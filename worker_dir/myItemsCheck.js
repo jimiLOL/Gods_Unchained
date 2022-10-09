@@ -14,11 +14,11 @@ function start() {
         console.log('keys_db_s - ' + keys_db_s.length);
 
         // keys_db_s.forEach(async element => {
-        //     // await clientRedis.del(element)
-        //     let item = await clientRedis.get(element)
-        //     fs.appendFile('./keys_db_s.txt', `${item}\n`, (error)=> {
-        //         // console.log(error);
-        //     })
+        //     await clientRedis.del(element)
+        //     // let item = await clientRedis.get(element)
+        //     // fs.appendFile('./keys_db_s.txt', `${item}\n`, (error)=> {
+        //     //     // console.log(error);
+        //     // })
             
         // });
 
