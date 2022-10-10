@@ -162,7 +162,7 @@ function start(port, name) {
 
                             //    db_price.spread_GODS_ETH.spread > 25
 
-                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && averagePriceEth > 0.5 && db_price?.ETH.average*objectPrice['ethereum'].usd < 40 && minPriceEth) {
+                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && averagePriceEth > 0.5 && db_price?.ETH.average*objectPrice['ethereum'].usd < 40 && minPriceGods) {
                                     
 
 
