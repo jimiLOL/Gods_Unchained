@@ -154,13 +154,13 @@ function start(port, name) {
                                 i++
                                 const db_price = JSON.parse(average_price);
 
-                               const minPriceEth = db_price.ETH.min*objectPrice['ethereum'].usd;
-                               const averagePriceEth = db_price.ETH.average*objectPrice['ethereum'].usd;
+                               const minPriceEth = db_price?.ETH?.min*objectPrice['ethereum'].usd;
+                               const averagePriceEth = db_price?.ETH?.average*objectPrice['ethereum'].usd;
 
 
                             //    db_price.spread_GODS_ETH.spread > 25
 
-                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && averagePriceEth > 0.5 && db_price.ETH.average*objectPrice['ethereum'].usd < 40) {
+                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && averagePriceEth > 0.5 && db_price?.ETH.average*objectPrice['ethereum'].usd < 40 && minPriceEth) {
                                     
 
 
@@ -179,7 +179,7 @@ function start(port, name) {
                                         item: item,
                                         event_type: ''
                                     };
-                                    if (priceItem <= db_price.ETH.min && priceItem*1.09 <= myBalanceETH && minSpread >= 25) {
+                                    if (priceItem <= db_price?.ETH.min && priceItem*1.09 <= myBalanceETH && minSpread >= 25) {
                                         rpc.event_type = 'ms click';
 
                                         port.postMessage(rpc)
