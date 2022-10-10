@@ -159,16 +159,19 @@ function start(port, name) {
                                const averagePriceGods = db_price?.GODS?.average*objectPrice['gods-unchained'].usd;
                                const averagePriceEth = db_price?.ETH?.average*objectPrice['ethereum'].usd;
 
+                               let priceItem = BigNumber.from(item.buy.data.quantity);
+                                    priceItem = utils.formatUnits(priceItem, '18');
+                                    const priceEth = priceItem*objectPrice['ethereum'].usd;
+
+
 
                             //    db_price.spread_GODS_ETH.spread > 25
 
-                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && averagePriceEth > 0.5 && db_price?.ETH.average*objectPrice['ethereum'].usd < 40 && minPriceGods) {
+                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && priceEth > 0.5 && priceEth < 40 && minPriceGods) {
                                     
 
 
-                                    let priceItem = BigNumber.from(item.buy.data.quantity);
-                                    priceItem = utils.formatUnits(priceItem, '18');
-                                    const priceEth = priceItem*objectPrice['ethereum'].usd;
+                                    
                                     const minSpread = (minPriceGods/priceEth - 1) * 100;
                                     const averageSpread = (averagePriceGods/priceEth - 1) * 100;
 
