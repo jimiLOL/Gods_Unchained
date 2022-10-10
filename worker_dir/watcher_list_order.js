@@ -193,14 +193,15 @@ function start(port, name) {
 
 
                                         // мисклк
-                                    } else if (priceItem <= db_price.ETH.average && priceItem*1.09 <= myBalanceETH && averageSpread >= 25) {
-                                        rpc.event_type = 'average click';
-                                        port.postMessage(rpc)
+                                    } 
+                                    // else if (priceItem <= db_price.ETH.average && priceItem*1.09 <= myBalanceETH && averageSpread >= 25) {
+                                    //     rpc.event_type = 'average click';
+                                    //     port.postMessage(rpc)
 
                                       
 
 
-                                    }
+                                    // }
 
                                 
 
