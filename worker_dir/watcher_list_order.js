@@ -173,7 +173,7 @@ function start(port, name) {
 
                                     
                                     const minSpread = (minPriceGods/priceEth - 1) * 100;
-                                    const averageSpread = (averagePriceGods/priceEth - 1) * 100;
+                                    // const averageSpread = (averagePriceGods/priceEth - 1) * 100;
 
                               
                                     let rpc = {
@@ -184,16 +184,13 @@ function start(port, name) {
                                         item: item,
                                         event_type: ''
                                     };
-                                    if (priceItem <= db_price?.ETH.min && priceItem*1.09 <= myBalanceETH && minSpread >= 25) {
+                                    if (priceItem <= db_price?.ETH.min && priceItem*1.09 <= myBalanceETH && minSpread >= 20) {
                                         rpc.event_type = 'ms click';
 
                                         port.postMessage(rpc)
-                                         
-
-
-
                                         // мисклк
-                                    } 
+                                    };
+
                                     // else if (priceItem <= db_price.ETH.average && priceItem*1.09 <= myBalanceETH && averageSpread >= 25) {
                                     //     rpc.event_type = 'average click';
                                     //     port.postMessage(rpc)
