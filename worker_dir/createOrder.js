@@ -12,9 +12,19 @@ function start(port, name) {
         const taskBuy = new Map([]);
 
         port.on('message', async (rpc) => {
+            let p = 0;
+        
+            if (taskBuy.has(rpc.tokenId)) {
+                p = taskBuy.get(rpc.tokenId)
 
-            if (!taskBuy.has(rpc.tokenId)) {
-                taskBuy.set(rpc.tokenId, rpc.item_key)
+            }
+
+            if (!taskBuy.has(rpc.tokenId) || p > rpc.price) {
+                if (taskBuy.has(rpc.tokenId)) {
+                    taskBuy.delete(rpc.tokenId)
+
+                }
+                taskBuy.set(rpc.tokenId, rpc.price)
 
                 console.log('==============\nCreate Order');
                 console.log(rpc);
