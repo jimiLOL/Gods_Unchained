@@ -155,6 +155,8 @@ function start(port, name) {
                                 const db_price = JSON.parse(average_price);
 
                                const minPriceEth = db_price?.ETH?.min*objectPrice['ethereum'].usd;
+                               const minPriceGods = db_price?.GODS?.min*objectPrice['gods-unchained'].usd;
+                               const averagePriceGods = db_price?.GODS?.average*objectPrice['gods-unchained'].usd;
                                const averagePriceEth = db_price?.ETH?.average*objectPrice['ethereum'].usd;
 
 
@@ -166,9 +168,9 @@ function start(port, name) {
 
                                     let priceItem = BigNumber.from(item.buy.data.quantity);
                                     priceItem = utils.formatUnits(priceItem, '18');
-                                    const priceGods = priceItem*objectPrice['gods-unchained'].usd;
-                                    const minSpread = (priceGods/minPriceEth - 1) * 100;
-                                    const averageSpread = (priceGods/averagePriceEth - 1) * 100;
+                                    const priceEth = priceItem*objectPrice['ethereum'].usd;
+                                    const minSpread = (minPriceGods/priceEth - 1) * 100;
+                                    const averageSpread = (averagePriceGods/priceEth - 1) * 100;
 
                               
                                     let rpc = {
