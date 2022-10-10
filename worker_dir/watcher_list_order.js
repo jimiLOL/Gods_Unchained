@@ -113,8 +113,7 @@ function start(port, name) {
             helper.timeout(100 * index).then(() => {
 
                 apiImmutable.get_list_order(helper.initAgent(helper.proxyInit(proxyList[helper.getRandomInt(1, proxyList.length - 1)]))).then((res) => {
-                    // console.log('res.data.result.length');
-                    // console.log(res.data.result.length);
+                
                     if (Array.isArray(res.data.result)) {
                         //   const filterArray = [];
 
@@ -140,39 +139,38 @@ function start(port, name) {
                         } catch (e) {
                             console.log(e);
                             console.log(walletBalance);
-                        }
-                        
+                        };
+                        const myBalanceETH = utils.formatUnits(walletBalance.ETH, '18');
+
                      
                      
 
-                        res.data.result.forEach(async item => {
-                           
-                           
-                     
-                            
-
-                            
-
+                        res.data.result.forEach(async item => { 
 
                             const average_price = await clientRedis.get(`average_price_${item.sell.data.properties.name.replace(' ', '_')}`);
 
 
                             if (average_price) {
                                 i++
-                                // let star = new Date().getTime();
                                 const db_price = JSON.parse(average_price);
 
+                               const minPriceEth = db_price.ETH.min*objectPrice['ethereum'].usd;
+                               const averagePriceEth = db_price.ETH.average*objectPrice['ethereum'].usd;
 
 
+                            //    db_price.spread_GODS_ETH.spread > 25
 
-                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && db_price.spread_GODS_ETH.spread > 25 && db_price.ETH.average*objectPrice['ethereum'].usd > 0.5 && db_price.ETH.average*objectPrice['ethereum'].usd < 40) {
+                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && averagePriceEth > 0.5 && db_price.ETH.average*objectPrice['ethereum'].usd < 40) {
+                                    
 
 
-                                    let priceItem = BigNumber.from(item.buy.data.quantity_with_fees);
+                                    let priceItem = BigNumber.from(item.buy.data.quantity);
                                     priceItem = utils.formatUnits(priceItem, '18');
-                                    let myBalanceETH = utils.formatUnits(walletBalance.ETH, '18');
-                                    // console.log(myBalanceETH);
-                                    // console.log(priceItem <= myBalanceETH);
+                                    const priceGods = priceItem*objectPrice['gods-unchained'].usd;
+                                    const minSpread = (priceGods/minPriceEth - 1) * 100;
+                                    const averageSpread = (priceGods/averagePriceEth - 1) * 100;
+
+                              
                                     let rpc = {
                                         init_buy: true,
                                         id: item.sell.data.token_id,
@@ -180,43 +178,26 @@ function start(port, name) {
                                         priceItem: priceItem,
                                         item: item,
                                         event_type: ''
-                                    }
-                                    if (priceItem <= db_price.ETH.min && priceItem <= myBalanceETH) {
+                                    };
+                                    if (priceItem <= db_price.ETH.min && priceItem*1.09 <= myBalanceETH && minSpread >= 25) {
                                         rpc.event_type = 'ms click';
 
                                         port.postMessage(rpc)
-                                        // console.log(db_price);
-                                        // console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
-
-
-                                        // console.log('ms click');
-                                        // fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: ms click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}\n\r`, function (error) {
-
-                                        // })
+                                         
 
 
 
                                         // мисклк
-                                    } else if (priceItem <= db_price.ETH.average && priceItem <= myBalanceETH) {
+                                    } else if (priceItem <= db_price.ETH.average && priceItem*1.09 <= myBalanceETH && averageSpread >= 25) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
-                                        // console.log(db_price);
-                                        // console.log('item id ' + item.sell.data.token_id + ' price^ ' +priceItem + ' ETH');
-                                        // fs.appendFile(`./result/result_${item.sell.data.properties.name.replace(' ', '_')}.txt`, `Event: average click item id ${item.sell.data.token_id} price^ ${priceItem} ETH\n${average_price}\n\r`, function (error) {
-
-                                        // })
-
-
-
-                                        // console.log('average click');
+                                      
 
 
                                     }
 
-                                    // console.log(db_price);
-                                    // let end = new Date().getTime();
-                                    // console.log(`Рассчеты заняли ${end-star}`);
+                                
 
                                     // инициализируем воркер на покупку
 
