@@ -178,7 +178,7 @@ function start(itemsArray, port, name) {
                                 average[priceObj[price].symbol] = average[priceObj[price].symbol] / filtered.length;
                                 let bg = BigNumber.from(String(average[priceObj[price].symbol].toFixed()));
                                 // let bg_mod = BigNumber.from(bg).mod(BigNumber.from(String(allERCPrice.length)));
-                                console.log(bg);
+                                // console.log(bg);
                                 average[priceObj[price].symbol] = utils.formatUnits(bg, priceObj[price].decimals);
                                 min[priceObj[price].symbol] = BigNumber.from(String(helper.getMin(arrayPrice)));
                                 max[priceObj[price].symbol] = BigNumber.from(String(helper.getMax(arrayPrice)));
@@ -195,7 +195,7 @@ function start(itemsArray, port, name) {
                                 };
                                 // console.log(resArray[0].sell.data.properties.name);
 
-                                console.log(info[priceObj[price].symbol]);
+                                // console.log(info[priceObj[price].symbol]);
 
                             }
 
