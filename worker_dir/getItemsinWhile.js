@@ -139,7 +139,7 @@ function start(itemsArray, port, name) {
                             const sum = priceArray.reduce((partial_sum, a) => partial_sum + a, 0);
 
                             const filtered = allERCPrice.filter(x => {
-                                if (allERCPrice.length >= 30) {
+                                if (allERCPrice.length <= 50) {
                                     return x
 
                                 } else {
