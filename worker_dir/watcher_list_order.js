@@ -313,7 +313,7 @@ function start(port, name) {
                                         // console.log(eth, gods, eth <= gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
                                         let gods_var = y?.price_gods_order ? y.price_gods_order:99999;
     
-                                        if (item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && (eth*1.1) < gods && y.init_order && gods_var > priceItem) {
+                                        if (item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && (eth*1.13) < gods && y.init_order && gods_var > priceItem) {
                                             return y
                                         }
     
@@ -332,7 +332,7 @@ function start(port, name) {
                                         // console.log(typeof ele);
     
                                         rpc['tokenId'] = ele.token_id;
-                                        rpc['price'] = priceItem - 0.008;
+                                        rpc['price'] = priceItem - 0.003;
                                         rpc.index = index;
                                         // console.log(rpc);
                                         port.postMessage(rpc)
