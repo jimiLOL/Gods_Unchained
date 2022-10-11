@@ -229,7 +229,7 @@ function start(itemsArray, port, name) {
                         // console.log('Average');
                         // console.log(info['spread_GODS_ETH']);
                         if (info.name) {
-                            clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 150000);
+                            clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 90000);
 
                         }
                         // console.log('!=======!');
