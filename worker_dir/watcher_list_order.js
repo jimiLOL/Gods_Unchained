@@ -325,7 +325,7 @@ function start(port, name) {
                                     // console.log(typeof ele);
 
                                     rpc['tokenId'] = ele.token_id;
-                                    rpc['price'] = priceItem - 0.01;
+                                    rpc['price'] = priceItem - 0.001;
                                     rpc.index = index;
                                     // console.log(rpc);
                                     port.postMessage(rpc)
