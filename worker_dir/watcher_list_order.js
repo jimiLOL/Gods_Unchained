@@ -278,62 +278,72 @@ function start(port, name) {
                                 i++
                                 // если у нас самих имеется такая карточка - надо проверить цену и перебить ее, если она ниже нашей
                                 const price = await clientRedis.lrange(`my_item_${item.sell.data.properties.name.replace(' ', '_')}`, 0, -1);
-                                let priceItem = BigNumber.from(item.buy.data.quantity);
-                                priceItem = utils.formatUnits(priceItem, '18');
-                                let rpc = {
-                                    init_order: true,
-                                    // name_chanel: name,
-                                    internal: true,
-                                    globalWorker: name,
-                                    timeout: 1000,
-                                    index: 0,
-                                    item_key: `my_item_${item.sell.data.properties.name.replace(' ', '_')}`
-                                };
-                                while (!objectPrice) {
-                                    await helper.timeout(20);
-                                    console.log('Ждем новые цены в watcher_list_order...');
-
-                                }
-
-                                let newArray = price.filter(x => {
+                                let filter = price.filter(x=> {
                                     let y = JSON.parse(x);
-                                    // console.log(y);
-                                    let eth = (y.price_buy * objectPrice['ethereum'].usd).toFixed(4); // за что мы купили
-                                    let gods = (priceItem * objectPrice['gods-unchained'].usd).toFixed(4); // текущий лот в на бирже
-
-                                    // console.log(y.token_id);
-                                   
-                                    // console.log(eth, gods, eth <= gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
-                                    let gods_var = y?.price_gods_order ? y.price_gods_order:99999;
-
-                                    if (item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && (eth*1.1) < gods && y.init_order && gods_var > priceItem) {
-                                        return y
+                                    if (y.token_id == item.sell.data.token_id) {
+                                        return x
                                     }
-
                                 });
-                                if (newArray.length > 10) {
-                                    console.log('Отфильтровали ' + newArray.length);
+                                if (filter.length == 0) {
+                                    let priceItem = BigNumber.from(item.buy.data.quantity);
+                                    priceItem = utils.formatUnits(priceItem, '18');
+                                    let rpc = {
+                                        init_order: true,
+                                        // name_chanel: name,
+                                        internal: true,
+                                        globalWorker: name,
+                                        timeout: 1000,
+                                        index: 0,
+                                        item_key: `my_item_${item.sell.data.properties.name.replace(' ', '_')}`
+                                    };
+                                    while (!objectPrice) {
+                                        await helper.timeout(20);
+                                        console.log('Ждем новые цены в watcher_list_order...');
+    
+                                    }
+    
+                                    let newArray = price.filter(x => {
+                                        let y = JSON.parse(x);
+                                        // console.log(y);
+                                        let eth = (y.price_buy * objectPrice['ethereum'].usd).toFixed(4); // за что мы купили
+                                        let gods = (priceItem * objectPrice['gods-unchained'].usd).toFixed(4); // текущий лот в на бирже
+    
+                                        // console.log(y.token_id);
+                                       
+                                        // console.log(eth, gods, eth <= gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
+                                        let gods_var = y?.price_gods_order ? y.price_gods_order:99999;
+    
+                                        if (item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && (eth*1.1) < gods && y.init_order && gods_var > priceItem) {
+                                            return y
+                                        }
+    
+                                    });
+                                    if (newArray.length > 10) {
+                                        console.log('Отфильтровали ' + newArray.length);
+    
+                                    }
+                                    // console.log(priceItem, gods_var, gods);
+    
+    
+                                    newArray.forEach((element, index) => {
+                                        let ele = JSON.parse(element);
+                                        // console.log(`Инициализируем create_order ${ele.token_id}`);
+                                        // console.log(ele);
+                                        // console.log(typeof ele);
+    
+                                        rpc['tokenId'] = ele.token_id;
+                                        rpc['price'] = priceItem - 0.008;
+                                        rpc.index = index;
+                                        // console.log(rpc);
+                                        port.postMessage(rpc)
+                                        
+                                    
+                                        // отправляем задачу в отдельный воркер котрый перебивает это все делож
+    
+                                    });
 
                                 }
-                                // console.log(priceItem, gods_var, gods);
-
-
-                                newArray.forEach((element, index) => {
-                                    let ele = JSON.parse(element);
-                                    // console.log(`Инициализируем create_order ${ele.token_id}`);
-                                    // console.log(ele);
-                                    // console.log(typeof ele);
-
-                                    rpc['tokenId'] = ele.token_id;
-                                    rpc['price'] = priceItem - 0.008;
-                                    rpc.index = index;
-                                    // console.log(rpc);
-                                    port.postMessage(rpc)
-                                    
-                                
-                                    // отправляем задачу в отдельный воркер котрый перебивает это все делож
-
-                                });
+                               
 
 
 
