@@ -320,7 +320,7 @@ function start(port, name) {
 
                                 newArray.forEach((element, index) => {
                                     let ele = JSON.parse(element);
-                                    console.log(`Инициализируем create_order ${ele.token_id}`);
+                                    // console.log(`Инициализируем create_order ${ele.token_id}`);
                                     // console.log(ele);
                                     // console.log(typeof ele);
 
