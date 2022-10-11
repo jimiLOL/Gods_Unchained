@@ -150,7 +150,7 @@ function start(item, port, name) {
 module.exports = ({ item, port, name }) => {
     return new Promise((resolve, reject) => {
         // console.log('Начинаем сбор карточек с такими же именами');
-        let startTime = new Date().getTime();
+        // let startTime = new Date().getTime();
         // const promiseArray = []
 
  
@@ -158,7 +158,7 @@ module.exports = ({ item, port, name }) => {
         start(item, port, name).then((res) => {
             let end = new Date().getTime();
             // promiseArray.push(worker_scanPrice.run({ array_item: res.flat() }))
-            console.log(`Worker whileWorkerForFilter end timestamp ${end-startTime}`);
+            // console.log(`Worker whileWorkerForFilter end timestamp ${end-startTime}`);
 
             // await Promise.allSettled(arrayPromise).then(() => {
             //     return resolve()

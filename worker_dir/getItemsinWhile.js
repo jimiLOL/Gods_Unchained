@@ -78,7 +78,7 @@ function start(itemsArray, port, name) {
         if (filterArray.length == 0) {
             return resolve()
         }
-        console.log('Будет создано ' + filterArray.length + '  задач для сбора');
+        // console.log('Будет создано ' + filterArray.length + '  задач для сбора');
 
         filterArray.forEach(async (ele, i) => {
             const rndString = helper.makeid(5);
@@ -316,16 +316,16 @@ function start(itemsArray, port, name) {
 
 module.exports = ({ itemsArray, port, name }) => {
     return new Promise((resolve, reject) => {
-        console.log('Начинаем сбор карточек с такими же именами');
-        let startTime = new Date().getTime();
+        // console.log('Начинаем сбор карточек с такими же именами');
+        // let startTime = new Date().getTime();
 
 
 
 
 
         start(itemsArray, port, name).then((res) => {
-            let end = new Date().getTime();
-            console.log(`================\nWorker getItemsinWhile ${name} end ${end - startTime} ms`);
+            // let end = new Date().getTime();
+            // console.log(`================\nWorker getItemsinWhile ${name} end ${end - startTime} ms`);
 
             resolve(res);
         }).catch(e => {
