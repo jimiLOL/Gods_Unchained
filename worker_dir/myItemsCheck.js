@@ -49,7 +49,7 @@ function start() {
                         return x
                     }
                 });
-                if (filter.length > 1 && i == price.length) {
+                if (filter.length > 1 && i == 0) {
                     console.log('дублей - ' + filter.length);
                     const result = await clientRedis.lrem(ele, filter.length - 1, items);
                     console.log('result ' + result);
