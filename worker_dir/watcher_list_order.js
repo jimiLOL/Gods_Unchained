@@ -43,8 +43,8 @@ let walletBalance = {};
 //     //             // console.log(error);
 //     //         })
 //     //     });
-    
-        
+
+
 //     // });
 //     const keys_db_s = await clientRedis.keys('average_price_*');
 //     keys_db_s.forEach(async element => {
@@ -52,10 +52,10 @@ let walletBalance = {};
 //         // fs.appendFile('./keys_db_s.txt', `${element}\n`, (error)=> {
 //         //     // console.log(error);
 //         // })
-        
+
 //     });
 // })()
- 
+
 
 function start(port, name) {
     const MessageChannelInit = {};
@@ -113,7 +113,7 @@ function start(port, name) {
             helper.timeout(100 * index).then(() => {
 
                 apiImmutable.get_list_order(helper.initAgent(helper.proxyInit(proxyList[helper.getRandomInt(1, proxyList.length - 1)]))).then((res) => {
-                
+
                     if (Array.isArray(res.data.result)) {
                         //   const filterArray = [];
 
@@ -133,7 +133,7 @@ function start(port, name) {
                             while (!walletBalance.hasOwnProperty('ETH')) {
                                 helper.timeout(20);
                                 console.log('Ждем данные по балансу..');
-    
+
                             }
 
                         } catch (e) {
@@ -142,40 +142,42 @@ function start(port, name) {
                         };
                         const myBalanceETH = utils.formatUnits(walletBalance.ETH, '18');
 
-                     
-                     
 
-                        res.data.result.forEach(async item => { 
+
+
+                        res.data.result.forEach(async item => {
 
                             const average_price = await clientRedis.get(`average_price_${item.sell.data.properties.name.replace(' ', '_')}`);
 
 
                             if (average_price) {
-                                i++
+                                i++;
+                                const my_items_len = await clientRedis.llen(`my_item_${item.sell.data.properties.name.replace(' ', '_')}`);
+
                                 const db_price = JSON.parse(average_price);
 
-                               const minPriceEth = db_price?.ETH?.min*objectPrice['ethereum'].usd;
-                               const minPriceGods = db_price?.GODS?.min*objectPrice['gods-unchained'].usd;
-                               const averagePriceGods = db_price?.GODS?.average*objectPrice['gods-unchained'].usd;
-                               const averagePriceEth = db_price?.ETH?.average*objectPrice['ethereum'].usd;
+                                //    const minPriceEth = db_price?.ETH?.min*objectPrice['ethereum'].usd;
+                                const minPriceGods = db_price?.GODS?.min * objectPrice['gods-unchained'].usd;
+                                //    const averagePriceGods = db_price?.GODS?.average*objectPrice['gods-unchained'].usd;
+                                //    const averagePriceEth = db_price?.ETH?.average*objectPrice['ethereum'].usd;
 
-                               let priceItem = BigNumber.from(item.buy.data.quantity);
-                                    priceItem = utils.formatUnits(priceItem, '18');
-                                    const priceEth = priceItem*objectPrice['ethereum'].usd;
-
-
-
-                            //    db_price.spread_GODS_ETH.spread > 25
-
-                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && priceEth > 0.5 && priceEth < 40 && minPriceGods) {
-                                    
+                                let priceItem = BigNumber.from(item.buy.data.quantity);
+                                priceItem = utils.formatUnits(priceItem, '18');
+                                const priceEth = priceItem * objectPrice['ethereum'].usd;
 
 
-                                    
-                                    const minSpread = (minPriceGods/priceEth - 1) * 100;
+
+                                //    db_price.spread_GODS_ETH.spread > 25
+
+                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && priceEth > 0.5 && priceEth < 40 && minPriceGods && my_items_len < 14) {
+
+
+
+
+                                    const minSpread = (minPriceGods / priceEth - 1) * 100;
                                     // const averageSpread = (averagePriceGods/priceEth - 1) * 100;
 
-                              
+
                                     let rpc = {
                                         init_buy: true,
                                         id: item.sell.data.token_id,
@@ -184,7 +186,7 @@ function start(port, name) {
                                         item: item,
                                         event_type: ''
                                     };
-                                    if (priceItem <= db_price?.ETH.min && priceItem*1.09 <= myBalanceETH && minSpread >= 20) {
+                                    if (priceItem * 1.09 <= myBalanceETH && minSpread >= 9) {
                                         rpc.event_type = 'ms click';
 
                                         port.postMessage(rpc)
@@ -195,12 +197,12 @@ function start(port, name) {
                                     //     rpc.event_type = 'average click';
                                     //     port.postMessage(rpc)
 
-                                      
+
 
 
                                     // }
 
-                                
+
 
                                     // инициализируем воркер на покупку
 
@@ -278,7 +280,7 @@ function start(port, name) {
                                 i++
                                 // если у нас самих имеется такая карточка - надо проверить цену и перебить ее, если она ниже нашей
                                 const price = await clientRedis.lrange(`my_item_${item.sell.data.properties.name.replace(' ', '_')}`, 0, -1);
-                                let filter = price.filter(x=> {
+                                let filter = price.filter(x => {
                                     let y = JSON.parse(x);
                                     if (y.token_id == item.sell.data.token_id) {
                                         return x
@@ -299,55 +301,55 @@ function start(port, name) {
                                     while (!objectPrice) {
                                         await helper.timeout(20);
                                         console.log('Ждем новые цены в watcher_list_order...');
-    
+
                                     }
-    
+
                                     let newArray = price.filter(x => {
                                         let y = JSON.parse(x);
                                         // console.log(y);
                                         let eth = (y.price_buy * objectPrice['ethereum'].usd).toFixed(4); // за что мы купили
                                         let gods = (priceItem * objectPrice['gods-unchained'].usd).toFixed(4); // текущий лот в на бирже
-    
+
                                         // console.log(y.token_id);
-                                       
+
                                         // console.log(eth, gods, eth <= gods, y.init_order, item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', y.date < new Date().getTime() - 26 * 60 * 60 * 1000);
-                                        let gods_var = y?.price_gods_order ? y.price_gods_order:99999;
-    
-                                        if (item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && (eth*1.13) < gods && y.init_order && gods_var > priceItem) {
+                                        let gods_var = y?.price_gods_order ? y.price_gods_order : 99999;
+
+                                        if (item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && (eth * 1.13) < gods && y.init_order && gods_var > priceItem) {
                                             return y
                                         }
-    
+
                                     });
                                     if (newArray.length > 10) {
                                         console.log('Отфильтровали ' + newArray.length);
-    
+
                                     }
                                     // console.log(priceItem, gods_var, gods);
-    
-    
+
+
                                     newArray.forEach((element, index) => {
                                         let ele = JSON.parse(element);
                                         // console.log(`Инициализируем create_order ${ele.token_id}`);
                                         // console.log(ele);
                                         // console.log(typeof ele);
-    
+
                                         rpc['tokenId'] = ele.token_id;
                                         rpc['price'] = priceItem - 0.003;
                                         rpc.index = index;
                                         // console.log(rpc);
                                         port.postMessage(rpc)
-                                        
-                                    
+
+
                                         // отправляем задачу в отдельный воркер котрый перебивает это все делож
-    
+
                                     });
 
                                 }
-                               
 
 
 
- 
+
+
 
                             };
 
