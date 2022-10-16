@@ -50,6 +50,7 @@ function start(item, port, name) {
                 let breakVar = false;
 
                 let proxy = await getProxy();
+                let resActive = null;
 
 
 
@@ -61,7 +62,7 @@ function start(item, port, name) {
                 if (i < 2) {
                     proxy = await getProxy();
 
-                    const resActive = await apiImmutable.get_list_active_order_for_filter_proto(getOnceItem.data.metadata.proto, helper.initAgent(proxy), cursorActive).catch(() => {
+                    resActive = await apiImmutable.get_list_active_order_for_filter_proto(getOnceItem.data.metadata.proto, helper.initAgent(proxy), cursorActive).catch(() => {
                         breakVar = true;
                     });
                     cursorActive = resActive.data.cursor;
