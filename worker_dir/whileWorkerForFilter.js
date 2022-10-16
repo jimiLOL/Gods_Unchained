@@ -129,7 +129,7 @@ function start(item, port, name) {
                 }
 
             });
-            console.log('Получили историю - ' + newArrayActive.length, newArrayFilled.length);
+            // console.log('Получили историю - ' + newArrayActive.length, newArrayFilled.length);
 
             // const dateObject = {};
             // newArray.map(x=> {
