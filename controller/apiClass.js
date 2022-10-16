@@ -52,7 +52,7 @@ const apiImmutable = {
         return await axios.get(`https://api.x.immutable.com/v1/assets/0xacb3c6a43d15b907e8433077b6d38ae40936fe2c/${id}?include_fees=true`, { httpsAgent: agent })
 
     },
-    async get_list_order_for_filter_proto(proto, agent) {
+    async get_list_filled_order_for_filter_proto(proto, agent, cursor) {
 
         let date = moment().subtract(7, 'days');
         date = date.format("YYYY-MM-DD[T]HH:mm:ss[Z]")
@@ -62,12 +62,44 @@ const apiImmutable = {
         // const encodedQuery = encode(protoEncode)
         const encodedQuery = encodeURIComponent(JSON.stringify(protoEncode)).replace(/'/g, "%27").replace(/"/g, "%22");
         // console.log(encodedQuery);
-        return axios.get(`https://api.x.immutable.com/v1/orders?direction=asc&include_fees=true&order_by=updated_at&page_size=200&sell_metadata=${encodedQuery}&sell_token_address=0xacb3c6a43d15b907e8433077b6d38ae40936fe2c&status=filled&min_timestamp=${date}`, { httpsAgent: agent })
+        if (cursor && cursor.length > 10) {
+
+            return axios.get(`https://api.x.immutable.com/v1/orders?direction=asc&include_fees=true&order_by=updated_at&page_size=200&sell_metadata=${encodedQuery}&sell_token_address=0xacb3c6a43d15b907e8433077b6d38ae40936fe2c&status=filled&min_timestamp=${date}&cursor=${cursor}`, { httpsAgent: agent })
+
+        } else {
+            return axios.get(`https://api.x.immutable.com/v1/orders?direction=asc&include_fees=true&order_by=updated_at&page_size=200&sell_metadata=${encodedQuery}&sell_token_address=0xacb3c6a43d15b907e8433077b6d38ae40936fe2c&status=filled&min_timestamp=${date}`, { httpsAgent: agent })
+
+
+        }
 
 
 
 
-    }
+    },
+    async get_list_active_order_for_filter_proto(proto, agent, cursor) {
+
+        let date = moment().subtract(1, 'days');
+        date = date.format("YYYY-MM-DD[T]HH:mm:ss[Z]")
+        const protoEncode = { "proto": [`${proto}`], "quality": ["Meteorite"] };
+        // console.log(protoEncode);
+        // const encodedQuery = encodeURIComponent(JSON.stringify(JSON.parse(protoEncode)));
+        // const encodedQuery = encode(protoEncode)
+        const encodedQuery = encodeURIComponent(JSON.stringify(protoEncode)).replace(/'/g, "%27").replace(/"/g, "%22");
+        // console.log(encodedQuery);
+        if (!cursor) {
+            return axios.get(`https://api.x.immutable.com/v1/orders?direction=asc&include_fees=true&order_by=updated_at&page_size=200&sell_metadata=${encodedQuery}&sell_token_address=0xacb3c6a43d15b907e8433077b6d38ae40936fe2c&status=active&min_timestamp=${date}`, { httpsAgent: agent })
+
+
+        } else {
+            return axios.get(`https://api.x.immutable.com/v1/orders?direction=asc&include_fees=true&order_by=updated_at&page_size=200&sell_metadata=${encodedQuery}&sell_token_address=0xacb3c6a43d15b907e8433077b6d38ae40936fe2c&status=active&min_timestamp=${date}&cursor=${cursor}`, { httpsAgent: agent })
+
+
+        }
+
+
+
+
+    },
 
 
 }

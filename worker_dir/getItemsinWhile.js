@@ -85,8 +85,8 @@ function start(itemsArray, port, name) {
             channel[`workerWhile_${i}_${rndString}`] = new MessageChannel();
             await clientRedis.set(`worker_isWork_${ele.name.replace(' ', '_')}`, 'work', 'ex', 30);
 
-            arrayPromise.push(workerWhileFilter.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async resArray => {
-                if (Array.isArray(resArray) && resArray.length > 10) {
+            arrayPromise.push(workerWhileFilter.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async ({resArray, resArrayActive}) => {
+                if (Array.isArray(resArray) && resArray.length > 10 && Array.isArray(resArrayActive)) {
                     // console.log('resArray.length ' + resArray.length);
                     for (let index = 0; index < 5; index++) {
                         resArray.forEach((ele, i) => {
@@ -100,7 +100,21 @@ function start(itemsArray, port, name) {
                         });
                         // console.log('resArray.length ' + resArray.length);
 
-                    }
+                    };
+                    for (let index = 0; index < 5; index++) {
+                        resArrayActive.forEach((ele, i) => {
+                            let filter = resArrayActive.filter(x => x.order_id == ele.order_id);
+                            if (filter.length > 1) {
+
+                                resArrayActive.splice(i, 1);
+
+                            }
+
+                        });
+
+                    };
+
+
 
 
 
@@ -112,12 +126,26 @@ function start(itemsArray, port, name) {
                         // console.log(Number(resArray[0].buy.data.quantity_with_fees));
                         // resArray.sort((a, b) => (BigInt(a.buy.data.quantity_with_fees) < BigInt(b.buy.data.quantity_with_fees)) ? -1 : ((BigInt(a.buy.data.quantity_with_fees) > BigInt(b.buy.data.quantity_with_fees)) ? 1 : 0))
                         resArray.sort((a, b) => Number(a.buy.data.quantity) - Number(b.buy.data.quantity));
+                        resArrayActive.sort((a, b) => Number(a.buy.data.quantity) - Number(b.buy.data.quantity));
                         const info = {};
                         const average = {};
                         const average_big = {};
                         const min = {};
                         const max = {};
                         const count = {};
+                        const infoActive = {};
+                        const averageActive = {};
+                        const average_bigActive = {};
+                        const minActive = {};
+                        const maxActive = {};
+                        const countActive = {};
+
+
+
+
+
+
+                        
                         Object.keys(priceObj).forEach(price => {
 
                             // console.log('Расчет средней для ' + priceObj[price].symbol);
@@ -126,15 +154,33 @@ function start(itemsArray, port, name) {
                             min[priceObj[price].symbol] = 0;
                             max[priceObj[price].symbol] = 0;
                             count[priceObj[price].symbol] = 0;
+
+                            averageActive[priceObj[price].symbol] = 0;
+                            average_bigActive[priceObj[price].symbol] = 0;
+                            minActive[priceObj[price].symbol] = 0;
+                            maxActive[priceObj[price].symbol] = 0;
+                            countActive[priceObj[price].symbol] = 0;
+
+
                             const allERCPrice = resArray.filter(x => x.buy.data.token_address == priceObj[price].token_address || x.buy.type == 'ETH' && priceObj[price].symbol == 'ETH');
+                            const allERCPriceActive = resArrayActive.filter(x => x.buy.data.token_address == priceObj[price].token_address || x.buy.type == 'ETH' && priceObj[price].symbol == 'ETH');
 
                             const priceArray = [];
                             allERCPrice.forEach(x => {
                                 priceArray.push(Number(x.buy.data.quantity));
 
                             });
+                            const priceArrayActive = [];
+
+
+                            allERCPriceActive.forEach(x => {
+                                priceArrayActive.push(Number(x.buy.data.quantity));
+
+                            });
                             const maxVar = Math.max(...priceArray);
                             const minVar = Math.min(...priceArray);
+                            // const maxVarActive = Math.min(...priceArrayActive);
+                            // const minVarActive = Math.min(...priceArrayActive);
 
                             const sum = priceArray.reduce((partial_sum, a) => partial_sum + a, 0);
 
@@ -154,6 +200,41 @@ function start(itemsArray, port, name) {
 
                             });
                             // console.log('История после фильтрации по среднему отклонению "3" - ' + filtered.length);
+                            if (allERCPriceActive.length > 0) {
+                                const arrayPriceActive = [];
+
+                                allERCPriceActive.forEach(e => {
+
+
+
+
+                                    averageActive[priceObj[price].symbol] = Number(e.buy.data.quantity) + averageActive[priceObj[price].symbol];
+                                    average_bigActive[priceObj[price].symbol] = Number(e.buy.data.quantity) + average_bigActive[priceObj[price].symbol];
+                                    // const priceOne = BigNumber.from(e.buy.data.quantity);
+
+                                    // console.log(utils.formatUnits(priceOne, priceObj[price].decimals) + ' ' + priceObj[price].symbol);
+                                    // console.log(`${priceObj[price].symbol} == ${utils.formatUnits(priceOne, priceObj[price].decimals)*priceObj[price].usd} USD`);
+                                    // arrayPrice.push(utils.formatUnits(priceOne, priceObj[price].decimals));
+                                    arrayPriceActive.push(Number(e.buy.data.quantity));
+
+                                });
+                                averageActive[priceObj[price].symbol] = averageActive[priceObj[price].symbol] / allERCPriceActive.length;
+                                let bg = BigNumber.from(String(averageActive[priceObj[price].symbol].toFixed()));
+                                averageActive[priceObj[price].symbol] = utils.formatUnits(bg, priceObj[price].decimals);
+                                minActive[priceObj[price].symbol] = BigNumber.from(String(helper.getMin(arrayPriceActive)));
+                                maxActive[priceObj[price].symbol] = BigNumber.from(String(helper.getMax(arrayPriceActive)));
+                                // console.log('arrayPrice.length ' + arrayPrice.length);
+                                countActive[priceObj[price].symbol] = arrayPriceActive.length;
+                                infoActive[priceObj[price].symbol] = {
+                                    average_active: Number(averageActive[priceObj[price].symbol]).toFixed(8),
+                                    average_big_active: average_bigActive[priceObj[price].symbol] / allERCPriceActive.length,
+                                    min_active: Number(utils.formatUnits(minActive[priceObj[price].symbol], priceObj[price].decimals)).toFixed(8),
+                                    max_active: Number(utils.formatUnits(maxActive[priceObj[price].symbol], priceObj[price].decimals)).toFixed(8),
+                                    count_active: countActive[priceObj[price].symbol],
+                                };
+
+
+                            }
 
                             if (filtered.length > 0) {
                                 const arrayPrice = [];
@@ -184,7 +265,7 @@ function start(itemsArray, port, name) {
                                 max[priceObj[price].symbol] = BigNumber.from(String(helper.getMax(arrayPrice)));
                                 // console.log('arrayPrice.length ' + arrayPrice.length);
                                 count[priceObj[price].symbol] = arrayPrice.length;
-                                info[priceObj[price].symbol] = {
+                                let obj = {
                                     average: Number(average[priceObj[price].symbol]).toFixed(8),
                                     average_big: average_big[priceObj[price].symbol] / filtered.length,
                                     min: Number(utils.formatUnits(min[priceObj[price].symbol], priceObj[price].decimals)).toFixed(8),
@@ -193,6 +274,17 @@ function start(itemsArray, port, name) {
                                     [`${priceObj[price].symbol}-USD`]: priceObj[price].usd,
                                     token_address: priceObj[price].token_address
                                 };
+                                info[priceObj[price].symbol] = Object.assign({}, obj, infoActive[priceObj[price].symbol])
+                                
+                                // info[priceObj[price].symbol] = {
+                                //     average: Number(average[priceObj[price].symbol]).toFixed(8),
+                                //     average_big: average_big[priceObj[price].symbol] / filtered.length,
+                                //     min: Number(utils.formatUnits(min[priceObj[price].symbol], priceObj[price].decimals)).toFixed(8),
+                                //     max: Number(utils.formatUnits(max[priceObj[price].symbol], priceObj[price].decimals)).toFixed(8),
+                                //     count: count[priceObj[price].symbol],
+                                //     [`${priceObj[price].symbol}-USD`]: priceObj[price].usd,
+                                //     token_address: priceObj[price].token_address
+                                // };
                                 // console.log(resArray[0].sell.data.properties.name);
 
                                 // console.log(info[priceObj[price].symbol]);
@@ -284,7 +376,7 @@ function start(itemsArray, port, name) {
         helper.timeout(1000).then(async () => {
 
             let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
-            console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
+            // console.log(`Worker ${name} -- Promisee array pending = ` + promiseArr.length + ' all promise ' + arrayPromise.length);
             // setInterval(() => {
             //     let promiseArr = arrayPromise.filter(x => util.inspect(x).includes("pending"));
             //     console.log(promiseArr[0]);

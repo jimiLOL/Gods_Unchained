@@ -104,7 +104,7 @@ function start(port, name) {
                 }
 
             }
-            if (taskBuy.size > 15) {
+            if (taskBuy.size > 25) {
                 let index = 0;
                 taskBuy.forEach((e, i) => {
                     index++

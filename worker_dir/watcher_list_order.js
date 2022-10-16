@@ -129,17 +129,11 @@ function start(port, name) {
                         let i = 0;
                         const itemsArray = [];
 
-                        try {
-                            while (!walletBalance.hasOwnProperty('ETH')) {
-                                helper.timeout(20);
-                                console.log('Ждем данные по балансу..');
+                        while (!walletBalance.hasOwnProperty('ETH')) {
+                            helper.timeout(20);
+                            // console.log('Ждем данные по балансу..');
 
-                            }
-
-                        } catch (e) {
-                            console.log(e);
-                            console.log(walletBalance);
-                        };
+                        }
                         const myBalanceETH = utils.formatUnits(walletBalance.ETH, '18');
 
 
@@ -158,7 +152,7 @@ function start(port, name) {
 
                                 //    const minPriceEth = db_price?.ETH?.min*objectPrice['ethereum'].usd;
                                 const minPriceGods = db_price?.GODS?.min * objectPrice['gods-unchained'].usd;
-                                //    const averagePriceGods = db_price?.GODS?.average*objectPrice['gods-unchained'].usd;
+                                   const averagePriceGods = db_price?.GODS?.average*objectPrice['gods-unchained'].usd;
                                 //    const averagePriceEth = db_price?.ETH?.average*objectPrice['ethereum'].usd;
 
                                 let priceItem = BigNumber.from(item.buy.data.quantity);
@@ -175,7 +169,7 @@ function start(port, name) {
 
 
                                     const minSpread = (minPriceGods / priceEth - 1) * 100;
-                                    // const averageSpread = (averagePriceGods/priceEth - 1) * 100;
+                                    const averageSpread = (averagePriceGods/priceEth - 1) * 100;
 
 
                                     let rpc = {
@@ -191,16 +185,14 @@ function start(port, name) {
 
                                         port.postMessage(rpc)
                                         // мисклк
-                                    };
-
-                                    // else if (priceItem <= db_price.ETH.average && priceItem*1.09 <= myBalanceETH && averageSpread >= 25) {
-                                    //     rpc.event_type = 'average click';
-                                    //     port.postMessage(rpc)
+                                    } else if (priceItem*1.09 <= myBalanceETH && averageSpread >= 25 && db_price.GODS.min_active*objectPrice['gods-unchained'].usd > priceEth) {
+                                        rpc.event_type = 'average click';
+                                        port.postMessage(rpc)
 
 
 
 
-                                    // }
+                                    }
 
 
 
@@ -221,8 +213,8 @@ function start(port, name) {
                                 if (itemsArray.length >= 25 || i == res.data.result.length) {
 
                                     if (itemsArray.length != 0) {
-                                        console.log('Создаем воркер itemsArray.length = ' + itemsArray.length);
-                                        console.log(itemsArray[0].name);
+                                        // console.log('Создаем воркер itemsArray.length = ' + itemsArray.length);
+                                        // console.log(itemsArray[0].name);
                                         // console.log('in work ' + worker_get_items_for_name.threads.length + ' workers');
                                         const newArray = itemsArray.slice(0, itemsArray.length - 1);
                                         itemsArray.splice(0, itemsArray.length - 1);
@@ -300,7 +292,7 @@ function start(port, name) {
                                     };
                                     while (!objectPrice) {
                                         await helper.timeout(20);
-                                        console.log('Ждем новые цены в watcher_list_order...');
+                                        // console.log('Ждем новые цены в watcher_list_order...');
 
                                     }
 
