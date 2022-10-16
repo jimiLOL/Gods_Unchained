@@ -25,7 +25,7 @@ const helper = require('../helper');
             if (rpc.get) {
                 while (proxyList.length == 0) {
                     await helper.timeout(50);
-                    console.log('Ждем прокси...');
+                    // console.log('Ждем прокси...');
 
                 }
                 // const rndNumber = helper.getRandomInt(1, proxyList.length-1);
@@ -57,11 +57,11 @@ module.exports = ({ port }) => {
 
 
         start(port).then((res) => {
-            console.log('Worker getProxy end');
+            // console.log('Worker getProxy end');
 
             resolve(res);
         }).catch(e => {
-            console.log('Worker getProxy scanPrice');
+            console.log('error Worker getProxy scanPrice');
 
             reject(e);
         })

@@ -46,10 +46,10 @@ function start(itemsArray, port, name) {
 
                 }
                 await helper.timeout(20);
-                console.log('Ждем новые цены...');
+                // console.log('Ждем новые цены...');
 
             }
-            console.log('Получили новые цены.');
+            // console.log('Получили новые цены.');
             resolve(objectPrice)
         })
 
