@@ -113,12 +113,13 @@ function start() {
                              }, 
                              {transferList: [channel[`globalWorker_${rndString}`].port1]}
                              ).then(() => {
-                                return startWorkersPool();
                                 // console.log(message);
                                 // channel[message.name].port2.close();
                             //    delete channel[message.name];
-                            // let end = new Date().getTime()
-                            // console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
+                            let end = new Date().getTime()
+                            console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
+                            return startWorkersPool();
+
 
                         }).catch(e => {
                             console.log(e);
