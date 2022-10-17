@@ -98,18 +98,7 @@ function start() {
             checktProxy('proxy').then(async () => {
                 // const userListItems = await helper.timeout(500).then(() => init())  // получение карточек нашего кошелька
                 // console.log('userListItems count ' + userListItems.length);
-                setInterval(() => {
-                    // i++
-
-                    // arrayPromise.forEach(worker => {
-                    //     console.log(worker);
-                    // console.log(worker.destroy());
-
-                        
-                    // });
-                    // console.log('start');
-                    // console.log('Global worker count ' + worker_watcher.threads.length);
-
+                const startWorkersPool = () => {
                     if (worker_watcher.threads.length < 8) {
                         let start = new Date().getTime();
                         const rndString = helper.makeid(8);
@@ -124,14 +113,17 @@ function start() {
                              }, 
                              {transferList: [channel[`globalWorker_${rndString}`].port1]}
                              ).then((message) => {
+                                startWorkersPool();
                                 // console.log(message);
                                 // channel[message.name].port2.close();
                             //    delete channel[message.name];
-                            let end = new Date().getTime()
+                            // let end = new Date().getTime()
                             // console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
 
                         }).catch(e => {
                             console.log(e);
+                            startWorkersPool()
+
                         });
                         channel[`globalWorker_${rndString}`].port2.on('message', (rpc)=> {
                             if (rpc.get_price) {
@@ -149,10 +141,31 @@ function start() {
 
                         })
                     }
+                    
+                };
+                for (let index = 0; index < 10; index++) {
+                    startWorkersPool();
+
+                    
+                }
+
+                // setInterval(() => {
+                //     // i++
+
+                //     // arrayPromise.forEach(worker => {
+                //     //     console.log(worker);
+                //     // console.log(worker.destroy());
+
+                        
+                //     // });
+                //     // console.log('start');
+                //     // console.log('Global worker count ' + worker_watcher.threads.length);
+
+                   
 
 
 
-                }, 500);
+                // }, 500);
 
 
                 
