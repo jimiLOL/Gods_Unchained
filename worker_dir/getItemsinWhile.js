@@ -76,7 +76,7 @@ function start(itemsArray, port, name) {
 
         });
         if (filterArray.length == 0) {
-            return resolve()
+              resolve()
         }
         // console.log('Будет создано ' + filterArray.length + '  задач для сбора');
 
@@ -185,7 +185,7 @@ function start(itemsArray, port, name) {
                             const sum = priceArray.reduce((partial_sum, a) => partial_sum + a, 0);
 
                             const filtered = allERCPrice.filter(x => {
-                                if (allERCPrice.length <= 35) {
+                                if (allERCPrice.length <= 90) {
                                     return x
 
                                 } else {
@@ -321,7 +321,7 @@ function start(itemsArray, port, name) {
                         // console.log('Average');
                         // console.log(info['spread_GODS_ETH']);
                         if (info.name) {
-                            clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 90000);
+                            clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 45000);
 
                         }
                         // console.log('!=======!');
@@ -340,12 +340,14 @@ function start(itemsArray, port, name) {
                         console.log(resArray[0].sell.data);
 
                         console.log(e);
+                        return 'zero'
 
                     }
 
 
                 } else {
                     await clientRedis.set(`worker_isWork_${ele.name.replace(' ', '_')}`, 'work', 'ex', 900);
+                    return 'zero'
 
                 }
             }));

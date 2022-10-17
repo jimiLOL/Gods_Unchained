@@ -13,27 +13,30 @@ function start() {
         const keys_db_s = await clientRedis.keys('average_price_*');
         console.log('keys_db_s - ' + keys_db_s.length);
 
-        // keys_db_s.forEach(async element => {
-        //     await clientRedis.del(element)
-        //     // let item = await clientRedis.get(element)
-        //     // fs.appendFile('./keys_db_s.txt', `${item}\n`, (error)=> {
-        //     //     // console.log(error);
-        //     // })
+        keys_db_s.forEach(async element => {
+            // await clientRedis.del(element)
+            let item = await clientRedis.get(element);
+            item = JSON.parse(item);
+            if (item.spread_GODS_ETH.spread >= 20 && item.spread_GODS_ETH.priceEth_USD > 0.5 && item.GODS.count > 30) {
+                fs.appendFile('./keys_db_s.txt', `${JSON.stringify(item)}\n`, (error) => {
+                    // console.log(error);
+                })
+            }
 
-        // });
+        });
 
 
         const keys_db = await clientRedis.keys('my_item_*');
         // console.log('keys_db - ' + keys_db.length);
-        // keys_db.forEach(async element => {
-        //     // await clientRedis.del(element)
-        //     let get = await clientRedis.lrange(element, 0, -1);
-        //     get.forEach(ele => {
-        //         fs.appendFile('./keys_db.txt', `${ele}\n`, (error) => {
-        //             // console.log(error);
-        //         })
-        //     });
-        // });
+        keys_db.forEach(async element => {
+            // await clientRedis.del(element)
+            let get = await clientRedis.lrange(element, 0, -1);
+            get.forEach(ele => {
+                fs.appendFile('./keys_db.txt', `${ele}\n`, (error) => {
+                    // console.log(error);
+                })
+            });
+        });
 
 
         keys_db.forEach(async (ele, index) => {
@@ -73,7 +76,7 @@ function start() {
                             itemData.init_order = true;
                             let item = JSON.parse(average_price);
 
-                            let sellPrice = item.GODS.average_big;
+                            let sellPrice = item.GODS.average_big-item.GODS.average_big*0.09; // приближаем цены к минимальным ставкам здесь можно улчшить формулу используя данные об активных оредрах
 
                             let newPrice = utils.formatUnits(String(sellPrice), '18');
 

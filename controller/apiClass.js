@@ -54,7 +54,7 @@ const apiImmutable = {
     },
     async get_list_filled_order_for_filter_proto(proto, agent, cursor) {
 
-        let date = moment().subtract(7, 'days');
+        let date = moment().subtract(3, 'days');
         date = date.format("YYYY-MM-DD[T]HH:mm:ss[Z]")
         const protoEncode = { "proto": [`${proto}`], "quality": ["Meteorite"] };
         // console.log(protoEncode);

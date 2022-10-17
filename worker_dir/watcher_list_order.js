@@ -17,7 +17,7 @@ const path = require('path');
 const { MessageChannel } = require('worker_threads');
 const channel = {};
 
-const iteration_index = 3;
+const iteration_index = 7;
 
 const worker_get_items_for_name = new Piscina({
     filename: path.resolve('./worker_dir', 'getItemsinWhile.js'),
@@ -153,6 +153,7 @@ function start(port, name) {
                                 //    const minPriceEth = db_price?.ETH?.min*objectPrice['ethereum'].usd;
                                 const minPriceGods = db_price?.GODS?.min * objectPrice['gods-unchained'].usd;
                                    const averagePriceGods = db_price?.GODS?.average*objectPrice['gods-unchained'].usd;
+                                   const minPriceActiveGods = db_price?.GODS?.min_active * objectPrice['gods-unchained'].usd;
                                 //    const averagePriceEth = db_price?.ETH?.average*objectPrice['ethereum'].usd;
 
                                 let priceItem = BigNumber.from(item.buy.data.quantity);
@@ -163,13 +164,13 @@ function start(port, name) {
 
                                 //    db_price.spread_GODS_ETH.spread > 25
 
-                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && priceEth > 0.5 && priceEth < 40 && minPriceGods && my_items_len < 14) {
+                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && priceEth > 0.5 && priceEth < 40 && minPriceActiveGods && my_items_len < 14) {
 
 
 
 
-                                    const minSpread = (minPriceGods / priceEth - 1) * 100;
-                                    const averageSpread = (averagePriceGods/priceEth - 1) * 100;
+                                    const minSpread = (minPriceActiveGods / priceEth - 1) * 100;
+                                    const averageSpread = (averagePriceGods / priceEth - 1) * 100;
 
 
                                     let rpc = {
@@ -185,7 +186,7 @@ function start(port, name) {
 
                                         port.postMessage(rpc)
                                         // мисклк
-                                    } else if (priceItem*1.09 <= myBalanceETH && averageSpread >= 25 && db_price.GODS.min_active*objectPrice['gods-unchained'].usd > priceEth) {
+                                    } else if (priceItem * 1.09 <= myBalanceETH && averageSpread >= 10 && minPriceActiveGods > priceEth) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
@@ -384,6 +385,7 @@ function start(port, name) {
 
                 }).catch(e => {
                     console.log(e);
+                   return resolve()
                 })
 
 

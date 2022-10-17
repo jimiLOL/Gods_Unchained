@@ -38,6 +38,7 @@ function start(port, name, item) {
         port.on('message', async (rpc) => {
 
             if (!taskBuy.has(rpc.id)) {
+                console.log('Инициировали покупку');
                 taskBuy.set(rpc.id, rpc.item.sell.data.properties.name)
                 await buyNFT(rpc.item.order_id).then(async res => {
                     console.log(res);
