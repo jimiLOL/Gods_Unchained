@@ -112,8 +112,8 @@ function start() {
                             //  userListItems: userListItems
                              }, 
                              {transferList: [channel[`globalWorker_${rndString}`].port1]}
-                             ).then((message) => {
-                                startWorkersPool();
+                             ).then(() => {
+                                return startWorkersPool();
                                 // console.log(message);
                                 // channel[message.name].port2.close();
                             //    delete channel[message.name];
@@ -122,7 +122,7 @@ function start() {
 
                         }).catch(e => {
                             console.log(e);
-                            startWorkersPool()
+                            return startWorkersPool();
 
                         });
                         channel[`globalWorker_${rndString}`].port2.on('message', (rpc)=> {
@@ -143,7 +143,7 @@ function start() {
                     }
                     
                 };
-                for (let index = 0; index < 10; index++) {
+                for (let index = 0; index < 15; index++) {
                     startWorkersPool();
 
                     
