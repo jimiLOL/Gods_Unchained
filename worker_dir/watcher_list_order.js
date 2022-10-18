@@ -8,6 +8,9 @@ const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYl
 
 const { utils, BigNumber } = require("ethers");
 
+const { AbortController } = require('abort-controller');
+const signal = {};
+
 
 // const util = require("util");
 
@@ -17,7 +20,7 @@ const path = require('path');
 const { MessageChannel } = require('worker_threads');
 const channel = {};
 
-const iteration_index = 7;
+const iteration_index = 3;
 
 const worker_get_items_for_name = new Piscina({
     filename: path.resolve('./worker_dir', 'getItemsinWhile.js'),
@@ -31,31 +34,7 @@ const worker_proxy = new Piscina({
 });
 let objectPrice;
 let walletBalance = {};
-
-// (async()=> {
-//     // Очищаем базу
-//     // const keys_db = await clientRedis.keys('my_item_*');
-//     // keys_db.forEach(async element => {
-//     //     // await clientRedis.del(element)
-//     //     let get = await clientRedis.lrange(element, 0, -1);
-//     //     get.forEach(ele => {
-//     //         fs.appendFile('./keys_db.txt', `${ele}\n`, (error)=> {
-//     //             // console.log(error);
-//     //         })
-//     //     });
-
-
-//     // });
-//     const keys_db_s = await clientRedis.keys('average_price_*');
-//     keys_db_s.forEach(async element => {
-//         await clientRedis.del(element)
-//         // fs.appendFile('./keys_db_s.txt', `${element}\n`, (error)=> {
-//         //     // console.log(error);
-//         // })
-
-//     });
-// })()
-
+ 
 
 function start(port, name) {
     const MessageChannelInit = {};
@@ -63,9 +42,6 @@ function start(port, name) {
 
 
         port.on('message', (rpc) => {
-            // console.log('proxy_port');
-            // console.log(rpc);
-            // console.log(channel[rpc.name_chanel]);
             if (rpc.internal) {
                 objectPrice = rpc.price;
                 walletBalance = rpc.walletBalance;
@@ -89,9 +65,7 @@ function start(port, name) {
         channel['proxy_port'] = new MessageChannel();
         worker_proxy.run({ port: channel['proxy_port'].port1 }, { transferList: [channel['proxy_port'].port1] });
         channel['proxy_port'].port2.on('message', (rpc) => {
-            // console.log('proxy_port');
-            // console.log(rpc);
-            // console.log(channel[rpc.name_chanel]);
+   
             channel[rpc.name_chanel].port2.postMessage(rpc)
 
         })
@@ -220,16 +194,18 @@ function start(port, name) {
                                         const newArray = itemsArray.slice(0, itemsArray.length - 1);
                                         itemsArray.splice(0, itemsArray.length - 1);
                                         const rndString = helper.makeid(5);
-                                        channel[`worker_${i}_${rndString}`] = new MessageChannel();
+                                        const nameWorker = `worker_${i}_${rndString}`;
+                                        channel[nameWorker] = new MessageChannel();
                                         // MessageChannelInit[`worker_${i}`] = {init: true, port2: channel[`worker_${i}`].port2}
+                                        signal[nameWorker] = new AbortController();
 
                                         promiseWorker.push(worker_get_items_for_name.run({
-                                            port: channel[`worker_${i}_${rndString}`].port1,
-                                            name: `worker_${i}_${rndString}`,
+                                            port: channel[nameWorker].port1,
+                                            name: nameWorker,
                                             itemsArray: newArray
-                                        }, { transferList: [channel[`worker_${i}_${rndString}`].port1] }
+                                        }, {signal: signal[nameWorker].signal, transferList: [channel[nameWorker].port1] }
                                         ));
-                                        channel[`worker_${i}_${rndString}`].port2.on('message', (rpc) => {
+                                        channel[nameWorker].port2.on('message', (rpc) => {
                                             // console.log('Получили запрос в watcher_list_order');
 
                                             // console.log(rpc);
@@ -370,7 +346,7 @@ function start(port, name) {
                                 // console.log('==============\nPromise end\n==============');
                                 return resolve()
                             }).catch(e => {
-                                console.log(e);
+                                console.log(e.message);
                                 return resolve()
                             })
 
