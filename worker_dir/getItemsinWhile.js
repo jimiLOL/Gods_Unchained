@@ -9,7 +9,8 @@ const Redis = require("ioredis");
 const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
 
 const { utils, BigNumber } = require("ethers");
-
+const { AbortController } = require('abort-controller');
+const signal = {};
 
 const path = require('path');
 
@@ -84,10 +85,12 @@ function start(itemsArray, port, name) {
             const rndString = helper.makeid(5);
             channel[`workerWhile_${i}_${rndString}`] = new MessageChannel();
             await clientRedis.set(`worker_isWork_${ele.name.replace(' ', '_')}`, 'work', 'ex', 30);
+            signal[`workerWhile_${i}_${rndString}`] = new AbortController();
 
-            arrayPromise.push(workerWhileFilter.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, { transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async ({resArray, resArrayActive}) => {
+            arrayPromise.push(workerWhileFilter.run({ item: ele, port: channel[`workerWhile_${i}_${rndString}`].port1, name: `workerWhile_${i}_${rndString}` }, {signal: signal[`workerWhile_${i}_${rndString}`].signal, transferList: [channel[`workerWhile_${i}_${rndString}`].port1] }).then(async ({resArray, resArrayActive}) => {
                 if (Array.isArray(resArray) && resArray.length > 10 && Array.isArray(resArrayActive)) {
                     // console.log('resArray.length ' + resArray.length);
+                    signal[`workerWhile_${i}_${rndString}`].abort();
                     for (let index = 0; index < 5; index++) {
                         resArray.forEach((ele, i) => {
                             let filter = resArray.filter(x => x.order_id == ele.order_id);
@@ -321,7 +324,7 @@ function start(itemsArray, port, name) {
                         // console.log('Average');
                         // console.log(info['spread_GODS_ETH']);
                         if (info.name) {
-                            clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 45000);
+                            await clientRedis.set(`average_price_${info.name.replace(' ', '_')}`, JSON.stringify(info), 'ex', 45000);
 
                         }
                         // console.log('!=======!');

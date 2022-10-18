@@ -35,7 +35,7 @@ function start(item, port, name) {
             // cursor = null;
             port.postMessage({ set: true, proxy: `${proxy.host}:${proxy.port}` });
 
-            resolve([])
+            resolve({ resArray: null, resArrayActive: null })
         });
         port.postMessage({ set: true, proxy: `${proxy.host}:${proxy.port}` });
 
@@ -169,7 +169,7 @@ function start(item, port, name) {
 
         } catch (e) {
             console.log(e);
-            resolve([])
+            resolve({ resArray: null, resArrayActive: null })
 
 
         }
@@ -186,7 +186,7 @@ module.exports = ({ item, port, name }) => {
 
 
         start(item, port, name).then((res) => {
-            let end = new Date().getTime();
+            // let end = new Date().getTime();
             // promiseArray.push(worker_scanPrice.run({ array_item: res.flat() }))
             // console.log(`Worker whileWorkerForFilter end timestamp ${end-startTime}`);
 

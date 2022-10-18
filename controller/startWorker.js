@@ -6,6 +6,9 @@ const helper = require('../helper');
 const { MessageChannel } = require('worker_threads');
 const channel = {};
 const { checktProxy } = require("../get_proxyInit");
+const { AbortController } = require('abort-controller');
+const signal = {};
+
 
 const CronJob = require("cron").CronJob;
 const CronTime = require("cron").CronTime;
@@ -72,7 +75,9 @@ function start() {
         // console.log(channel[rpc.name_chanel]);
         channel[rpc.globalWorker].port2.postMessage(rpc)
 
-    })
+    });
+let destroyVar = 0;
+
 
 
     getProxy().then(res => {
@@ -103,6 +108,12 @@ function start() {
                         let start = new Date().getTime();
                         const rndString = helper.makeid(8);
                         channel[`globalWorker_${rndString}`] = new MessageChannel();
+                        signal[`globalWorker_${rndString}`] = new AbortController();
+                        destroyVar++
+                        if (destroyVar > 150) {
+                            process.exit(1)
+                        }
+
 
 
                       worker_watcher.run({ 
@@ -111,13 +122,19 @@ function start() {
                             starttime: start,
                             //  userListItems: userListItems
                              }, 
-                             {transferList: [channel[`globalWorker_${rndString}`].port1]}
+                             {signal: signal[`globalWorker_${rndString}`].signal, transferList: [channel[`globalWorker_${rndString}`].port1]}
                              ).then(() => {
                                 // console.log(message);
                                 // channel[message.name].port2.close();
                             //    delete channel[message.name];
-                            let end = new Date().getTime()
-                            console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
+                            signal[`globalWorker_${rndString}`].abort();
+                            delete signal[`globalWorker_${rndString}`];
+                            console.clear();
+                            console.log('Global worker iteration ' + destroyVar);
+
+
+                            // let end = new Date().getTime()
+                            // console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
                             return startWorkersPool();
 
 
