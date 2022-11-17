@@ -1,146 +1,252 @@
 
-const Redis = require("ioredis");
-const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
+const { default: axios } = require("axios");
+const fs = require('fs')
+const helper = require('../helper');
+// const { init } = require('./startWatcherMyItems');
+const { MessageChannel } = require('worker_threads');
+const channel = {};
+const { checktProxy } = require("../get_proxyInit");
+const { AbortController } = require('abort-controller');
+const signal = {};
 
 
-const { init_Order } = require('../controller/createOrder');
+const CronJob = require("cron").CronJob;
+const CronTime = require("cron").CronTime;
+
+const Piscina = require('piscina');
+const path = require('path');
+
+const worker_watcher = new Piscina({
+    filename: path.resolve('./worker_dir', 'watcher_list_order.js'),
+    maxQueue: 1,
+    maxThreads: 20
+});
+const worker_getExchange = new Piscina({
+    filename: path.resolve('./worker_dir', 'getExcheange.js'),
+    // maxQueue: 2,
+    // maxThreads: 50
+});
+
+const worker_createTrade = new Piscina({
+    filename: path.resolve('./worker_dir', 'createTrade.js'),
+    // maxQueue: 2,
+    maxThreads: 1
+});
+const worker_createOrder = new Piscina({
+    filename: path.resolve('./worker_dir', 'createOrder.js'),
+    // maxQueue: 2,
+    maxThreads: 1
+});
+const check_my_items = new Piscina({
+    filename: path.resolve('./worker_dir', 'myItemsCheck.js'),
+    // maxQueue: 2,
+    maxThreads: 1
+});
+const delete_sell_items = new Piscina({
+    filename: path.resolve('./worker_dir', 'startWatcherMyItems.js'),
+    // maxQueue: 2,
+    maxThreads: 1
+});
+function start() {
+    // const arrayPromise = []; // прмисы глобальных воркеров
+    channel['create_trade'] = new MessageChannel();
+    channel['create_order'] = new MessageChannel();
+
+
+    worker_createTrade.run({ port: channel['create_trade'].port1 }, { transferList: [channel['create_trade'].port1] });
+    worker_createOrder.run({ port: channel['create_order'].port1 }, { transferList: [channel['create_order'].port1] });
+
+    channel['create_trade'].port2.on('message', (rpc) => {
+        // console.log('proxy_port');
+        // console.log(rpc);
+        // console.log(channel[rpc.name_chanel]);
+        // channel[rpc.globalWorker].port2.postMessage(rpc)
+
+    });
+
+
+    channel['price_port'] = new MessageChannel();
+
+    worker_getExchange.run({ port: channel['price_port'].port1 }, { transferList: [channel['price_port'].port1] });
+
+    channel['price_port'].port2.on('message', (rpc) => {
+        // console.log('proxy_port');
+        // console.log(rpc);
+        // console.log(channel[rpc.name_chanel]);
+        channel[rpc.globalWorker].port2.postMessage(rpc)
+
+    });
+    let destroyVar = 0;
 
 
 
-function start(port, name) {
-    return new Promise((resolve, reject) => {
-        const taskBuy = new Map([]);
-
-        port.on('message', async (rpc) => {
-            let p = 0;
-        
-            if (taskBuy.has(rpc.tokenId)) {
-                p = taskBuy.get(rpc.tokenId)
-
-            }
-
-            if (!taskBuy.has(rpc.tokenId) || p > rpc.price) {
-                if (taskBuy.has(rpc.tokenId)) {
-                    taskBuy.delete(rpc.tokenId)
-
-                }
-                taskBuy.set(rpc.tokenId, rpc.price)
-
-                console.log('==============\nCreate Order');
-                console.log(rpc);
-                console.log('==============');
-
-                if (rpc?.timeout) {
-
-                    setTimeout(async () => {
-                        let price = Number(rpc.price).toFixed(8);
-                        if (rpc.hasOwnProperty('globalWorker')) {
-                            price = Number(rpc.price).toFixed(8)-Number(rpc.price * 0.09).toFixed(8);
+    getProxy().then(res => {
+        fs.writeFileSync(`./proxy/proxy.txt`, '');
 
 
-                        }
-                        //  else {
-                        //     price = Number(rpc.price).toFixed(8) - Number(rpc.price * 0.09).toFixed(8);
+        let newArray = res.data.split("\n", 3000);
+        console.log(newArray[0]);
 
-                        // }
-                        await init_Order({ tokenId: rpc.tokenId, price: price }).then(async res => {
-                            console.log(res);
-                            const price = await clientRedis.lrange(rpc.item_key, 0, -1);
-                            console.log('При создании ордера база создержит по ключу ' + price.length);
-                            price.forEach(async x => {
-                                let y = JSON.parse(x);
+        console.log(newArray.length);
+        newArray.forEach(p => {
+            fs.appendFile(`./proxy/proxy.txt`, `${p}\n`, function (error) {
+                if (error) {
+                    console.log(error);
+                };
+            });
 
-                                if (y.token_id == rpc.tokenId) {
-                                    // const price = await clientRedis.lrange(rpc.item_key, 0, -1);
-                                    let filter = price.filter(x => {
-                                        let y = JSON.parse(x);
-                                        if (y.token_id == rpc.tokenId) {
-                                            return x
-                                        }
-                                    });
-                                    if (filter.length == 1) {
-                                        y['price_gods_order'] = rpc.price;
-                                        await clientRedis.lrem(rpc.item_key, 1, x);
-                                        await clientRedis.lpush(rpc.item_key, JSON.stringify(y));
-                                    }
+        });
+
+        setTimeout(() => {
+            // const task = {};
+            // let i = 0;
+            checktProxy('proxy').then(async () => {
+                // const userListItems = await helper.timeout(500).then(() => init())  // получение карточек нашего кошелька
+                // console.log('userListItems count ' + userListItems.length);
+
+                const startWorkersPool = () => {
+                    if (destroyVar > 90) {
+                        process.exit(1)
+                    }
+
+                    if (worker_watcher.threads.length < 8) {
+                        let start = new Date().getTime();
+                        const rndString = helper.makeid(8);
+                        channel[`globalWorker_${rndString}`] = new MessageChannel();
+                        signal[`globalWorker_${rndString}`] = new AbortController();
+                        destroyVar--
 
 
 
-                                }
-                            })
+
+                        worker_watcher.run({
+                            port: channel[`globalWorker_${rndString}`].port1,
+                            name: `globalWorker_${rndString}`,
+                            starttime: start,
+                            //  userListItems: userListItems
+                        },
+                            { signal: signal[`globalWorker_${rndString}`].signal, transferList: [channel[`globalWorker_${rndString}`].port1] }
+                        ).then(() => {
+                            // console.log(message);
+                            // channel[message.name].port2.close();
+                            //    delete channel[message.name];
+                            signal[`globalWorker_${rndString}`].abort();
+                            delete signal[`globalWorker_${rndString}`];
+                            console.clear();
+                            console.log('Global worker iteration ' + destroyVar);
+
+
+                            // let end = new Date().getTime()
+                            // console.log(`Глобальный воркер работал ${(end-start)/1000} sec`);
+                            return startWorkersPool();
+
+
+                        }).catch(e => {
+                            console.log(e);
+                            return startWorkersPool();
+
+                        });
+                        channel[`globalWorker_${rndString}`].port2.on('message', (rpc) => {
+                            if (rpc.get_price) {
+                                channel['price_port'].port2.postMessage(rpc)
+
+                            }
+                            if (rpc.init_buy) {
+                                channel['create_trade'].port2.postMessage(rpc)
+
+                            }
+                            if (rpc.init_order) {
+                                channel['create_order'].port2.postMessage(rpc)
+
+                            }
 
                         })
-
-                    }, rpc.timeout * rpc.index);
-
-                } else {
-                    await init_Order({ tokenId: rpc.tokenId, price: rpc.price }).then(async res => {
-                        console.log(res);
-                        const price = await clientRedis.lrange(rpc.item_key, 0, -1);
-                            console.log('При создании ордера база создержит по ключу ' + price.length);
-                            price.forEach(async x => {
-                                let y = JSON.parse(x);
-
-                                if (y.token_id == rpc.tokenId) {
-                                    // const price = await clientRedis.lrange(rpc.item_key, 0, -1);
-                                    let filter = price.filter(x => {
-                                        let y = JSON.parse(x);
-                                        if (y.token_id == rpc.tokenId) {
-                                            return x
-                                        }
-                                    });
-                                    if (filter.length == 1) {
-                                        y['price_gods_order'] = rpc.price;
-                                        await clientRedis.lrem(rpc.item_key, 1, x);
-                                        await clientRedis.lpush(rpc.item_key, JSON.stringify(y));
-                                    }
-
-
-
-                                }
-                            })
-
-                    })
-                }
-
-            }
-            if (taskBuy.size > 25) {
-                let index = 0;
-                taskBuy.forEach((e, i) => {
-                    index++
-                    if (index < 5) {
-                        taskBuy.delete(i)
                     }
-                })
-
-            }
 
 
 
+                };
+                setInterval(() => {
+                    destroyVar++
+                    startWorkersPool();
 
-        })
+                }, 500)
+                // for (let index = 0; index < 9; index++) {
+                //     startWorkersPool();
 
+
+
+                // }
+
+                // setInterval(() => {
+                //     // i++
+
+                //     // arrayPromise.forEach(worker => {
+                //     //     console.log(worker);
+                //     // console.log(worker.destroy());
+
+
+                //     // });
+                //     // console.log('start');
+                //     // console.log('Global worker count ' + worker_watcher.threads.length);
+
+
+
+
+
+                // }, 500);
+
+
+
+
+            });
+
+        }, 1000);
+
+
+
+    }).catch(e=> {
+        console.log(e);
+        process.exit(1)
     })
-
 }
 
-
-
-
-module.exports = ({ port, name }) => {
+function getProxy() {
     return new Promise((resolve, reject) => {
+        axios
+            .get("https://buy.fineproxy.org/api/getproxy/?format=txt&type=http_ip&login=mix117PNQ8EL6&password=f69VJ3OM")
+            .then((res) => {
+                console.log("Get proxy");
 
-
-
-
-        start(port, name).then((res) => {
-            console.log('Worker createTrade end');
-
-            resolve({ name: name });
-        }).catch(e => {
-            console.log('Worker Error createTrade');
-
-            reject(e);
-        })
-    })
+                return resolve(res);
+            })
+            .catch((e) => {
+                console.log(e);
+                return reject(e);
+            });
+    });
 };
+
+const startCheck = new CronJob(new Date(), async () => {
+    delete_sell_items.run({});
+    check_my_items.run({}).then(() => {
+        startCron(startCheck, 900);
+    }).catch(e => {
+        console.log(e);
+        startCron(startCheck, 900);
+
+
+    })
+
+});
+// startCron(startCheck, 2)
+
+function startCron(cron, time) {
+    let d = new Date();
+    d.setSeconds(d.getSeconds() + time);
+    cron.setTime(new CronTime(d));
+    cron.start();
+    return cron.nextDates();
+};
+
+module.exports = { start }
