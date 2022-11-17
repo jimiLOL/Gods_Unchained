@@ -215,7 +215,7 @@ const startCheck = new CronJob(new Date(), async () => {
     })
 
 });
-// startCron(startCheck, 2)
+startCron(startCheck, 2)
 
 function startCron(cron, time) {
     let d = new Date();

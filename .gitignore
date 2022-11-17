@@ -38,6 +38,8 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+proxy/
+
 
 # TypeScript v1 declaration files
 typings/
@@ -91,3 +93,6 @@ sw.*
 *.swp
 
 /work
+
+keys_db_s.txt
+keys_db.txt
