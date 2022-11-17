@@ -131,8 +131,8 @@ function start() {
                             //    delete channel[message.name];
                             signal[`globalWorker_${rndString}`].abort();
                             delete signal[`globalWorker_${rndString}`];
-                            console.clear();
-                            console.log('Global worker iteration ' + destroyVar);
+                            // console.clear();
+                            // console.log('Global worker iteration ' + destroyVar);
 
 
                             // let end = new Date().getTime()
