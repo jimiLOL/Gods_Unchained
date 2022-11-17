@@ -52,7 +52,7 @@ function start(port, name, item) {
                             }
                         });
                         if (filter.length == 0) {
-                            await clientRedis.lpush(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, JSON.stringify({ date: new Date().getTime(), trade_id: res.trade_id, price_buy: rpc.priceItem, db_price: rpc.db_price, init_order: false, item_name: rpc.item.sell.data.properties.name, token_id: rpc.item.sell.data.token_id }))
+                            await clientRedis.lpush(`my_item_${rpc.item.sell.data.properties.name.replace(' ', '_')}`, JSON.stringify({ date: new Date().getTime(), trade_id: res.trade_id, price_buy: rpc.priceItem, type: rpc.type, db_price: rpc.db_price, init_order: false, item_name: rpc.item.sell.data.properties.name, token_id: rpc.item.sell.data.token_id }))
 
                         } else {
                             console.log('При покупке в базе содержится - ' + filter.length + ' одинаковых объектов');

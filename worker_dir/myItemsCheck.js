@@ -12,6 +12,7 @@ function start() {
 
         const keys_db_s = await clientRedis.keys('average_price_*');
         console.log('keys_db_s - ' + keys_db_s.length);
+        fs.writeFileSync(`./keys_db_s.txt`, '');
 
         keys_db_s.forEach(async element => {
             // await clientRedis.del(element)
@@ -28,6 +29,8 @@ function start() {
 
         const keys_db = await clientRedis.keys('my_item_*');
         // console.log('keys_db - ' + keys_db.length);
+        fs.writeFileSync(`./keys_db.txt`, '');
+
         keys_db.forEach(async element => {
             // await clientRedis.del(element)
             let get = await clientRedis.lrange(element, 0, -1);
@@ -69,20 +72,24 @@ function start() {
                 // itemData.date < new Date().getTime() - 25 * 60 * 60 * 1000
                 if (!itemData.init_order && itemData.date < new Date().getTime() - 25 * 60 * 60 * 1000) {
                     setTimeout(async () => {
-                        const average_price = await clientRedis.get(`average_price_${itemData.item_name.replace(' ', '_')}`);
-                        if (average_price) {
-                            await clientRedis.lrem(ele, 1, element);
-                            // await clientRedis.lrem(ele, 1, itemData.token_id);
-                            itemData.init_order = true;
-                            let item = JSON.parse(average_price);
+                        // const average_price = await clientRedis.get(`average_price_${itemData.item_name.replace(' ', '_')}`);
 
-                            let sellPrice = item.GODS.min_active*1.2; // приближаем цены к минимальным ставкам здесь можно улчшить формулу используя данные об активных оредрах
+                        // await clientRedis.lrem(ele, 1, itemData.token_id);
+                        itemData.init_order = true;
+                        // let item = JSON.parse(average_price);
+
+                    
+                            let sellPrice = itemData.db_price.GODS.min_active * 1.2; // приближаем цены к минимальным ставкам здесь можно улчшить формулу используя данные об активных оредрах
 
                             // let newPrice = utils.formatUnits(String(sellPrice), '18');
-
+    
                             const result = await init_Order({ tokenId: itemData.token_id, price: Number(sellPrice).toFixed(8), workerType: 'myItemsCheck' }).then(async res => {
+                                await clientRedis.lrem(ele, 1, element);
+    
+                                await clientRedis.lpush(ele, JSON.stringify(itemData));
+    
                                 // const price = await clientRedis.lrange(ele, 0, -1);
-
+    
                                 // let filter = price.filter(x => {
                                 //     let y = JSON.parse(x);
                                 //     if (y.token_id == itemData.token_id) {
@@ -90,21 +97,23 @@ function start() {
                                 //     }
                                 // });
                                 // if (filter.length == 0) {
-                                //     await clientRedis.lpush(ele, JSON.stringify(itemData));
                                 // } else {
                                 //     await clientRedis.lrem(ele, filter.length, element);
                                 //     // удаляем все вхождения 
                                 //     await clientRedis.lpush(ele, JSON.stringify(itemData));
-
-
+    
+    
                                 // }
-
+    
                                 return res
-
+    
                             });
                             console.log(result);
 
-                        }
+                       
+
+                       
+
 
                         if (index == price.length - 1 && i == price.length - 1) {
                             resolve()

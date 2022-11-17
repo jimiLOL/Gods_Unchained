@@ -109,6 +109,7 @@ function start(port, name) {
 
                         }
                         const myBalanceETH = utils.formatUnits(walletBalance.ETH, '18');
+                        const myBalanceGODS = utils.formatUnits(walletBalance.GODS, '18');
 
 
 
@@ -133,6 +134,7 @@ function start(port, name) {
                                 let priceItem = BigNumber.from(item.buy.data.quantity);
                                 priceItem = utils.formatUnits(priceItem, '18');
                                 const priceEth = priceItem * objectPrice['ethereum'].usd;
+                                const priceGODS = priceItem * objectPrice['gods-unchained'].usd;
 
 
 
@@ -153,14 +155,16 @@ function start(port, name) {
                                         db_price: db_price,
                                         priceItem: priceItem,
                                         item: item,
-                                        event_type: ''
+                                        event_type: '',
+                                        type: 'ETH'
                                     };
                                     if (priceItem * 1.09 <= myBalanceETH && minSpread >= 9) {
                                         rpc.event_type = 'ms click';
 
                                         port.postMessage(rpc)
                                         // мисклк
-                                    } else if (priceItem * 1.09 <= myBalanceETH && averageSpread >= 10 && minPriceActiveGods > priceEth) {
+                                        // minPriceActiveGods > priceEth -- эта доп проверка гарантировала, что мы покупаем лот по самой низкой цене
+                                    } else if (priceItem * 1.09 <= myBalanceETH && averageSpread >= 10) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
@@ -174,6 +178,45 @@ function start(port, name) {
                                     // инициализируем воркер на покупку
 
                                 }
+                                if (item.buy.type == 'ERC20' && db_price.hasOwnProperty('GODS') && db_price.GODS?.count > 20 && priceGODS > 0.3 && priceGODS < 40 && minPriceActiveGods && my_items_len < 14) {
+
+
+
+
+                                    const minSpread = (minPriceActiveGods / priceEth - 1) * 100;
+                                    const averageSpread = (averagePriceGods / priceEth - 1) * 100;
+
+
+                                    let rpc = {
+                                        init_buy: true,
+                                        id: item.sell.data.token_id,
+                                        db_price: db_price,
+                                        priceItem: priceItem,
+                                        item: item,
+                                        event_type: '',
+                                        type: 'GODS'
+                                    };
+                                    if (priceItem * 1.09 <= myBalanceGODS && priceGODS*1.07 < minPriceActiveGods) {
+                                        rpc.event_type = 'ms click';
+
+                                        port.postMessage(rpc)
+                                        // мисклк
+                                    } else if (priceItem * 1.09 <= myBalanceGODS && priceGODS*1.1 < averagePriceGods) {
+                                        rpc.event_type = 'average click';
+                                        port.postMessage(rpc)
+
+
+
+
+                                    }
+
+
+
+                                    // инициализируем воркер на покупку
+
+                                }
+
+
 
 
 

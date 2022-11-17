@@ -125,6 +125,78 @@ async function init_Order({tokenId, price, workerType}) {
 
 
 }
+async function init_Order_Eth({tokenId, price, workerType}) {
+    console.log(tokenId, price, workerType);
+    // console.log(typeof price);
 
 
-module.exports = { init_Order }
+    // let s = new Date().getTime();
+
+
+    // const chainID = await signer.getChainId();
+    // console.log(chainID); // этот код не обязательный, просто показывает в какой мы сети
+
+
+
+    //  let tokenId = '138712946';
+
+
+
+    const now = new Date(Date.now());
+    now.setMonth(now.getMonth() + 1);
+    const timestamp = Math.floor(now.getTime() / 1000);
+
+    const orderParameters = {
+        // Change '0.1' to any value of the currency wanted to sell this asset
+        amount_buy: utils.parseEther(String(price)).toString(),
+        // Change '1' to any value indicating the number of assets you are selling
+        amount_sell: '1',
+        expiration_timestamp: timestamp,
+        // Fees are optional; for simplicity, no maker or taker fees are added in this sample
+        fees: [],
+        // The currency wanted to sell this asset
+        token_buy: {
+            type: 'ETH', // Or 'ERC20' if it's another currency    
+            data: {
+                // token_address: '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97', // Or the token address of the ERC20 token
+                decimals: 18, // Or any decimals used by the token
+            },
+        },
+
+        // The asset being sold
+        token_sell: {
+            type: 'ERC721',
+            data: {
+                // The collection address of this asset
+                token_address: tokenAddress,
+
+                // The ID of this asset
+                token_id: tokenId,
+            },
+        },
+        // The ETH address of the L1 Wallet
+        user: '0xb8F202dC3242A6b17d7Be5e2956aC2680EAf223c',
+    };
+
+    // console.log(await WC.l1Signer.getAddress()); // смотрим наш адрес 
+
+
+
+
+    const response = await coreSdkWorkflows.createOrder(
+        WC, orderParameters
+    ).catch(e=> {
+        console.log(e.message);
+    });
+    // This will log the response specified in this API: https://docs.x.immutable.com/reference/#/operations/createOrder
+    // console.log(response);
+    return response
+    // let end = new Date().getTime();
+    // console.log(`Finish ${end-s}`);
+
+
+
+}
+
+
+module.exports = { init_Order, init_Order_Eth }
