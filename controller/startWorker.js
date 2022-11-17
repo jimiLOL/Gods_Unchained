@@ -60,7 +60,7 @@ function start() {
         // console.log('proxy_port');
         // console.log(rpc);
         // console.log(channel[rpc.name_chanel]);
-        // channel[rpc.globalWorker].port2.postMessage(rpc)
+        channel[rpc.globalWorker].port2.postMessage(rpc)
 
     });
 
@@ -76,7 +76,7 @@ function start() {
         channel[rpc.globalWorker].port2.postMessage(rpc)
 
     });
-let destroyVar = 0;
+    let destroyVar = 0;
 
 
 
@@ -101,31 +101,33 @@ let destroyVar = 0;
             // const task = {};
             // let i = 0;
             checktProxy('proxy').then(async () => {
-                // const userListItems = await helper.timeout(500).then(() => init())  // получение карточек нашего кошелька
-                // console.log('userListItems count ' + userListItems.length);
+               
+
                 const startWorkersPool = () => {
+                    if (destroyVar > 900) {
+                        process.exit(1)
+                    }
+
                     if (worker_watcher.threads.length < 8) {
                         let start = new Date().getTime();
                         const rndString = helper.makeid(8);
                         channel[`globalWorker_${rndString}`] = new MessageChannel();
                         signal[`globalWorker_${rndString}`] = new AbortController();
-                        destroyVar++
-                        if (destroyVar > 150) {
-                            process.exit(1)
-                        }
+                        destroyVar--
 
 
 
-                      worker_watcher.run({ 
+
+                        worker_watcher.run({
                             port: channel[`globalWorker_${rndString}`].port1,
                             name: `globalWorker_${rndString}`,
                             starttime: start,
                             //  userListItems: userListItems
-                             }, 
-                             {signal: signal[`globalWorker_${rndString}`].signal, transferList: [channel[`globalWorker_${rndString}`].port1]}
-                             ).then(() => {
-                                // console.log(message);
-                                // channel[message.name].port2.close();
+                        },
+                            { signal: signal[`globalWorker_${rndString}`].signal, transferList: [channel[`globalWorker_${rndString}`].port1] }
+                        ).then(() => {
+                            // console.log(message);
+                            // channel[message.name].port2.close();
                             //    delete channel[message.name];
                             signal[`globalWorker_${rndString}`].abort();
                             delete signal[`globalWorker_${rndString}`];
@@ -143,7 +145,7 @@ let destroyVar = 0;
                             return startWorkersPool();
 
                         });
-                        channel[`globalWorker_${rndString}`].port2.on('message', (rpc)=> {
+                        channel[`globalWorker_${rndString}`].port2.on('message', (rpc) => {
                             if (rpc.get_price) {
                                 channel['price_port'].port2.postMessage(rpc)
 
@@ -159,34 +161,19 @@ let destroyVar = 0;
 
                         })
                     }
-                    
+
+
+
                 };
-                for (let index = 0; index < 15; index++) {
+                setInterval(() => {
+                    destroyVar++
                     startWorkersPool();
 
-                    
-                }
-
-                // setInterval(() => {
-                //     // i++
-
-                //     // arrayPromise.forEach(worker => {
-                //     //     console.log(worker);
-                //     // console.log(worker.destroy());
-
-                        
-                //     // });
-                //     // console.log('start');
-                //     // console.log('Global worker count ' + worker_watcher.threads.length);
-
-                   
+                }, 500)
+               
 
 
 
-                // }, 500);
-
-
-                
 
             });
 
@@ -194,6 +181,9 @@ let destroyVar = 0;
 
 
 
+    }).catch(e=> {
+        console.log(e);
+        process.exit(1)
     })
 }
 
@@ -208,16 +198,16 @@ function getProxy() {
             })
             .catch((e) => {
                 console.log(e);
-                reject();
+                return reject(e);
             });
     });
 };
 
-const startCheck = new CronJob(new Date(), async ()=> {
+const startCheck = new CronJob(new Date(), async () => {
     delete_sell_items.run({});
-    check_my_items.run({}).then(()=> {
+    check_my_items.run({}).then(() => {
         startCron(startCheck, 900);
-    }).catch(e=> {
+    }).catch(e => {
         console.log(e);
         startCron(startCheck, 900);
 
@@ -225,7 +215,7 @@ const startCheck = new CronJob(new Date(), async ()=> {
     })
 
 });
-startCron(startCheck, 2)
+// startCron(startCheck, 2)
 
 function startCron(cron, time) {
     let d = new Date();

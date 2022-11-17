@@ -22,11 +22,11 @@ const channel = {};
 
 const iteration_index = 3;
 
-const worker_get_items_for_name = new Piscina({
-    filename: path.resolve('./worker_dir', 'getItemsinWhile.js'),
-    maxQueue: 8,
-    maxThreads: 40
-});
+// const worker_get_items_for_name = new Piscina({
+//     filename: path.resolve('./worker_dir', 'getItemsinWhile.js'),
+//     maxQueue: 8,
+//     maxThreads: 40
+// });
 const worker_proxy = new Piscina({
     filename: path.resolve('./worker_dir', 'getProxy.js'),
     // maxQueue: 2,
@@ -34,7 +34,7 @@ const worker_proxy = new Piscina({
 });
 let objectPrice;
 let walletBalance = {};
- 
+
 
 function start(port, name) {
     const MessageChannelInit = {};
@@ -65,7 +65,7 @@ function start(port, name) {
         channel['proxy_port'] = new MessageChannel();
         worker_proxy.run({ port: channel['proxy_port'].port1 }, { transferList: [channel['proxy_port'].port1] });
         channel['proxy_port'].port2.on('message', (rpc) => {
-   
+
             channel[rpc.name_chanel].port2.postMessage(rpc)
 
         })
@@ -115,7 +115,7 @@ function start(port, name) {
 
                         res.data.result.forEach(async item => {
 
-                            const average_price = await clientRedis.get(`average_price_${item.sell.data.properties.name.replace(' ', '_')}`);
+                            const average_price = null;
 
 
                             if (average_price) {
@@ -126,8 +126,8 @@ function start(port, name) {
 
                                 //    const minPriceEth = db_price?.ETH?.min*objectPrice['ethereum'].usd;
                                 const minPriceGods = db_price?.GODS?.min * objectPrice['gods-unchained'].usd;
-                                   const averagePriceGods = db_price?.GODS?.average*objectPrice['gods-unchained'].usd;
-                                   const minPriceActiveGods = db_price?.GODS?.min_active * objectPrice['gods-unchained'].usd;
+                                const averagePriceGods = db_price?.GODS?.average * objectPrice['gods-unchained'].usd;
+                                const minPriceActiveGods = db_price?.GODS?.min_active * objectPrice['gods-unchained'].usd;
                                 //    const averagePriceEth = db_price?.ETH?.average*objectPrice['ethereum'].usd;
 
                                 let priceItem = BigNumber.from(item.buy.data.quantity);
@@ -138,7 +138,7 @@ function start(port, name) {
 
                                 //    db_price.spread_GODS_ETH.spread > 25
 
-                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 30 && priceEth > 0.5 && priceEth < 40 && minPriceActiveGods && my_items_len < 14) {
+                                if (item.buy.type == 'ETH' && db_price.hasOwnProperty('ETH') && db_price.GODS?.count > 20 && priceEth > 0.3 && priceEth < 40 && minPriceActiveGods && my_items_len < 14) {
 
 
 
@@ -185,56 +185,56 @@ function start(port, name) {
                             } else {
                                 i++
 
-                                if (itemsArray.length >= 25 || i == res.data.result.length) {
+                                // if (itemsArray.length >= 25 || i == res.data.result.length) {
 
-                                    if (itemsArray.length != 0) {
-                                        // console.log('Создаем воркер itemsArray.length = ' + itemsArray.length);
-                                        // console.log(itemsArray[0].name);
-                                        // console.log('in work ' + worker_get_items_for_name.threads.length + ' workers');
-                                        const newArray = itemsArray.slice(0, itemsArray.length - 1);
-                                        itemsArray.splice(0, itemsArray.length - 1);
-                                        const rndString = helper.makeid(5);
-                                        const nameWorker = `worker_${i}_${rndString}`;
-                                        channel[nameWorker] = new MessageChannel();
-                                        // MessageChannelInit[`worker_${i}`] = {init: true, port2: channel[`worker_${i}`].port2}
-                                        signal[nameWorker] = new AbortController();
+                                //     if (itemsArray.length != 0) {
+                                //         // console.log('Создаем воркер itemsArray.length = ' + itemsArray.length);
+                                //         // console.log(itemsArray[0].name);
+                                //         // console.log('in work ' + worker_get_items_for_name.threads.length + ' workers');
+                                //         const newArray = itemsArray.slice(0, itemsArray.length - 1);
+                                //         itemsArray.splice(0, itemsArray.length - 1);
+                                //         const rndString = helper.makeid(5);
+                                //         const nameWorker = `worker_${i}_${rndString}`;
+                                //         channel[nameWorker] = new MessageChannel();
+                                //         // MessageChannelInit[`worker_${i}`] = {init: true, port2: channel[`worker_${i}`].port2}
+                                //         signal[nameWorker] = new AbortController();
 
-                                        promiseWorker.push(worker_get_items_for_name.run({
-                                            port: channel[nameWorker].port1,
-                                            name: nameWorker,
-                                            itemsArray: newArray
-                                        }, {signal: signal[nameWorker].signal, transferList: [channel[nameWorker].port1] }
-                                        ));
-                                        channel[nameWorker].port2.on('message', (rpc) => {
-                                            // console.log('Получили запрос в watcher_list_order');
+                                //         promiseWorker.push(worker_get_items_for_name.run({
+                                //             port: channel[nameWorker].port1,
+                                //             name: nameWorker,
+                                //             itemsArray: newArray
+                                //         }, {signal: signal[nameWorker].signal, transferList: [channel[nameWorker].port1] }
+                                //         ));
+                                //         channel[nameWorker].port2.on('message', (rpc) => {
+                                //             // console.log('Получили запрос в watcher_list_order');
 
-                                            // console.log(rpc);
-                                            if (rpc.get || rpc.set) {
-                                                channel['proxy_port'].port2.postMessage(rpc)
+                                //             // console.log(rpc);
+                                //             if (rpc.get || rpc.set) {
+                                //                 channel['proxy_port'].port2.postMessage(rpc)
 
-                                            };
-                                            if (rpc.get_price) {
-                                                rpc['globalWorker'] = name;
-                                                port.postMessage(rpc);
+                                //             };
+                                //             if (rpc.get_price) {
+                                //                 rpc['globalWorker'] = name;
+                                //                 port.postMessage(rpc);
 
-                                            };
-
-
-                                        })
-                                        // itemsArray.length = 0;
-                                    }
+                                //             };
 
 
-                                } else {
-
-                                    if (itemsArray.length == 0 || !itemsArray.some(x => x.name == item.sell.data.properties.name)) {
-                                        itemsArray.push({ name: item.sell.data.properties.name, id: item.sell.data.token_id })
-
+                                //         })
+                                //         // itemsArray.length = 0;
+                                //     }
 
 
-                                    };
+                                // } else {
 
-                                }
+                                //     if (itemsArray.length == 0 || !itemsArray.some(x => x.name == item.sell.data.properties.name)) {
+                                //         itemsArray.push({ name: item.sell.data.properties.name, id: item.sell.data.token_id })
+
+
+
+                                //     };
+
+                                // }
 
 
 
@@ -361,7 +361,7 @@ function start(port, name) {
 
                 }).catch(e => {
                     console.log(e);
-                   return resolve()
+                    return resolve()
                 })
 
 
