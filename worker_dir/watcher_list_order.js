@@ -129,7 +129,8 @@ function start(port, name) {
                                 const minPriceGods = db_price?.GODS?.min * objectPrice['gods-unchained'].usd;
                                 const averagePriceGods = db_price?.GODS?.average * objectPrice['gods-unchained'].usd;
                                 const minPriceActiveGods = db_price?.GODS?.min_active * objectPrice['gods-unchained'].usd;
-                                //    const averagePriceEth = db_price?.ETH?.average*objectPrice['ethereum'].usd;
+                                   const averagePriceEth = db_price?.ETH?.average*objectPrice['ethereum'].usd;
+                                   const min_activePriceEth = db_price?.ETH?.min_active*objectPrice['ethereum'].usd;
 
                                 let priceItem = BigNumber.from(item.buy.data.quantity);
                                 priceItem = utils.formatUnits(priceItem, '18');
@@ -171,6 +172,10 @@ function start(port, name) {
 
 
 
+                                    } else if (priceItem * 1.09 <= myBalanceETH && priceEth*1.1 < min_activePriceEth) {
+                                        rpc.event_type = 'average click';
+                                        port.postMessage(rpc)
+
                                     }
 
 
@@ -183,8 +188,8 @@ function start(port, name) {
 
 
 
-                                    const minSpread = (minPriceActiveGods / priceEth - 1) * 100;
-                                    const averageSpread = (averagePriceGods / priceEth - 1) * 100;
+                                    // const minSpread = (minPriceActiveGods / priceEth - 1) * 100;
+                                    // const averageSpread = (averagePriceGods / priceEth - 1) * 100;
 
 
                                     let rpc = {
