@@ -159,13 +159,13 @@ function start(port, name) {
                                         event_type: '',
                                         type: 'ETH'
                                     };
-                                    if (priceItem * 1.09 <= myBalanceETH && minSpread >= 9) {
+                                    if (priceItem * 1.09 <= myBalanceETH && minSpread >= 3) {
                                         rpc.event_type = 'ms click';
 
                                         port.postMessage(rpc)
                                         // мисклк
                                         // minPriceActiveGods > priceEth -- эта доп проверка гарантировала, что мы покупаем лот по самой низкой цене
-                                    } else if (priceItem * 1.09 <= myBalanceETH && averageSpread >= 10) {
+                                    } else if (priceItem * 1.09 <= myBalanceETH && averageSpread >= 5) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
