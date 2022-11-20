@@ -116,7 +116,7 @@ function start(port, name) {
 
                         res.data.result.forEach(async item => {
 
-                            const average_price = null;
+                            const average_price = await clientRedis.get(`average_price_${item.sell.data.properties.name.replace(' ', '_')}`);
 
 
                             if (average_price) {
