@@ -85,8 +85,10 @@ function start(port, name) {
         port.postMessage(rpc);
         for (let index = 0; index < iteration_index; index++) {
             helper.timeout(100 * index).then(() => {
+                let proxyOptions = { host: 'zproxy.lum-superproxy.io', port: '22225', proxyAuth: 'brd-customer-hl_24281209-zone-data_center-country-us:2k69suo8as7l' };
+                let agent = helper.initAgent(proxyOptions);
 
-                apiImmutable.get_list_order(helper.initAgent(helper.proxyInit(proxyList[helper.getRandomInt(1, proxyList.length - 1)]))).then((res) => {
+                apiImmutable.get_list_order(agent).then((res) => {
 
                     if (Array.isArray(res.data.result)) {
                         //   const filterArray = [];
