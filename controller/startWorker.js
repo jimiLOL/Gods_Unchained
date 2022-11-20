@@ -188,6 +188,22 @@ function start() {
 }
 
 function getProxy() {
+    // http://brd-customer-hl_24281209-zone-data_center:2k69suo8as7l@zproxy.lum-superproxy.io:22225
+    let proxyOptions = { host: 'zproxy.lum-superproxy.io', port: '22225', proxyAuth: 'brd-customer-hl_24281209-zone-data_center:2k69suo8as7l' };
+    let agent = helper.initAgent(proxyOptions);
+    // console.log(agent);
+    let start = new Date().getTime();
+
+
+
+
+    
+    axios.get('https://api.ipify.org',{httpsAgent: agent}).then(res=> {
+        console.log('res.data');
+        console.log(res.data);
+        let end = new Date().getTime();
+        console.log(`Time request ${end- start} ms`);
+    })
     return new Promise((resolve, reject) => {
         axios
             .get("https://buy.fineproxy.org/api/getproxy/?format=txt&type=http_ip&login=mix117PNQ8EL6&password=f69VJ3OM")
