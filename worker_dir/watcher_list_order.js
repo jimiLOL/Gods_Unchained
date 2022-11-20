@@ -184,7 +184,7 @@ function start(port, name) {
                                     // инициализируем воркер на покупку
 
                                 }
-                                if (item.buy.type == 'ERC20' && db_price.hasOwnProperty('GODS') && db_price.GODS?.count > 20 && priceGODS > 0.3 && priceGODS < 40 && minPriceActiveGods && my_items_len < 14) {
+                                if (item.buy.type == 'ERC20' && item.buy.data.token_address == '0xccc8cb5229b0ac8069c51fd58367fd1e622afd97' && db_price.hasOwnProperty('GODS') && db_price.GODS?.count > 20 && priceGODS > 0.3 && priceGODS < 40 && minPriceActiveGods && my_items_len < 14) {
 
 
 
