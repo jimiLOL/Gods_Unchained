@@ -148,6 +148,7 @@ function start(port, name) {
 
                                     const minSpread = (minPriceActiveGods / priceEth - 1) * 100;
                                     const averageSpread = (averagePriceGods / priceEth - 1) * 100;
+                                    console.log(minSpread, averageSpread);
 
 
                                     let rpc = {
