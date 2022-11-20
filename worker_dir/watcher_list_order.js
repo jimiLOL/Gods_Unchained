@@ -88,7 +88,11 @@ function start(port, name) {
                 let proxyOptions = { host: 'zproxy.lum-superproxy.io', port: '22225', proxyAuth: 'brd-customer-hl_24281209-zone-data_center-country-us:2k69suo8as7l' };
                 let agent = helper.initAgent(proxyOptions);
 
+                let startT = new Date().getTime();
+
                 apiImmutable.get_list_order(agent).then((res) => {
+                    let endT = new Date().getTime();
+                    console.log(`Response time ${endT-startT}`);
 
                     if (Array.isArray(res.data.result)) {
                         //   const filterArray = [];
