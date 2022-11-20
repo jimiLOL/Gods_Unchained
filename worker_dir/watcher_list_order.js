@@ -166,7 +166,7 @@ function start(port, name) {
                                         port.postMessage(rpc)
                                         // мисклк
                                         // minPriceActiveGods > priceEth -- эта доп проверка гарантировала, что мы покупаем лот по самой низкой цене
-                                    } else if (priceItem * 1.09 <= myBalanceETH && averageSpread >= 5) {
+                                    } else if (priceItem * 1.09 <= myBalanceETH && averageSpread >= 9) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
