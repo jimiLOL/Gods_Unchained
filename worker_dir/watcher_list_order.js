@@ -160,20 +160,20 @@ function start(port, name) {
                                         event_type: '',
                                         type: 'ETH'
                                     };
-                                    if (priceItem * 1.09 <= myBalanceETH && minSpread >= 3) {
+                                    if (priceItem * 1.09 <= myBalanceETH && minSpread >= 7) {
                                         rpc.event_type = 'ms click';
 
                                         port.postMessage(rpc)
                                         // мисклк
                                         // minPriceActiveGods > priceEth -- эта доп проверка гарантировала, что мы покупаем лот по самой низкой цене
-                                    } else if (priceItem * 1.09 <= myBalanceETH && averageSpread >= 9) {
+                                    } else if (priceItem * 1.09 <= myBalanceETH && averageSpread >= 14) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
 
 
 
-                                    } else if (priceItem * 1.09 <= myBalanceETH && priceEth*1.1 < min_activePriceEth) {
+                                    } else if (priceItem * 1.09 <= myBalanceETH && priceEth*1.2 < min_activePriceEth) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
@@ -207,7 +207,7 @@ function start(port, name) {
 
                                         port.postMessage(rpc)
                                         // мисклк
-                                    } else if (priceItem * 1.09 <= myBalanceGODS && priceGODS*1.1 < averagePriceGods) {
+                                    } else if (priceItem * 1.09 <= myBalanceGODS && priceGODS*1.2 < averagePriceGods) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
