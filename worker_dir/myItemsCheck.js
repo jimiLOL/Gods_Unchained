@@ -81,7 +81,7 @@ function start() {
                         let priceBuy = itemData.price_buy*db_price.ETH['ETH-USD'];
 
                     
-                            let sellPrice = minActive > priceBuy ? itemData.db_price.GODS.min_active * 1.2 : priceBuy*1.2; // приближаем цены к минимальным ставкам здесь можно улчшить формулу используя данные об активных оредрах
+                            let sellPrice = minActive > priceBuy ? itemData.db_price.GODS.min_active * 1.2 : itemData.db_price.GODS.average; // приближаем цены к минимальным ставкам здесь можно улчшить формулу используя данные об активных оредрах
 
                             // let newPrice = utils.formatUnits(String(sellPrice), '18');
     
