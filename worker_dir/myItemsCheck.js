@@ -41,8 +41,10 @@ function start() {
             });
         });
 
+        let index = 0;
 
-        keys_db.forEach(async (ele, index) => {
+
+        keys_db.forEach(async (ele) => {
             let price = await clientRedis.lrange(ele, 0, 700);
             console.log(ele + ' - ' + price.length);
 
@@ -64,8 +66,10 @@ function start() {
             }); // удаляем дубли из базы
             // console.log(ele);
             price = await clientRedis.lrange(ele, 0, -1);
+            index++
             //    console.log(price);
-            price.forEach((element, i) => {
+            let i = 0;
+            price.forEach((element) => {
                 let itemData = JSON.parse(element);
                 // console.log(itemData);
 
@@ -78,52 +82,55 @@ function start() {
                         itemData.init_order = true;
                         // let item = JSON.parse(average_price);
                         let minActive = itemData.db_price.GODS.min_active * 1.2 * itemData.db_price.GODS['GODS-USD'];
-                        let priceBuy = itemData.price_buy*itemData.db_price.ETH['ETH-USD'];
-
-                    
-                            let sellPrice = minActive > priceBuy ? itemData.db_price.GODS.min_active * 1.2 : itemData.db_price.GODS.average; // приближаем цены к минимальным ставкам здесь можно улчшить формулу используя данные об активных оредрах
-
-                            // let newPrice = utils.formatUnits(String(sellPrice), '18');
-    
-                            const result = await init_Order({ tokenId: itemData.token_id, price: Number(sellPrice).toFixed(8), workerType: 'myItemsCheck' }).then(async res => {
-                                await clientRedis.lrem(ele, 1, element);
-    
-                                await clientRedis.lpush(ele, JSON.stringify(itemData));
-    
-                                // const price = await clientRedis.lrange(ele, 0, -1);
-    
-                                // let filter = price.filter(x => {
-                                //     let y = JSON.parse(x);
-                                //     if (y.token_id == itemData.token_id) {
-                                //         return x
-                                //     }
-                                // });
-                                // if (filter.length == 0) {
-                                // } else {
-                                //     await clientRedis.lrem(ele, filter.length, element);
-                                //     // удаляем все вхождения 
-                                //     await clientRedis.lpush(ele, JSON.stringify(itemData));
-    
-    
-                                // }
-    
-                                return res
-    
-                            });
-                            console.log(result);
-
-                       
-
-                       
+                        let priceBuy = itemData.price_buy * itemData.db_price.ETH['ETH-USD'];
 
 
-                        if (index == price.length - 1 && i == price.length - 1) {
+                        let sellPrice = minActive > priceBuy ? itemData.db_price.GODS.min_active * 1.2 : itemData.db_price.GODS.average; // приближаем цены к минимальным ставкам здесь можно улчшить формулу используя данные об активных оредрах
+
+                        // let newPrice = utils.formatUnits(String(sellPrice), '18');
+
+                        const result = await init_Order({ tokenId: itemData.token_id, price: Number(sellPrice).toFixed(8), workerType: 'myItemsCheck' }).then(async res => {
+                            await clientRedis.lrem(ele, 1, element);
+
+                            await clientRedis.lpush(ele, JSON.stringify(itemData));
+                            i++
+
+                            // const price = await clientRedis.lrange(ele, 0, -1);
+
+                            // let filter = price.filter(x => {
+                            //     let y = JSON.parse(x);
+                            //     if (y.token_id == itemData.token_id) {
+                            //         return x
+                            //     }
+                            // });
+                            // if (filter.length == 0) {
+                            // } else {
+                            //     await clientRedis.lrem(ele, filter.length, element);
+                            //     // удаляем все вхождения 
+                            //     await clientRedis.lpush(ele, JSON.stringify(itemData));
+
+
+                            // }
+
+                            return res
+
+                        });
+                        console.log(result);
+                        console.log(index, price.length,i, price.length);
+                        console.log(index == price.length - 1 && i == price.length - 1);
+
+
+
+
+
+
+                        if (index == keys_db.length && i == price.length) {
                             resolve()
                         }
                     }, 1000 * i + 1);
 
                 } else {
-                    if (index == price.length - 1) {
+                    if (index == keys_db.length) {
                         resolve()
                     }
                 }
