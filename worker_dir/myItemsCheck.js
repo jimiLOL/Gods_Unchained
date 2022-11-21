@@ -78,7 +78,7 @@ function start() {
                         itemData.init_order = true;
                         // let item = JSON.parse(average_price);
                         let minActive = itemData.db_price.GODS.min_active * 1.2 * itemData.db_price.GODS['GODS-USD'];
-                        let priceBuy = itemData.price_buy*db_price.ETH['ETH-USD'];
+                        let priceBuy = itemData.price_buy*itemData.db_price.ETH['ETH-USD'];
 
                     
                             let sellPrice = minActive > priceBuy ? itemData.db_price.GODS.min_active * 1.2 : itemData.db_price.GODS.average; // приближаем цены к минимальным ставкам здесь можно улчшить формулу используя данные об активных оредрах
