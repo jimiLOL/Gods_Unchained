@@ -70,7 +70,7 @@ function start() {
                 // console.log(itemData);
 
                 // itemData.date < new Date().getTime() - 25 * 60 * 60 * 1000
-                if (!itemData.init_order && itemData.date) {
+                if (!itemData.init_order) {
                     setTimeout(async () => {
                         // const average_price = await clientRedis.get(`average_price_${itemData.item_name.replace(' ', '_')}`);
 
