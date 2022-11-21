@@ -129,8 +129,8 @@ function start(port, name) {
                                 const minPriceGods = db_price?.GODS?.min * objectPrice['gods-unchained'].usd;
                                 const averagePriceGods = db_price?.GODS?.average * objectPrice['gods-unchained'].usd;
                                 const minPriceActiveGods = db_price?.GODS?.min_active * objectPrice['gods-unchained'].usd;
-                                   const averagePriceEth = db_price?.ETH?.average*objectPrice['ethereum'].usd;
-                                   const min_activePriceEth = db_price?.ETH?.min_active*objectPrice['ethereum'].usd;
+                                const averagePriceEth = db_price?.ETH?.average * objectPrice['ethereum'].usd;
+                                const min_activePriceEth = db_price?.ETH?.min_active * objectPrice['ethereum'].usd;
 
                                 let priceItem = BigNumber.from(item.buy.data.quantity);
                                 priceItem = utils.formatUnits(priceItem, '18');
@@ -173,7 +173,7 @@ function start(port, name) {
 
 
 
-                                    } else if (priceItem * 1.09 <= myBalanceETH && priceEth*1.2 < min_activePriceEth) {
+                                    } else if (priceItem * 1.09 <= myBalanceETH && priceEth * 1.2 < min_activePriceEth) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
@@ -202,12 +202,12 @@ function start(port, name) {
                                         event_type: '',
                                         type: 'GODS'
                                     };
-                                    if (priceItem * 1.09 <= myBalanceGODS && priceGODS*1.07 < minPriceActiveGods) {
+                                    if (priceItem * 1.09 <= myBalanceGODS && priceGODS * 1.07 < minPriceActiveGods) {
                                         rpc.event_type = 'ms click';
 
                                         port.postMessage(rpc)
                                         // мисклк
-                                    } else if (priceItem * 1.09 <= myBalanceGODS && priceGODS*1.2 < averagePriceGods) {
+                                    } else if (priceItem * 1.09 <= myBalanceGODS && priceGODS * 1.2 < averagePriceGods) {
                                         rpc.event_type = 'average click';
                                         port.postMessage(rpc)
 
@@ -338,10 +338,7 @@ function start(port, name) {
                                         }
 
                                     });
-                                    if (newArray.length > 10) {
-                                        console.log('Отфильтровали ' + newArray.length);
 
-                                    }
                                     // console.log(priceItem, gods_var, gods);
 
 

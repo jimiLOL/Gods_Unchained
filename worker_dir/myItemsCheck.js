@@ -77,9 +77,11 @@ function start() {
                         // await clientRedis.lrem(ele, 1, itemData.token_id);
                         itemData.init_order = true;
                         // let item = JSON.parse(average_price);
+                        let minActive = itemData.db_price.GODS.min_active * 1.2 * itemData.db_price.GODS['GODS-USD'];
+                        let priceBuy = itemData.price_buy*db_price.ETH['ETH-USD'];
 
                     
-                            let sellPrice = itemData.db_price.GODS.min_active * 1.2; // приближаем цены к минимальным ставкам здесь можно улчшить формулу используя данные об активных оредрах
+                            let sellPrice = minActive > priceBuy ? itemData.db_price.GODS.min_active * 1.2 : priceBuy*1.2; // приближаем цены к минимальным ставкам здесь можно улчшить формулу используя данные об активных оредрах
 
                             // let newPrice = utils.formatUnits(String(sellPrice), '18');
     
