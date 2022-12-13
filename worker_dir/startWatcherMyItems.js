@@ -5,7 +5,8 @@ const helper = require('../helper');
 
 
 const Redis = require("ioredis");
-const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
+require("dotenv/config");
+const clientRedis = new Redis(process.env.REDIS);
 
 
 function get_Items_My_Wallet_and_start_watcher_workers() {

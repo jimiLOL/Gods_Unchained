@@ -2,7 +2,8 @@
 
 const { init_Order } = require('../controller/createOrder');
 const Redis = require("ioredis");
-const clientRedis = new Redis("redis://:kfKtB1t2li8s6XgoGdAmQrFAV8SzsvdiTBvJcFYlL1yOR78IP@85.10.192.24:6379");
+require("dotenv/config");
+const clientRedis = new Redis(process.env.REDIS);
 const { utils } = require("ethers");
 const fs = require('fs');
 
@@ -115,10 +116,7 @@ function start() {
                             return res
 
                         });
-                        console.log(result);
-                        console.log(index, price.length,i, price.length);
-                        console.log(index == price.length - 1 && i == price.length - 1);
-
+                  
 
 
 
