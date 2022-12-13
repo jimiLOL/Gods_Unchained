@@ -1,14 +1,14 @@
 {
   "name": "gods_unchained",
   "version": "1.8.0",
-  "main": "server_gu.js",
+  "main": "server_gu_trade.js",
   "repository": "https://github.com/jimiLOL/Gods_Unchained.git",
   "author": "Abraham",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "server_gu": "nodemon server_gu",
-    "start": "node --max-old-space-size=32192 --experimental-modules server_gu.js"
+    "server_gu_trade": "nodemon server_gu_trade",
+    "start": "node --max-old-space-size=32192 --experimental-modules server_gu_trade.js"
   },
   "dependencies": {
     "@ethersproject/providers": "^5.7.1",
